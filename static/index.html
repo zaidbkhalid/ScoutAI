@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trend Intelligence Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2eb;
+    --ink: #1a1814;
+    --muted: #8a8578;
+    --border: #d8d3c8;
+    --accent: #c8402a;
+    --accent2: #2a6bc8;
+    --surface: #ffffff;
+    --surface2: #ede9e0;
+    --r: 4px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Cabinet Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .logo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* ── Main layout ── */
+  .main {
+    max-width: 780px; margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* ── Hero ── */
+  .hero { margin-bottom: 56px; }
+  .hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em;
+    color: var(--accent); text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 900; line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic; font-weight: 400;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 17px; color: var(--muted);
+    max-width: 520px; line-height: 1.65;
+  }
+
+  /* ── Step indicator ── */
+  .steps-bar {
+    display: flex; gap: 6px; margin-bottom: 40px;
+    align-items: center;
+  }
+  .step-dot {
+    height: 3px; border-radius: 2px;
+    background: var(--border);
+    transition: all 0.3s ease; flex: 1;
+  }
+  .step-dot.active { background: var(--accent); }
+  .step-dot.done   { background: var(--ink); }
+  .step-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    margin-left: 8px; white-space: nowrap;
+  }
+
+  /* ── Form steps ── */
+  .step { display: none; animation: fadeUp 0.35s ease; }
+  .step.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .step-header { margin-bottom: 32px; }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .step-title {
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -0.02em; margin-bottom: 8px;
+  }
+  .step-desc { font-size: 15px; color: var(--muted); }
+
+  /* ── Fields ── */
+  .field { margin-bottom: 24px; }
+  .field label {
+    display: block;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 8px;
+  }
+  .field label span { color: var(--muted); font-weight: 400; }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r);
+    padding: 13px 16px;
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 15px; color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    resize: vertical;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(26,24,20,0.06);
+  }
+  .field textarea { min-height: 110px; line-height: 1.6; }
+
+  .field-hint {
+    font-size: 12px; color: var(--muted);
+    margin-top: 6px; line-height: 1.5;
+  }
+
+  /* ── Two column fields ── */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:560px) { .field-row { grid-template-columns: 1fr; } }
+
+  /* ── Chip selector ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 7px 14px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; user-select: none;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip.selected {
+    background: var(--ink); color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  /* ── Navigation buttons ── */
+  .nav-row {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 40px;
+    padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 28px; border-radius: var(--r);
+    font-family: 'Cabinet Grotesk', sans-serif;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    border: none; outline: none;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--bg);
+  }
+  .btn-primary:hover { background: #333; transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-accent {
+    background: var(--accent); color: white;
+    font-size: 16px; padding: 15px 36px;
+  }
+  .btn-accent:hover { background: #a8341f; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  .btn svg { width: 16px; height: 16px; }
+
+  /* ── Geo / keyword config ── */
+  .config-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  .config-box-title {
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .config-box-title span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* ── Processing screen ── */
+  #screen-processing { display: none; }
+  .processing-wrap {
+    text-align: center; padding: 80px 20px;
+  }
+  .processing-icon {
+    width: 64px; height: 64px; margin: 0 auto 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .processing-title {
+    font-size: 24px; font-weight: 800;
+    letter-spacing: -0.02em; margin-bottom: 10px;
+  }
+  .processing-sub { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
+  .log-box {
+    background: var(--ink); color: #a8e6a0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.8;
+    padding: 20px 24px; border-radius: var(--r);
+    text-align: left; max-height: 240px;
+    overflow-y: auto; white-space: pre-wrap;
+  }
+
+  /* ── Done screen ── */
+  #screen-done { display: none; }
+  .done-wrap { text-align: center; padding: 80px 20px; }
+  .done-icon {
+    font-size: 56px; margin-bottom: 24px;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+  .done-title {
+    font-size: 32px; font-weight: 900;
+    letter-spacing: -0.03em; margin-bottom: 10px;
+  }
+  .done-sub { color: var(--muted); font-size: 16px; margin-bottom: 36px; }
+  .done-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+  /* ── Error ── */
+  .error-msg {
+    background: #fff0ee; border: 1px solid #f8c8c0;
+    color: var(--accent); border-radius: var(--r);
+    padding: 12px 16px; font-size: 13px;
+    margin-top: 12px; display: none;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Trend Intelligence
+  </div>
+  <div class="header-tag">BETA · v1.0</div>
+</header>
+
+<main class="main">
+
+  <!-- ══ FORM SCREEN ══ -->
+  <div id="screen-form">
+
+    <div class="hero">
+      <div class="hero-label">AI-Powered Marketing Intelligence</div>
+      <h1>Know <em>exactly</em> what's trending — and how to use it.</h1>
+      <p>Tell us about your business. We'll scan what Pakistan is searching for right now and generate specific marketing ideas for you.</p>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="steps-bar">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div>
+      <div class="step-label" id="step-label">Step 1 of 4</div>
+    </div>
+
+    <form id="biz-form">
+
+      <!-- ── Step 1: Basics ── -->
+      <div class="step active" id="step-1">
+        <div class="step-header">
+          <div class="step-num">01 / 04</div>
+          <div class="step-title">The Basics</div>
+          <div class="step-desc">Start with who you are and what you sell.</div>
+        </div>
+
+        <div class="field">
+          <label>Business Name <span>(required)</span></label>
+          <input type="text" id="business_name" placeholder="e.g. Velvet Crumbs" required>
+        </div>
+
+        <div class="field">
+          <label>Tagline <span>(optional)</span></label>
+          <input type="text" id="tagline" placeholder="e.g. Crafted with precision. Baked with heart.">
+        </div>
+
+        <div class="field">
+          <label>What does your business do? <span>(required)</span></label>
+          <textarea id="about" placeholder="Describe your business in a few sentences. What do you sell? When did you start? What's your story?" required></textarea>
+        </div>
+
+        <div class="field">
+          <label>Products or Services <span>(required)</span></label>
+          <textarea id="products" placeholder="List your main products or services. e.g.&#10;- Custom celebration cakes&#10;- Bento cakes&#10;- Cupcake boxes" required></textarea>
+        </div>
+
+        <div class="nav-row">
+          <div></div>
+          <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+            Next
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Audience & Tone ── -->
+      <div class="step" id="step-2">
+        <div class="step-header">
+          <div class="step-num">02 / 04</div>
+          <div class="step-title">Your Audience & Voice</div>
+          <div class="step-desc">Who buys from you, and how do you speak to them?</div>
+        </div>
+
+        <div class="field">
+          <label>Who is your target audience?</label>
+          <textarea id="target_audience" placeholder="e.g. Women aged 18–35 in Karachi, mostly buying for birthdays, gifting, or personal indulgence. Active on Instagram."></textarea>
+        </div>
+
+        <div class="field">
+          <label>What makes you different?</label>
+          <textarea id="usp" placeholder="e.g. Premium ingredients, balanced sweetness (not overly sugary), fast turnaround, custom designs."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Brand Tone <span>(select all that apply)</span></label>
+          <div class="chips" id="tone-chips">
+            <div class="chip" data-val="warm">Warm</div>
+            <div class="chip" data-val="professional">Professional</div>
+            <div class="chip" data-val="playful">Playful</div>
+            <div class="chip" data-val="witty">Witty</div>
+            <div class="chip" data-val="inspirational">Inspirational</div>
+            <div class="chip" data-val="bold">Bold</div>
+            <div class="chip" data-val="aesthetic">Aesthetic</div>
+            <div class="chip" data-val="luxury">Luxury</div>
+            <div class="chip" data-val="edgy">Edgy</div>
+            <div class="chip" data-val="casual">Casual</div>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn btn-ghost" onclick="prevStep(2)">← Back</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+            Next
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Location & Channels ── -->
+      <div class="step" id="step-3">
+        <div class="step-header">
+          <div class="step-num">03 / 04</div>
+          <div class="step-title">Where You Operate</div>
+          <div class="step-desc">Location and marketing channels help us find locally relevant trends.</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>City / Location</label>
+            <input type="text" id="location" placeholder="e.g. Karachi, Pakistan">
+          </div>
+          <div class="field">
+            <label>Business Stage</label>
+            <select id="stage">
+              <option value="">Select...</option>
+              <option value="idea">Idea stage</option>
+              <option value="early-stage">Early stage (0–1 yr)</option>
+              <option value="growth">Growth (1–3 yrs)</option>
+              <option value="established">Established (3+ yrs)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Marketing Channels <span>(select all that apply)</span></label>
+          <div class="chips" id="channel-chips">
+            <div class="chip" data-val="Instagram">Instagram</div>
+            <div class="chip" data-val="WhatsApp">WhatsApp</div>
+            <div class="chip" data-val="TikTok">TikTok</div>
+            <div class="chip" data-val="Facebook">Facebook</div>
+            <div class="chip" data-val="Twitter/X">Twitter/X</div>
+            <div class="chip" data-val="Email">Email</div>
+            <div class="chip" data-val="Website">Website</div>
+            <div class="chip" data-val="Word of mouth">Word of mouth</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Anything else we should know? <span>(optional)</span></label>
+          <textarea id="extra" placeholder="e.g. We only take orders 2–3 days in advance. We're currently focusing on growing our Instagram. We do free tasting boxes for influencers."></textarea>
+          <div class="field-hint">Competitors, pricing range, seasonal notes — anything relevant.</div>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn btn-ghost" onclick="prevStep(3)">← Back</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+            Next
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Trend Config ── -->
+      <div class="step" id="step-4">
+        <div class="step-header">
+          <div class="step-num">04 / 04</div>
+          <div class="step-title">Trend Settings</div>
+          <div class="step-desc">Configure how we scan Google Trends for you.</div>
+        </div>
+
+        <div class="config-box">
+          <div class="config-box-title">
+            📍 Country
+            <span>Which country's trends to monitor</span>
+          </div>
+          <div class="chips" id="geo-chips">
+            <div class="chip selected" data-val="PK">🇵🇰 Pakistan</div>
+            <div class="chip" data-val="US">🇺🇸 United States</div>
+            <div class="chip" data-val="IN">🇮🇳 India</div>
+            <div class="chip" data-val="GB">🇬🇧 United Kingdom</div>
+            <div class="chip" data-val="AE">🇦🇪 UAE</div>
+            <div class="chip" data-val="">🌍 Worldwide</div>
+          </div>
+        </div>
+
+        <div class="config-box">
+          <div class="config-box-title">
+            🔍 Trend Keywords
+            <span>Topics to pull from Google Trends (max 5, comma-separated)</span>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <input type="text" id="trend_keywords"
+              value="PSL,rain Karachi,Eid,drama Pakistan,celebrity"
+              placeholder="PSL, rain Karachi, Eid, drama Pakistan, celebrity">
+            <div class="field-hint">These are broad topics — NOT your products. The AI will figure out the connection.</div>
+          </div>
+        </div>
+
+        <div id="form-error" class="error-msg"></div>
+
+        <div class="nav-row">
+          <button type="button" class="btn btn-ghost" onclick="prevStep(4)">← Back</button>
+          <button type="submit" class="btn btn-accent" id="submit-btn">
+            🚀 Analyze My Trends
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div><!-- /screen-form -->
+
+  <!-- ══ PROCESSING SCREEN ══ -->
+  <div id="screen-processing">
+    <div class="processing-wrap">
+      <div class="processing-icon"></div>
+      <div class="processing-title">Analyzing your trends...</div>
+      <div class="processing-sub" id="processing-step">Fetching what Pakistan is searching for right now</div>
+      <div class="log-box" id="log-box">Starting pipeline...<br></div>
+    </div>
+  </div>
+
+  <!-- ══ DONE SCREEN ══ -->
+  <div id="screen-done">
+    <div class="done-wrap">
+      <div class="done-icon">🎉</div>
+      <div class="done-title">Your report is ready.</div>
+      <div class="done-sub">We found trending topics and mapped them to specific marketing ideas for your business.</div>
+      <div class="done-actions">
+        <a id="view-report-btn" href="#" target="_blank" class="btn btn-accent">
+          📊 View Full Report
+        </a>
+        <button class="btn btn-ghost" onclick="startOver()">
+          ↩ Analyze Another Business
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── Step management ──────────────────────────────────────
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  function updateProgress() {
+    for (let i = 1; i <= totalSteps; i++) {
+      const dot = document.getElementById(`dot-${i}`);
+      if (i < currentStep)       dot.className = "step-dot done";
+      else if (i === currentStep) dot.className = "step-dot active";
+      else                        dot.className = "step-dot";
+    }
+    document.getElementById("step-label").textContent = `Step ${currentStep} of ${totalSteps}`;
+  }
+
+  function nextStep(from) {
+    // Validate required fields on step 1
+    if (from === 1) {
+      const name  = document.getElementById("business_name").value.trim();
+      const about = document.getElementById("about").value.trim();
+      const prods = document.getElementById("products").value.trim();
+      if (!name || !about || !prods) {
+        alert("Please fill in Business Name, About, and Products before continuing.");
+        return;
+      }
+    }
+    document.getElementById(`step-${from}`).classList.remove("active");
+    currentStep = from + 1;
+    document.getElementById(`step-${currentStep}`).classList.add("active");
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function prevStep(from) {
+    document.getElementById(`step-${from}`).classList.remove("active");
+    currentStep = from - 1;
+    document.getElementById(`step-${currentStep}`).classList.add("active");
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ── Chip selectors ────────────────────────────────────────
+  function initChips(containerId, multiSelect = true) {
+    const chips = document.querySelectorAll(`#${containerId} .chip`);
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        if (!multiSelect) {
+          chips.forEach(c => c.classList.remove("selected"));
+          chip.classList.add("selected");
+        } else {
+          chip.classList.toggle("selected");
+        }
+      });
+    });
+  }
+
+  function getSelectedChips(containerId) {
+    return [...document.querySelectorAll(`#${containerId} .chip.selected`)]
+      .map(c => c.dataset.val);
+  }
+
+  initChips("tone-chips", true);
+  initChips("channel-chips", true);
+  initChips("geo-chips", false);
+
+  // ── Form submit ───────────────────────────────────────────
+  document.getElementById("biz-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const geo = getSelectedChips("geo-chips")[0] || "PK";
+    const data = {
+      business_name  : document.getElementById("business_name").value.trim(),
+      tagline        : document.getElementById("tagline").value.trim(),
+      about          : document.getElementById("about").value.trim(),
+      products       : document.getElementById("products").value.trim(),
+      target_audience: document.getElementById("target_audience").value.trim(),
+      usp            : document.getElementById("usp").value.trim(),
+      brand_tone     : getSelectedChips("tone-chips"),
+      location       : document.getElementById("location").value.trim(),
+      stage          : document.getElementById("stage").value,
+      marketing_channels: getSelectedChips("channel-chips"),
+      extra          : document.getElementById("extra").value.trim(),
+      geo            : geo,
+      trend_keywords : document.getElementById("trend_keywords").value.trim(),
+    };
+
+    const errEl = document.getElementById("form-error");
+    errEl.style.display = "none";
+
+    document.getElementById("submit-btn").disabled = true;
+    document.getElementById("submit-btn").textContent = "Submitting...";
+
+    try {
+      const resp = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const result = await resp.json();
+
+      if (result.error) {
+        errEl.textContent = result.error;
+        errEl.style.display = "block";
+        document.getElementById("submit-btn").disabled = false;
+        document.getElementById("submit-btn").textContent = "🚀 Analyze My Trends";
+        return;
+      }
+
+      // Switch to processing screen
+      document.getElementById("screen-form").style.display = "none";
+      document.getElementById("screen-processing").style.display = "block";
+      pollStatus(result.job_id);
+
+    } catch (err) {
+      errEl.textContent = "Network error. Is the server running?";
+      errEl.style.display = "block";
+      document.getElementById("submit-btn").disabled = false;
+      document.getElementById("submit-btn").textContent = "🚀 Analyze My Trends";
+    }
+  });
+
+  // ── Polling ───────────────────────────────────────────────
+  const stepMessages = [
+    "Fetching what Pakistan is searching for right now...",
+    "Parsing your business profile...",
+    "Mapping trends to your business...",
+    "Generating content ideas...",
+    "Building your report...",
+    "Almost there...",
+  ];
+  let stepIdx = 0;
+
+  async function pollStatus(jobId) {
+    const stepEl = document.getElementById("processing-step");
+    const logEl  = document.getElementById("log-box");
+
+    const interval = setInterval(async () => {
+      try {
+        const resp = await fetch(`/api/status/${jobId}`);
+        const job  = await resp.json();
+
+        logEl.textContent = job.log || "";
+        logEl.scrollTop   = logEl.scrollHeight;
+
+        // Rotate step messages
+        stepIdx = (stepIdx + 1) % stepMessages.length;
+        stepEl.textContent = stepMessages[stepIdx];
+
+        if (job.status === "done") {
+          clearInterval(interval);
+          document.getElementById("screen-processing").style.display = "none";
+          document.getElementById("screen-done").style.display = "block";
+          document.getElementById("view-report-btn").href = `/api/report/${jobId}`;
+        } else if (job.status === "error") {
+          clearInterval(interval);
+          stepEl.textContent = "Something went wrong. Check the log above.";
+        }
+      } catch (err) {
+        clearInterval(interval);
+        stepEl.textContent = "Lost connection to server.";
+      }
+    }, 2000);
+  }
+
+  // ── Start over ────────────────────────────────────────────
+  function startOver() {
+    location.reload();
+  }
+</script>
+</body>
+</html>

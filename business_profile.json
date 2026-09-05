@@ -1,0 +1,49 @@
+{
+  "business_name": "FirePit BBQ Co.",
+  "industry": "Food and Beverage",
+  "sub_industry": "Barbecue Restaurant",
+  "products_or_services": [
+    "BBQ platters (mixed grill, family platters)",
+    "Chicken tikka and malai boti",
+    "Beef seekh kebab",
+    "Chicken seekh kebab",
+    "Beef bihari boti",
+    "BBQ wraps and rolls",
+    "BBQ burgers",
+    "Naan / paratha pairings",
+    "Sauces and chutneys",
+    "Family meal combos"
+  ],
+  "target_audience": {
+    "demographics": "Young adults, families, and working professionals aged 18–45 in Pakistan",
+    "psychographics": "Enjoy flavorful grilled food, active on Instagram and food delivery apps, look for filling meals with strong flavors and good value",
+    "pain_points": [
+      "Desire for authentic barbecue experiences",
+      "Need for consistent quality and generous portions",
+      "Looking for social dining options"
+    ]
+  },
+  "brand_tone": [
+    "warm",
+    "professional",
+    "playful",
+    "bold"
+  ],
+  "competitors_or_market": "Local barbecue restaurants and food delivery services in Pakistan",
+  "marketing_channels": [
+    "Instagram",
+    "WhatsApp",
+    "TikTok",
+    "Facebook",
+    "Twitter/X",
+    "Email",
+    "Website",
+    "Word of mouth"
+  ],
+  "unique_value_proposition": "Authentic charcoal grilling with bold marinades, fresh preparation, generous portions, and a focus on strong smoky flavor and consistent quality.",
+  "business_stage": "early-stage",
+  "geographic_focus": "local",
+  "additional_context": "FirePit BBQ Co. emphasizes shareable platters and combo meals for groups, aiming to build a loyal customer base through consistent flavor, good portions, and reliable delivery service.",
+  "_source_file": "/home/zaid/Agent_For_Trend_Scouting_and_Marketing/business_20260402_205355.txt",
+  "_parsed_at": "2026-04-02T20:54:00.425989"
+}

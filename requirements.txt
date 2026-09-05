@@ -1,0 +1,39 @@
+# ================================================
+# requirements.txt -- Agent For Trend Scouting and Marketing
+# ================================================
+
+# -- Core pipeline (required) --
+# These are imported by the active pipeline modules:
+#   app.py, run.py, google_trends.py, google_trending_now.py,
+#   youtube_trending.py, rss_trends.py, tiktok_creative_center.py,
+#   analyze_trends.py, parse_business.py, generate_report.py,
+#   trend_scoring.py, snapshot_schema.py
+
+flask>=3.0
+pytrends>=4.9
+python-dotenv>=1.0
+requests>=2.30
+feedparser>=6.0        # RSS feed parsing (rss_trends.py)
+
+# -- Optional: TikTok Creative Center scraping --
+# playwright is used by tiktok_creative_center.py for headless
+# browser scraping. If not installed, the TikTok fetcher falls
+# back to clearly-labeled mock data automatically.
+#
+# Install + setup:
+#   pip install playwright
+#   playwright install chromium
+#
+# playwright>=1.40
+
+# -- Experimental / unused (optional) --
+# These are only imported by unused/trend_scout.py which is
+# disconnected from the main pipeline.
+# Install only if you plan to revive that module:
+#
+# praw>=7.8              # Reddit API
+# tweepy>=4.14           # Twitter/X API v2
+# pandas>=2.0            # DataFrames (used by trend_scout.py)
+# rich>=13.0             # Terminal formatting
+# beautifulsoup4>=4.12   # HTML parsing (Instagram scraping)
+# snscrape>=0.7          # Social media scraping (largely broken since 2023)
