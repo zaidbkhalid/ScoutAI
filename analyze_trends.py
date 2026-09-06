@@ -396,7 +396,22 @@ def main():
         sys.exit(1)
 
     print(f"  Loaded {len(trends)} trend groups -> sending to GPT-4o...\n")
-    result = analyze(business, trends)
+    try:
+        result = analyze(business, trends)
+    except requests.exceptions.HTTPError as e:
+        detail = ""
+        if e.response is not None:
+            try:
+                detail = e.response.json().get("error", {}).get("message", "")
+            except ValueError:
+                detail = e.response.text[:300]
+        print(f"  ERROR: OpenAI API request failed: {e}")
+        if detail:
+            print(f"  Detail: {detail}")
+        sys.exit(1)
+    except (requests.exceptions.RequestException, ValueError) as e:
+        print(f"  ERROR: {e}")
+        sys.exit(1)
 
     # Use relative paths in metadata
     result["_meta"] = {

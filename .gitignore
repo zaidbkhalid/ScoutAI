@@ -33,3 +33,8 @@ trend_scores_*.json
 trend_analysis_*.json
 trend_report_*.html
 business_*.txt
+competitor_snapshots_*.json
+competitor_analysis_*.json
+structured_data_audit_*.json
+ai_visibility_*.json
+ai_legibility_report_*.json

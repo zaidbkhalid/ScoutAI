@@ -12,6 +12,7 @@ Usage:
 """
 
 import json
+import time
 import argparse
 from datetime import datetime, timezone
 from pytrends.request import TrendReq
@@ -21,9 +22,26 @@ from snapshot_schema import make_entity, snapshot_filename, write_snapshot
 DEFAULT_GEO = "PK"
 
 
+def request_with_retry(fn, label, retries=4, base_delay=10.0):
+    for attempt in range(retries):
+        try:
+            return fn()
+        except Exception as e:
+            if "429" in str(e) or "TooManyRequests" in str(e):
+                wait = base_delay * (2 ** attempt)
+                print(f"  Rate limited [{label}]. Waiting {int(wait)}s "
+                      f"(retry {attempt+1}/{retries})...")
+                time.sleep(wait)
+            else:
+                raise
+    raise RuntimeError(f"Failed to fetch [{label}] after {retries} retries.")
+
+
 def fetch_trending_now(geo):
     pytrends = TrendReq(hl="en-US", tz=300)
-    df = pytrends.realtime_trending_searches(pn=geo)
+    df = request_with_retry(
+        lambda: pytrends.realtime_trending_searches(pn=geo),
+        "realtime_trending_searches")
 
     trends = []
     for _, row in df.iterrows():

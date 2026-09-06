@@ -70,8 +70,10 @@ def run_pipeline(job_id, txt_path, geo, keywords):
 
     def run(label, cmd):
         log_step(f"\n▶ {label}")
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
         result = subprocess.run(
-            cmd, capture_output=True, text=True, cwd=str(BASE_DIR)
+            cmd, capture_output=True, text=True, cwd=str(BASE_DIR), env=env
         )
         if result.stdout.strip():
             log_step(result.stdout.strip())

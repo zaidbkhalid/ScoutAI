@@ -4,7 +4,7 @@ AI-powered marketing intelligence for small businesses. Scans what's trending on
 
 ## How It Works
 
-1. **Fetch trends** — pulls keyword interest data and realtime trending searches from Google Trends
+1. **Fetch trends** — pulls keyword interest and realtime trending searches from Google Trends, trending videos from YouTube Data API v3, articles from a set of RSS feeds, and hashtags from TikTok Creative Center (falls back to clearly-labeled mock data if live extraction isn't available). Every source normalizes to one shared schema (`snapshot_schema.py`).
 2. **Score freshness** — computes velocity and age for each trend across historical snapshots, so rising topics score higher than stale ones
 3. **Parse your business** — GPT-4o extracts a structured profile from your free-text business description
 4. **Match & strategize** — GPT-4o maps each trend to your business with specific product ideas, content ideas, captions, and timing
@@ -130,7 +130,8 @@ python trend_scoring.py
 python parse_business.py my_business.txt
 
 # 5. Analyze trends against the business (requires OPENAI_API_KEY)
-python analyze_trends.py --keyword google_trends_*.json --realtime google_trending_now_*.json --scores trend_scores_*.json
+# Auto-discovers snapshot_*.json and the latest trend_scores_*.json if not given
+python analyze_trends.py --business business_profile.json
 
 # 6. Generate HTML report
 python generate_report.py trend_analysis_*.json
@@ -147,22 +148,26 @@ python test_trend_scoring.py
 ## Project Structure
 
 ```
-├── app.py                      # Flask web server and API
-├── run.py                      # CLI pipeline runner
-├── google_trends.py            # Fetch keyword-based Google Trends data
-├── google_trending_now.py      # Fetch realtime trending searches
-├── trend_scoring.py            # Compute freshness/velocity scores
-├── analyze_trends.py           # GPT-4o trend-to-business matching
-├── parse_business.py           # GPT-4o business profile extraction
-├── generate_report.py          # HTML report generator
-├── test_trend_scoring.py       # Scoring module tests
-├── requirements.txt            # Python dependencies
-├── .env                        # API keys (you create this, never committed)
+├── app.py                    # Flask web server and API
+├── run.py                    # CLI pipeline runner
+├── snapshot_schema.py        # Shared normalization schema for all data sources
+├── google_trends.py          # Fetch keyword-based Google Trends data
+├── google_trending_now.py    # Fetch realtime trending searches
+├── youtube_trending.py       # Fetch YouTube trending videos (YouTube Data API v3)
+├── rss_trends.py             # Fetch articles from configured RSS feeds
+├── tiktok_creative_center.py # Fetch TikTok trending hashtags (mock fallback if live extraction fails)
+├── trend_scoring.py          # Compute freshness/velocity scores across snapshots
+├── analyze_trends.py         # GPT-4o trend-to-business matching
+├── parse_business.py         # GPT-4o business profile extraction
+├── generate_report.py        # HTML report generator
+├── test_trend_scoring.py     # Scoring module tests
+├── requirements.txt          # Python dependencies
+├── .env                      # API keys (you create this, never committed)
 ├── static/
-│   └── index.html              # Web UI frontend
-├── snapshots/                  # Historical trend data for freshness scoring
+│   └── index.html            # Web UI frontend
+├── snapshots/                # Historical trend data for freshness scoring
 └── unused/
-    └── trend_scout.py          # Disconnected multi-source scout (Reddit, Twitter, RSS)
+    └── trend_scout.py        # Disconnected multi-source scout (Reddit, Twitter, RSS)
 ```
 
 ## Environment Variables
@@ -170,6 +175,7 @@ python test_trend_scoring.py
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `OPENAI_API_KEY` | Yes | — | OpenAI API key for GPT-4o |
+| `YOUTUBE_API_KEY` | No | — | Free key from Google Cloud Console (YouTube Data API v3) for `youtube_trending.py`. If unset, that step logs an error and is skipped — the rest of the pipeline still runs. |
 | `FLASK_DEBUG` | No | `0` | Set to `1` to enable Flask debug mode |
 
 ## Notes

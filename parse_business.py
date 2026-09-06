@@ -28,6 +28,8 @@ extract a structured profile. Return ONLY valid JSON, no preamble, no markdown f
 The JSON must follow this exact schema:
 {
   "business_name": "string or null",
+  "website": "string URL or null (only if a website is explicitly mentioned in the text)",
+  "location": "string or null (city/region/country the business is based in or serves, if mentioned -- a real place name, not a category)",
   "industry": "string",
   "sub_industry": "string",
   "products_or_services": ["list of strings"],
@@ -45,7 +47,10 @@ The JSON must follow this exact schema:
   "additional_context": "any other relevant info from the text"
 }
 
-Be liberal in inference. If something is not stated, make a reasonable guess based on context and mark it with a note."""
+Be liberal in inference for subjective fields (tone, stage, audience, etc.) -- if something is not
+stated, make a reasonable guess based on context. The exceptions are "website" and "location": these
+are factual fields, so only fill them in if the text actually states them. Never invent a URL or a
+place name -- use null instead of guessing."""
 
 
 def parse_business_txt(filepath: str) -> dict:
@@ -99,7 +104,22 @@ def main():
     filepath = sys.argv[1]
     print(f"Parsing: {filepath}\n")
 
-    profile = parse_business_txt(filepath)
+    try:
+        profile = parse_business_txt(filepath)
+    except requests.exceptions.HTTPError as e:
+        detail = ""
+        if e.response is not None:
+            try:
+                detail = e.response.json().get("error", {}).get("message", "")
+            except ValueError:
+                detail = e.response.text[:300]
+        print(f"ERROR: OpenAI API request failed: {e}")
+        if detail:
+            print(f"   Detail: {detail}")
+        sys.exit(1)
+    except (requests.exceptions.RequestException, ValueError) as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
 
     out_path = "business_profile.json"
     with open(out_path, "w", encoding="utf-8") as f:

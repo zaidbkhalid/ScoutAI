@@ -92,6 +92,38 @@
     max-width: 520px; line-height: 1.65;
   }
 
+  /* ── Preset quick-fill ── */
+  .preset-block { margin-bottom: 40px; }
+  .preset-block-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 12px;
+  }
+  .preset-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  @media(max-width:640px) { .preset-row { grid-template-columns: 1fr; } }
+  .preset-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-card:hover { border-color: var(--ink); transform: translateY(-1px); }
+  .preset-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,64,42,0.1); }
+  .preset-emoji { font-size: 22px; margin-bottom: 6px; }
+  .preset-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .preset-desc { font-size: 12px; color: var(--muted); }
+  .preset-hint { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+  .preset-toast {
+    display: inline-block; margin-top: 8px;
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .preset-toast.show { opacity: 1; }
+
   /* ── Step indicator ── */
   .steps-bar {
     display: flex; gap: 6px; margin-bottom: 40px;
@@ -305,6 +337,32 @@
       <div class="hero-label">AI-Powered Marketing Intelligence</div>
       <h1>Know <em>exactly</em> what's trending — and how to use it.</h1>
       <p>Tell us about your business. We'll scan what Pakistan is searching for right now and generate specific marketing ideas for you.</p>
+    </div>
+
+    <!-- Quick-fill example businesses -->
+    <div class="preset-block">
+      <div class="preset-block-label">Quick fill — synthetic example businesses</div>
+      <div class="preset-row">
+        <div class="preset-card" id="preset-velvet" onclick="applyPreset('velvet')">
+          <div class="preset-emoji">🎂</div>
+          <div class="preset-name">Velvet Crumbs</div>
+          <div class="preset-desc">Home bakery · Karachi, PK</div>
+        </div>
+        <div class="preset-card" id="preset-firepit" onclick="applyPreset('firepit')">
+          <div class="preset-emoji">🔥</div>
+          <div class="preset-name">FirePit BBQ Co.</div>
+          <div class="preset-desc">BBQ restaurant · Lahore, PK</div>
+        </div>
+        <div class="preset-card" id="preset-glowly" onclick="applyPreset('glowly')">
+          <div class="preset-emoji">✨</div>
+          <div class="preset-name">Glowly Skincare</div>
+          <div class="preset-desc">D2C skincare · Dubai, AE</div>
+        </div>
+      </div>
+      <div class="preset-hint">
+        Click one to instantly fill every field below (across all 4 steps) with synthetic example data — then edit anything before submitting. Or just start typing below to enter your own business manually.
+      </div>
+      <div id="preset-toast" class="preset-toast"></div>
     </div>
 
     <!-- Progress bar -->
@@ -531,6 +589,96 @@
 </main>
 
 <script>
+  // ── Preset example businesses ───────────────────────────────
+  const PRESETS = {
+    velvet: {
+      business_name: "Velvet Crumbs",
+      tagline: "Crafted with precision. Baked with heart.",
+      about: "Velvet Crumbs is a premium home-based bakery specializing in custom-designed cakes and artisanal desserts. Founded in 2024 in Karachi, we focus on delivering high-quality, freshly baked products that combine aesthetic design with rich, balanced flavors. Our goal is simple: create cakes that look exceptional and taste even better.",
+      products: "Custom celebration cakes (birthdays, engagements, weddings, corporate events)\nSignature cakes: Chocolate Fudge Overload, Classic Red Velvet, Lotus Biscoff Dream, Belgian Chocolate Truffle\nMini desserts & cupcakes (boxed assortments for gifting)\nBento cakes — minimalist, trendy small cakes for personal celebrations\nAll made fresh to order.",
+      target_audience: "Women aged 18–40 in Karachi (DHA, Clifton, Gulshan, Bahria Town) buying for birthdays, engagements, weddings, and personal indulgence. Active on Instagram, order via WhatsApp.",
+      usp: "Premium ingredients with no compromise on quality, balanced sweetness (not overly sugary like typical market cakes), full custom design flexibility, hygienic small-batch production, and reliable on-time delivery.",
+      brand_tone: ["warm", "aesthetic", "playful"],
+      location: "Karachi, Pakistan",
+      stage: "growth",
+      marketing_channels: ["Instagram", "WhatsApp", "Word of mouth"],
+      extra: "Orders should be placed 2–3 days in advance. 50% advance payment required to confirm. Delivery via rider service (Careem/Bykea) to DHA, Clifton, Gulshan, Bahria Town.",
+      geo: "PK",
+      trend_keywords: "PSL,rain Karachi,Eid,drama Pakistan,celebrity",
+    },
+    firepit: {
+      business_name: "FirePit BBQ Co.",
+      tagline: "Bold flavor. Fired fresh.",
+      about: "FirePit BBQ Co. is a barbecue restaurant serving authentic charcoal-grilled food with bold marinades and generous portions. We focus on consistent quality, strong smoky flavor, and fast turnaround for dine-in, delivery, and group orders.",
+      products: "BBQ platters (mixed grill, family platters)\nChicken tikka and malai boti\nBeef seekh kebab, chicken seekh kebab, beef bihari boti\nBBQ wraps and rolls, BBQ burgers\nNaan / paratha pairings, sauces and chutneys\nFamily meal combos",
+      target_audience: "Young adults, families, and working professionals aged 18–45 in Pakistan who enjoy flavorful grilled food. Active on Instagram and food delivery apps, looking for filling meals with strong flavors and good value.",
+      usp: "Authentic charcoal grilling with bold marinades, fresh preparation, generous portions, and a focus on strong smoky flavor and consistent quality — where many competitors skimp on portion size or consistency.",
+      brand_tone: ["warm", "professional", "playful", "bold"],
+      location: "Lahore, Pakistan",
+      stage: "early-stage",
+      marketing_channels: ["Instagram", "WhatsApp", "TikTok", "Facebook", "Word of mouth"],
+      extra: "Emphasizes shareable platters and combo meals for groups. Competitors are local barbecue restaurants and food delivery services in Pakistan. Aiming to build a loyal customer base through consistent flavor, good portions, and reliable delivery.",
+      geo: "PK",
+      trend_keywords: "PSL,Eid,Ramadan,cricket,drama Pakistan",
+    },
+    glowly: {
+      business_name: "Glowly Skincare",
+      tagline: "Clean ingredients. Visible glow.",
+      about: "Glowly Skincare is a small direct-to-consumer skincare brand based in Dubai, founded in 2025. We formulate simple, effective skincare using clean, dermatologist-reviewed ingredients, focused on hydration and barrier repair for hot, humid climates. We sell directly through our website and Instagram, with regional shipping across the UAE and GCC.",
+      products: "Hydrating Gel Cleanser\nBarrier Repair Moisturizer\nVitamin C Brightening Serum\nSPF 50 Daily Sunscreen\nLip & Cheek Tint (multi-use)\nTravel-size starter kits",
+      target_audience: "Women aged 20–35 in the UAE and wider Gulf region who are ingredient-conscious, active on Instagram and TikTok, and want effective, no-nonsense skincare without the luxury markup.",
+      usp: "Transparent, dermatologist-reviewed formulations at accessible prices, climate-specific products designed for heat and humidity instead of repackaged Western formulas, and fast regional shipping.",
+      brand_tone: ["aesthetic", "luxury", "professional"],
+      location: "Dubai, UAE",
+      stage: "growth",
+      marketing_channels: ["Instagram", "TikTok", "Website", "Email"],
+      extra: "Currently focused on growing TikTok and Instagram Reels content. Ships across UAE, Saudi Arabia, and Qatar. Considering an Eid gifting bundle campaign.",
+      geo: "AE",
+      trend_keywords: "Ramadan beauty,Eid,skincare trends,celebrity,UAE fashion",
+    },
+  };
+
+  function setChips(containerId, values) {
+    const set = new Set(values || []);
+    document.querySelectorAll(`#${containerId} .chip`).forEach(chip => {
+      chip.classList.toggle("selected", set.has(chip.dataset.val));
+    });
+  }
+
+  let presetToastTimer = null;
+  function showPresetToast(msg) {
+    const toast = document.getElementById("preset-toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(presetToastTimer);
+    presetToastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+  }
+
+  function applyPreset(key) {
+    const p = PRESETS[key];
+    if (!p) return;
+
+    document.getElementById("business_name").value  = p.business_name;
+    document.getElementById("tagline").value         = p.tagline;
+    document.getElementById("about").value           = p.about;
+    document.getElementById("products").value        = p.products;
+    document.getElementById("target_audience").value = p.target_audience;
+    document.getElementById("usp").value              = p.usp;
+    document.getElementById("location").value         = p.location;
+    document.getElementById("stage").value            = p.stage;
+    document.getElementById("extra").value            = p.extra;
+    document.getElementById("trend_keywords").value   = p.trend_keywords;
+
+    setChips("tone-chips", p.brand_tone);
+    setChips("channel-chips", p.marketing_channels);
+    setChips("geo-chips", [p.geo]);
+
+    document.querySelectorAll(".preset-card").forEach(c => c.classList.remove("active"));
+    document.getElementById(`preset-${key}`).classList.add("active");
+
+    showPresetToast(`Filled with ${p.business_name} example ✓`);
+  }
+
   // ── Step management ──────────────────────────────────────
   let currentStep = 1;
   const totalSteps = 4;
@@ -685,7 +833,7 @@
           document.getElementById("view-report-btn").href = `/api/report/${jobId}`;
         } else if (job.status === "error") {
           clearInterval(interval);
-          stepEl.textContent = "Something went wrong. Check the log above.";
+          stepEl.textContent = "Something went wrong. Check the log below.";
         }
       } catch (err) {
         clearInterval(interval);

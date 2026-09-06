@@ -27,7 +27,9 @@ def run_step(label, cmd):
     print(f"\n{'-'*50}")
     print(f"  {label}")
     print(f"{'-'*50}")
-    result = subprocess.run(cmd, capture_output=False, text=True)
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
+    result = subprocess.run(cmd, capture_output=False, text=True, env=env)
     if result.returncode != 0:
         print(f"\n  Step failed: {label}")
         return False
