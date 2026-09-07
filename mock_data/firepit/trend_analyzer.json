@@ -1,0 +1,32 @@
+{
+  "business_snapshot": "FirePit BBQ Co. is an early-stage Lahore barbecue restaurant built on generous, consistently good charcoal-grilled platters -- competing against a crowded local BBQ scene mostly by not skimping on portion size or flavor.",
+  "top_for_your_business": [
+    {
+      "trend": "psl",
+      "source": "google_trends",
+      "why_people_care": "PSL match nights mean groups gathering to watch together, and grilled food is the default order for exactly this kind of social, hands-on eating.",
+      "bridge_to_business": "Close to a direct fit rather than a stretch -- BBQ platters are already built for group sharing, the move is packaging it explicitly as match-night food with a same-day ordering window.",
+      "relevance_score": 9,
+      "timing": "act now",
+      "lifecycle": "rising"
+    },
+    {
+      "trend": "ramadan",
+      "source": "rss",
+      "why_people_care": "Ramadan iftars are the highest-frequency group dining occasion of the year -- families and friend groups eating together every single evening for a month.",
+      "bridge_to_business": "A direct, high-volume fit. The opportunity isn't just being open for iftar -- it's a dedicated iftar combo that removes decision-making for a customer ordering food daily.",
+      "relevance_score": 9,
+      "timing": "this week",
+      "lifecycle": "rising"
+    },
+    {
+      "trend": "smash burger trend",
+      "source": "tiktok_creative_center",
+      "why_people_care": "Smash-style burgers have been a sustained food-content format -- people like watching the sear and the crunch.",
+      "bridge_to_business": "A stretch, but a fun one -- FirePit already grills, so a limited-time smashed-seekh-kebab burger is a genuine product, not just a marketing gimmick, and it's inherently video-friendly.",
+      "relevance_score": 6,
+      "timing": "this week",
+      "lifecycle": "peak"
+    }
+  ]
+}

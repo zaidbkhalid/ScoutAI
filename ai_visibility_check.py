@@ -36,6 +36,8 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
+from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+
 load_dotenv()
 
 PERPLEXITY_API = "https://api.perplexity.ai/chat/completions"
@@ -162,6 +164,38 @@ def main():
     print("AI Visibility Check (standalone demo)")
     print("-" * 40)
 
+    if not Path(BUSINESS_PROFILE_PATH).exists():
+        print(f"  {BUSINESS_PROFILE_PATH} not found.")
+        print(f"  Run: python parse_business.py my_business.txt")
+        sys.exit(1)
+    business = load_json(BUSINESS_PROFILE_PATH)
+
+    # -- DEMO_MODE: skip the real Perplexity requirement entirely for the 3
+    # built-in synthetic businesses (no key needed at all), using canned
+    # query results instead. See demo_mode.py. Falls through to the real
+    # flow below (including the API key check) for anything else.
+    if is_demo_mode():
+        preset_key = resolve_preset_key(business.get("business_name", ""))
+        mock = load_mock(preset_key, "ai_visibility.json")
+        if mock:
+            print(f"  [DEMO_MODE] Using canned visibility check for "
+                  f"'{business.get('business_name')}' -- no API call made, "
+                  f"no PERPLEXITY_API_KEY needed.\n")
+            out = dict(mock)
+            out["_meta"] = dict(out.get("_meta", {}))
+            out["_meta"]["generated_at"] = datetime.now(timezone.utc).isoformat()
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            out_path = f"ai_visibility_{ts}.json"
+            Path(out_path).write_text(
+                json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
+            meta = out["_meta"]
+            print(f"  Queries succeeded : {meta.get('succeeded')}/{meta.get('total_queries')}")
+            print(f"  Business mentioned: {meta.get('mentioned_count')}/{meta.get('succeeded') or 1}")
+            print(f"  Saved -> {out_path}")
+            print(f"\n  Next: python ai_legibility_synthesis.py")
+            return
+    # -- end DEMO_MODE --
+
     api_key = os.environ.get("PERPLEXITY_API_KEY", "")
     if not api_key:
         print("  ERROR: PERPLEXITY_API_KEY not set.")
@@ -171,12 +205,6 @@ def main():
         print("  a key, then add to .env:")
         print("    PERPLEXITY_API_KEY=pplx-...")
         sys.exit(1)
-
-    if not Path(BUSINESS_PROFILE_PATH).exists():
-        print(f"  {BUSINESS_PROFILE_PATH} not found.")
-        print(f"  Run: python parse_business.py my_business.txt")
-        sys.exit(1)
-    business = load_json(BUSINESS_PROFILE_PATH)
 
     business_name = business.get("business_name", "")
     location, location_source = resolve_location(business)

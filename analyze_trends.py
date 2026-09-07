@@ -21,6 +21,8 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
+from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+
 load_dotenv()
 
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
@@ -213,6 +215,26 @@ For each trend you analyze:
 Be ruthlessly creative and specific. Never say "consider leveraging this trend."
 Say exactly what to make, what to caption it, what format to post it in.
 
+DISCLOSURE AWARENESS: For each specific product or content idea, consider whether it would
+plausibly need a disclosure if published. This applies mainly to:
+(a) content framed as an endorsement, review, or testimonial-style post
+(b) content that is substantially AI-generated and intended to look organic/human-made
+(c) content tied to any paid partnership, sponsorship, or affiliate relationship
+
+If one of these applies, add a short "disclosure_note" to that specific idea. Ground it only
+in the general, well-established principle behind the FTC's Endorsement Guides: material
+connections should be disclosed clearly and conspicuously, and content should not be
+deceptive about its true nature. Do NOT invent or assert a more specific rule (exact wording,
+placement, a "double disclosure" requirement, or anything else you cannot ground in that
+general principle) -- phrase the note as general guidance, e.g. "This reads as a review-style
+post -- if there's a material connection here, disclose it clearly" rather than citing a
+specific regulation or procedure.
+
+Most ideas won't need this. Only add a disclosure_note when one of (a)/(b)/(c) genuinely
+applies to that specific idea -- leave it null for ordinary product or content ideas with no
+endorsement, sponsorship, or AI-generated-to-look-organic angle. This is general awareness,
+not legal advice, and you are not a substitute for a qualified attorney.
+
 Return ONLY valid JSON. No markdown fences."""
 
 
@@ -292,7 +314,8 @@ Return this exact JSON structure:
           "description": "what it is",
           "design_concept": "what it looks like",
           "target": "who buys this",
-          "use_case": "when/why they buy it"
+          "use_case": "when/why they buy it",
+          "disclosure_note": "only if relevant, per the DISCLOSURE AWARENESS instructions above -- otherwise null"
         }}
       ],
       "content_ideas": [
@@ -300,7 +323,8 @@ Return this exact JSON structure:
           "platform": "Instagram Reels|Stories|Carousel|WhatsApp|TikTok",
           "hook": "exact opening line or visual",
           "angle": "the narrative angle",
-          "caption": "ready-to-post caption with hashtags"
+          "caption": "ready-to-post caption with hashtags",
+          "disclosure_note": "only if relevant, per the DISCLOSURE AWARENESS instructions above -- otherwise null"
         }}
       ],
       "brand_safety": "safe|caution|avoid",
@@ -320,6 +344,18 @@ Return this exact JSON structure:
 
 
 def analyze(business, trends):
+    # -- DEMO_MODE: skip the real API call for the 3 built-in synthetic
+    # businesses, using a hand-written canned analysis instead. See
+    # demo_mode.py. Falls through to the real call below for anything else.
+    if is_demo_mode():
+        preset_key = resolve_preset_key(business.get("business_name", ""))
+        mock = load_mock(preset_key, "trend_analysis.json")
+        if mock:
+            print(f"  [DEMO_MODE] Using canned trend analysis for "
+                  f"'{business.get('business_name')}' -- no API call made.")
+            return mock
+    # -- end DEMO_MODE --
+
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
         raise ValueError("OPENAI_API_KEY not set. Add it to your .env file.")

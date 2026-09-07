@@ -1,0 +1,55 @@
+{
+  "campaigns": [
+    {
+      "trend": "ramadan beauty",
+      "campaign_name": "Ramadan Hydration Reset",
+      "core_idea": "Address the specific, recurring seasonal concern of fasting-related skin dehydration directly -- a credible, non-generic alternative to the usual 'Ramadan sale' framing most beauty brands default to.",
+      "target_audience_angle": "Women experiencing dry, dull skin during fasting hours, searching for a real fix rather than a discount.",
+      "timing": "act now",
+      "execution_directions": [
+        {
+          "direction": "A bundled two-step routine (hydrating cleanser + barrier repair moisturizer) positioned as a proactive fix for the month, not an impulse buy.",
+          "why_it_works": "Matches actual purchase intent during Ramadan -- people are searching for a solution, not browsing for a deal."
+        },
+        {
+          "direction": "A short, credibility-first educational Reel explaining why fasting changes skin hydration, ending on the routine fix.",
+          "why_it_works": "Leads with expertise rather than a sales pitch, which fits Glowly's ingredient-transparency positioning better than a straightforward promo would."
+        }
+      ]
+    },
+    {
+      "trend": "skin cycling",
+      "campaign_name": "Skin Cycling, Simplified",
+      "core_idea": "Speak directly to the ingredient-literate audience already following the skin cycling method, positioning Glowly's existing products as a ready-made routine rather than launching anything new.",
+      "target_audience_angle": "Skincare-engaged customers already familiar with skin cycling -- higher purchase intent than an impulse browser, since they already know what they're looking for.",
+      "timing": "this week",
+      "execution_directions": [
+        {
+          "direction": "Bundle the Vitamin C Serum (active night) and Barrier Repair Moisturizer (recovery night) as a labeled two-product cycling set.",
+          "why_it_works": "Low production cost -- it's existing inventory repackaged with clearer usage guidance, not a new product."
+        },
+        {
+          "direction": "An educational Instagram Carousel walking through a 4-night cycle using the two specific products.",
+          "why_it_works": "This audience wants to understand the 'why', not just be told to buy -- carousel format suits a short structured explanation."
+        }
+      ]
+    },
+    {
+      "trend": "uae fashion week",
+      "campaign_name": "Event-Ready Glow Countdown",
+      "core_idea": "A reasonable stretch -- not a fashion brand, but 'skin prep before a big event' is a legitimate use case that fits the SPF/serum lineup without pretending to be something the brand isn't.",
+      "target_audience_angle": "Women attending Fashion Week events or similar occasions wanting visibly better skin fast, in the days leading up to a specific date.",
+      "timing": "this week",
+      "execution_directions": [
+        {
+          "direction": "A short-term mini kit (Vitamin C Serum + SPF 50) framed as a 5-day pre-event prep routine, sold as a one-time purchase.",
+          "why_it_works": "Ties directly to a specific, time-bound occasion rather than an ongoing routine, which fits an impulse purchase pattern better."
+        },
+        {
+          "direction": "A day-by-day TikTok mini-series building anticipation toward event day.",
+          "why_it_works": "The countdown format creates a natural reason to keep watching and re-engaging over multiple days rather than a single post."
+        }
+      ]
+    }
+  ]
+}

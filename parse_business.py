@@ -17,6 +17,8 @@ import requests
 from pathlib import Path
 from datetime import datetime
 
+from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+
 
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
 MODEL      = "gpt-4o"
@@ -57,6 +59,21 @@ def parse_business_txt(filepath: str) -> dict:
     text = Path(filepath).read_text(encoding="utf-8").strip()
     if not text:
         raise ValueError("Business description file is empty.")
+
+    # -- DEMO_MODE: skip the real API call for the 3 built-in synthetic
+    # businesses, using a hand-written canned profile instead. See
+    # demo_mode.py. Falls through to the real call below for anything else.
+    if is_demo_mode():
+        preset_key = resolve_preset_key(text)
+        mock = load_mock(preset_key, "business_profile.json")
+        if mock:
+            print(f"  [DEMO_MODE] Using canned business profile for "
+                  f"'{mock.get('business_name')}' -- no API call made.")
+            profile = dict(mock)
+            profile["_source_file"] = str(filepath)
+            profile["_parsed_at"] = datetime.now().isoformat()
+            return profile
+    # -- end DEMO_MODE --
 
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:

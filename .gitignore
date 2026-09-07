@@ -31,6 +31,8 @@ node_modules/
 snapshot_*.json
 trend_scores_*.json
 trend_analysis_*.json
+trend_analyzer_*.json
+campaign_ideas_*.json
 trend_report_*.html
 business_*.txt
 competitor_snapshots_*.json
@@ -38,3 +40,19 @@ competitor_analysis_*.json
 structured_data_audit_*.json
 ai_visibility_*.json
 ai_legibility_report_*.json
+idea_validation_*.json
+image_generation_*.json
+image_*.png
+
+# Fixed-name generated files, overwritten in place by parse_business.py /
+# the standalone CLI / the competitor-check form. Not source -- and old
+# copies leak whichever local file path generated them.
+# Anchored to the repo root (leading /) so this does NOT also match the
+# same filenames inside mock_data/<preset>/, which are real curated
+# content, not generated output.
+/business_profile.json
+/business_website.json
+/competitor_urls.json
+
+# Per-job working directories (web UI), each fully isolated per submission
+jobs/

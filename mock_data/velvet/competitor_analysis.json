@@ -1,0 +1,34 @@
+{
+  "competitor_summaries": [
+    {
+      "name": "Sugar & Slice Karachi",
+      "positioning_summary": "Positions heavily on elaborate, Instagram-first cake design -- homepage and feed are almost entirely photos of intricate custom designs, with pricing and flavor described only in passing.",
+      "notable_emphasis": ["Visual design complexity", "Custom themed cakes", "Portfolio-style Instagram feed"]
+    },
+    {
+      "name": "The Baking Room",
+      "positioning_summary": "Positions on volume and speed -- same-day and next-day availability is the headline message, with a simpler, more standardized menu than a fully custom bakery.",
+      "notable_emphasis": ["Fast turnaround", "Standardized menu", "Delivery convenience"]
+    }
+  ],
+  "cross_competitor_patterns": [
+    "Both competitors lead with visuals (Instagram feed, photo galleries) rather than any statement about flavor or ingredient quality.",
+    "Neither prominently mentions sweetness level or ingredient sourcing anywhere in their visible homepage/profile text.",
+    "Pricing is not shown upfront on either -- both push toward a DM/inquiry step before revealing cost."
+  ],
+  "differentiation_angles": [
+    {
+      "angle": "Lead with 'balanced sweetness, real ingredients' as an explicit, stated claim rather than an implied one.",
+      "reasoning": "Neither competitor makes any flavor or ingredient claim visible on their own channels -- this is genuinely open space, not a crowded angle, and it's already Velvet Crumbs' real differentiator per the business profile."
+    },
+    {
+      "angle": "Show a price range upfront instead of requiring an inquiry.",
+      "reasoning": "Both competitors gate pricing behind a DM, which is a common friction point in this category -- being the one bakery that's upfront about cost could reduce drop-off from price-sensitive but interested customers."
+    },
+    {
+      "angle": "Pair design-quality content (matching the category norm) with occasional flavor-focused content (a gap), rather than picking one or the other.",
+      "reasoning": "Competing purely on visuals means competing directly with Sugar & Slice's core strength; adding flavor-forward content plays to an area they don't currently occupy."
+    }
+  ],
+  "caveat": "This is based on a light read of each competitor's own homepage/profile text, not a full market study -- it's meant as informed context for your own judgment, not a verdict on what will or won't work."
+}

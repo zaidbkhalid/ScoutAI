@@ -27,6 +27,8 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
+from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+
 load_dotenv()
 
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
@@ -169,6 +171,34 @@ def main():
         print(f"  Run: python parse_business.py my_business.txt")
         sys.exit(1)
     business = load_json(args.business)
+
+    # -- DEMO_MODE: skip the real fetch+API requirement entirely for the 3
+    # built-in synthetic businesses, using a hand-written canned analysis
+    # instead. See demo_mode.py. Falls through to the real flow below for
+    # anything else (or if no competitor_snapshots file is needed at all).
+    if is_demo_mode():
+        preset_key = resolve_preset_key(business.get("business_name", ""))
+        mock = load_mock(preset_key, "competitor_analysis.json")
+        if mock:
+            print(f"  [DEMO_MODE] Using canned competitor analysis for "
+                  f"'{business.get('business_name')}' -- no fetch, no API "
+                  f"call made.\n")
+            result = dict(mock)
+            result["_meta"] = {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "business_file": str(Path(args.business).name),
+                "snapshot_file": "demo-mode",
+                "competitor_count": len(result.get("competitor_summaries", [])),
+                "_demo_mode": True,
+            }
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            out_path = f"competitor_analysis_{ts}.json"
+            Path(out_path).write_text(
+                json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"  Analysis saved -> {out_path}")
+            print_readable(result)
+            return
+    # -- end DEMO_MODE --
 
     snapshot_path = args.snapshot or find_latest("competitor_snapshots_*.json")
     if not snapshot_path or not Path(snapshot_path).exists():

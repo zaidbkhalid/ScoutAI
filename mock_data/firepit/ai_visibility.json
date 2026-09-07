@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "generated_at": "demo-mode",
+    "business_file": "business_profile.json",
+    "business_name": "FirePit BBQ Co.",
+    "location_used": "Lahore, Pakistan",
+    "location_source": "business_profile.json location field",
+    "model": "sonar",
+    "total_queries": 5,
+    "succeeded": 5,
+    "failed": 0,
+    "mentioned_count": 3,
+    "_demo_mode": true
+  },
+  "results": [
+    {
+      "query": "best Barbecue Restaurant in Lahore, Pakistan",
+      "success": true,
+      "response_text": "Lahore has a strong BBQ scene. Well-known names include Bar-B-Q Tonight, a long-established chain popular for family dining, and Butt Karahi, known for large portions and value pricing. Both have multiple branches across the city.",
+      "citations": ["https://barbqtonight.com", "https://buttkarahi.com"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "where can I get BBQ platters (mixed grill, family platters) in Lahore, Pakistan",
+      "success": true,
+      "response_text": "Mixed grill platters are widely available in Lahore, with Bar-B-Q Tonight being one of the most commonly recommended for family-sized orders. Smaller, newer BBQ spots also offer platters, typically found via food delivery apps rather than general search.",
+      "citations": ["https://barbqtonight.com"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "FirePit BBQ Co. reviews",
+      "success": true,
+      "response_text": "I don't have detailed review data specifically for FirePit BBQ Co. It may be a newer or smaller establishment not yet widely covered in review aggregators or news sources.",
+      "citations": [],
+      "search_results": [],
+      "mentioned_exact": true,
+      "mentioned_partial": true
+    },
+    {
+      "query": "top-rated Food and Beverage near Lahore, Pakistan",
+      "success": true,
+      "response_text": "Lahore's food scene includes well-established names like Bar-B-Q Tonight and Butt Karahi for barbecue, alongside newer entrants such as FirePit BBQ Co. that have been gaining attention on food delivery platforms and social media for their charcoal-grilled platters.",
+      "citations": ["https://barbqtonight.com", "https://buttkarahi.com"],
+      "search_results": [],
+      "mentioned_exact": true,
+      "mentioned_partial": true
+    },
+    {
+      "query": "recommend a good Barbecue Restaurant in Lahore, Pakistan",
+      "success": true,
+      "response_text": "Bar-B-Q Tonight and Butt Karahi are the most frequently recommended for their consistency and portion size. For a newer, smaller-scale option, some diners mention trying newer entrants like FirePit BBQ Co., though coverage is limited.",
+      "citations": ["https://barbqtonight.com"],
+      "search_results": [],
+      "mentioned_exact": true,
+      "mentioned_partial": true
+    }
+  ]
+}

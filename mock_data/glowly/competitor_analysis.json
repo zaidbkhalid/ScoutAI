@@ -1,0 +1,34 @@
+{
+  "competitor_summaries": [
+    {
+      "name": "Dermalux UAE",
+      "positioning_summary": "Positions as a luxury, dermatologist-branded line -- heavy emphasis on clinical imagery and price as a signal of quality, with limited ingredient-level detail visible.",
+      "notable_emphasis": ["Luxury/premium pricing", "Clinical branding", "Dermatologist endorsement"]
+    },
+    {
+      "name": "Souq Skin Co.",
+      "positioning_summary": "A regional D2C competitor positioning on affordability and wide product range, with less emphasis on climate-specific formulation or ingredient transparency.",
+      "notable_emphasis": ["Broad product range", "Affordable pricing", "Regional shipping"]
+    }
+  ],
+  "cross_competitor_patterns": [
+    "Neither competitor makes a specific claim about formulating for Gulf heat/humidity -- both read as generic skincare positioning applied to the region rather than built for it.",
+    "Dermalux leans on price-as-quality signaling rather than ingredient transparency; Souq Skin leans on range rather than depth.",
+    "Neither prominently surfaces dermatologist-review status or ingredient sourcing in visible homepage text, despite it being a common purchase driver in this category."
+  ],
+  "differentiation_angles": [
+    {
+      "angle": "Make 'formulated for heat and humidity' an explicit, stated claim rather than an implied regional presence.",
+      "reasoning": "Neither competitor visibly claims climate-specific formulation -- this is Glowly's actual stated USP and currently open ground based on what's visible on their sites."
+    },
+    {
+      "angle": "Lead with ingredient transparency and dermatologist-review status as a direct alternative to Dermalux's price-as-quality signal.",
+      "reasoning": "Dermalux implies quality through price and clinical branding rather than showing ingredient detail -- being specific and transparent is a legible contrast, not just a vague 'better value' claim."
+    },
+    {
+      "angle": "Narrow the catalog messaging to a few hero products with clear use cases, rather than competing with Souq Skin Co. on range.",
+      "reasoning": "Souq Skin's strength is breadth; competing on depth and clarity (skin cycling bundles, event-prep kits) plays to a different strength rather than a head-on range comparison."
+    }
+  ],
+  "caveat": "Based on a light read of each competitor's own homepage/profile text, not a full market study -- informed context for your own judgment, not a verdict."
+}

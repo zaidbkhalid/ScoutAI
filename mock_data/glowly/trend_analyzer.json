@@ -1,0 +1,32 @@
+{
+  "business_snapshot": "Glowly Skincare is a growth-stage Dubai D2C skincare brand built on transparent, climate-specific formulations at accessible prices -- positioned against both overpriced luxury brands and Western formulas that weren't designed for Gulf heat and humidity.",
+  "top_for_your_business": [
+    {
+      "trend": "ramadan beauty",
+      "source": "google_trends",
+      "why_people_care": "During Ramadan, people search heavily for skincare that addresses fasting-related dehydration and dullness -- a specific, recurring seasonal concern.",
+      "bridge_to_business": "A strong, credible fit -- the Barrier Repair Moisturizer and hydrating cleanser directly address the actual skin issue people are searching about, not just a generic Ramadan sale.",
+      "relevance_score": 9,
+      "timing": "act now",
+      "lifecycle": "rising"
+    },
+    {
+      "trend": "skin cycling",
+      "source": "tiktok_creative_center",
+      "why_people_care": "Skin cycling has been a sustained skincare-education trend -- people specifically search for products that fit a cycling routine.",
+      "bridge_to_business": "A strong, credibility-building fit -- exactly the kind of ingredient-literate audience the brand's transparent-formulation positioning should be speaking to directly.",
+      "relevance_score": 8,
+      "timing": "this week",
+      "lifecycle": "rising"
+    },
+    {
+      "trend": "uae fashion week",
+      "source": "google_trending_now",
+      "why_people_care": "Fashion Week drives a spike in Dubai's beauty/style-conscious audience paying close attention to skin prep and 'get ready with me' content.",
+      "bridge_to_business": "A reasonable stretch -- not a fashion brand, but 'skin prep before a big event' is a legitimate, specific use case that fits the SPF/serum lineup without pretending to be something it isn't.",
+      "relevance_score": 6,
+      "timing": "this week",
+      "lifecycle": "peak"
+    }
+  ]
+}

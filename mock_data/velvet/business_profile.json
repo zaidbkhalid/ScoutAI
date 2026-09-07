@@ -1,0 +1,32 @@
+{
+  "business_name": "Velvet Crumbs",
+  "website": "https://velvetcrumbs.pk",
+  "location": "Karachi, Pakistan",
+  "industry": "Food and Beverage",
+  "sub_industry": "Bakery / Custom Cakes",
+  "products_or_services": [
+    "Custom celebration cakes (birthdays, engagements, weddings, corporate events)",
+    "Signature cakes: Chocolate Fudge Overload, Classic Red Velvet, Lotus Biscoff Dream, Belgian Chocolate Truffle",
+    "Mini desserts & cupcake boxes for gifting",
+    "Bento cakes -- minimalist, trendy small cakes for personal celebrations"
+  ],
+  "target_audience": {
+    "demographics": "Women aged 18-40 in Karachi (DHA, Clifton, Gulshan, Bahria Town) buying for birthdays, engagements, weddings, and personal indulgence.",
+    "psychographics": "Active on Instagram, values aesthetics and quality, willing to pay a premium for custom design and balanced (not overly sweet) flavor.",
+    "pain_points": [
+      "Hard to find bakeries that balance beautiful design with genuinely good flavor",
+      "Generic, mass-produced cakes for special occasions",
+      "Slow or unreliable delivery for time-sensitive events"
+    ]
+  },
+  "brand_tone": ["warm", "aesthetic", "playful"],
+  "competitors_or_market": "Local home bakeries and dessert shops in Karachi",
+  "marketing_channels": ["Instagram", "WhatsApp", "Word of mouth"],
+  "unique_value_proposition": "Premium ingredients, balanced sweetness, full custom design flexibility, and reliable on-time delivery -- the personal touch of a home bakery with the consistency of a professional one.",
+  "business_stage": "growth",
+  "geographic_focus": "local",
+  "additional_context": "Orders placed 2-3 days in advance, 50% advance payment required to confirm, delivery via rider service (Careem/Bykea) to DHA, Clifton, Gulshan, Bahria Town.",
+  "_source_file": "my_business.txt",
+  "_parsed_at": "demo-mode",
+  "_demo_mode": true
+}

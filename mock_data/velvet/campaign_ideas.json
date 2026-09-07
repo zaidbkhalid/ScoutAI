@@ -1,0 +1,51 @@
+{
+  "campaigns": [
+    {
+      "trend": "eid",
+      "campaign_name": "The Eid Dessert Table",
+      "core_idea": "Own the framing that no Eid gathering is complete without a proper dessert table -- position Velvet Crumbs as the default source for Eid gifting boxes and celebration cakes before competitors claim it.",
+      "target_audience_angle": "Families and hosts across DHA, Clifton, Gulshan, and Bahria Town planning Eid gatherings and gifting weeks in advance -- people who default to whichever bakery is fastest to book, not necessarily the best.",
+      "timing": "this week",
+      "execution_directions": [
+        {
+          "direction": "Open early-bird pre-orders for a curated Eid Gifting Box, limited slots per day as Eid approaches.",
+          "why_it_works": "Creates urgency and reserves production capacity before the last-minute rush competitors will be scrambling to meet."
+        },
+        {
+          "direction": "A short Instagram Reel/Carousel series showing the gifting box being packed and gifted, building toward a countdown.",
+          "why_it_works": "Gifting boxes are inherently visual and shareable -- the format sells itself if shown, not just described."
+        }
+      ]
+    },
+    {
+      "trend": "psl",
+      "campaign_name": "Match Night, Sorted",
+      "core_idea": "Reframe Velvet Crumbs from an occasion-cake shop to the default order for anytime people are gathering -- starting with PSL watch parties, where dessert isn't the obvious choice yet.",
+      "target_audience_angle": "Groups of friends and family hosting or attending PSL watch parties who already order snacks in -- an audience not currently thinking 'cake' but easily could.",
+      "timing": "act now",
+      "execution_directions": [
+        {
+          "direction": "A same-day-order Match Night Dessert Box in team colors, sized for sharing during a match.",
+          "why_it_works": "Low production complexity (mini bento cakes, simple icing) makes a same-day turnaround realistic without straining the kitchen."
+        },
+        {
+          "direction": "WhatsApp broadcast to repeat customers on match days with a hard ordering cutoff time.",
+          "why_it_works": "Reaches an existing warm audience directly rather than relying on organic reach on match day."
+        }
+      ]
+    },
+    {
+      "trend": "rain karachi",
+      "campaign_name": "Rainy Day Cravings",
+      "core_idea": "Claim cake as rainy-day comfort food -- a space currently owned entirely by chai and samosas -- with a weather-triggered, limited-run flavor.",
+      "target_audience_angle": "Anyone staying in on a rare rainy Karachi day, craving something warm and indulgent delivered rather than gone out for.",
+      "timing": "act now",
+      "execution_directions": [
+        {
+          "direction": "A limited chai-spice bento cake, promoted only when it's actually raining -- posted in the moment, not planned days ahead.",
+          "why_it_works": "Weather-triggered content reads as authentic and timely rather than a generic seasonal push, and the novelty (cake as comfort food) is the hook."
+        }
+      ]
+    }
+  ]
+}

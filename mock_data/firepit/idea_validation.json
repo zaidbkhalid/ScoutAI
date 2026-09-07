@@ -1,0 +1,36 @@
+{
+  "idea_recap": "Opening a second physical location instead of continuing to focus delivery and dine-in from a single kitchen.",
+  "overall_read": "proceed with caution",
+  "supporting_signals": [
+    {
+      "signal": "Both Bar-B-Q Tonight and Butt Karahi operate multiple locations, and multi-branch presence is part of how they signal scale and trust.",
+      "reasoning": "This suggests that in this category, multiple locations is a recognized path to legitimacy and reach once a concept is proven."
+    },
+    {
+      "signal": "FirePit's current positioning (shareable platters, group/delivery occasions) doesn't depend on a specific single location's foot traffic in the way a dine-in-first concept would.",
+      "reasoning": "A delivery-and-group-order-oriented model may transfer to a second kitchen more easily than a dine-in-destination model would."
+    }
+  ],
+  "risk_signals": [
+    {
+      "signal": "FirePit is still early-stage, and both cited competitors are established, multi-branch operations -- their expansion likely came after years of single-location proof, not before it.",
+      "reasoning": "Expanding before the first location has a fully proven, consistent operation risks diluting quality and brand consistency across two sites simultaneously."
+    },
+    {
+      "signal": "No visible evidence in the competitor data about what specifically justified their expansion timing (demand overflow, delivery radius limits, etc.).",
+      "reasoning": "Without knowing why they expanded when they did, it's hard to tell if FirePit is at an analogous point yet."
+    }
+  ],
+  "competitor_parallels": [
+    {
+      "competitor": "Bar-B-Q Tonight",
+      "observation": "Positions heavily on brand legacy and a wide branch network -- suggests multi-location is core to how they compete, but this took years of being an established name first."
+    },
+    {
+      "competitor": "Butt Karahi",
+      "observation": "Also multi-location with a value/portion-size positioning -- similar pattern, no visible signal on how early they expanded relative to launch."
+    }
+  ],
+  "suggested_next_step": "Before opening a second kitchen, test whether the real constraint is delivery radius/capacity at the current location (which a second kitchen would fix) or something else (brand awareness, menu, pricing) -- a second location only solves the first problem.",
+  "caveat": "This is informed reasoning based on a business profile and two competitors' visible homepage content, not market research or a guarantee this will work -- worth testing the underlying assumption before committing further."
+}

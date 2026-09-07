@@ -1,0 +1,34 @@
+{
+  "business_name": "Glowly Skincare",
+  "website": "https://glowlyskincare.ae",
+  "location": "Dubai, UAE",
+  "industry": "Beauty and Personal Care",
+  "sub_industry": "D2C Skincare",
+  "products_or_services": [
+    "Hydrating Gel Cleanser",
+    "Barrier Repair Moisturizer",
+    "Vitamin C Brightening Serum",
+    "SPF 50 Daily Sunscreen",
+    "Lip & Cheek Tint (multi-use)",
+    "Travel-size starter kits"
+  ],
+  "target_audience": {
+    "demographics": "Women aged 20-35 in the UAE and wider Gulf region.",
+    "psychographics": "Ingredient-conscious, active on Instagram and TikTok, want effective, no-nonsense skincare without the luxury markup.",
+    "pain_points": [
+      "Most skincare formulas aren't designed for hot, humid Gulf climates",
+      "Luxury brands charge a premium without ingredient transparency",
+      "Hard to know which routine actually works for their skin"
+    ]
+  },
+  "brand_tone": ["aesthetic", "luxury", "professional"],
+  "competitors_or_market": "D2C and luxury skincare brands available in the UAE",
+  "marketing_channels": ["Instagram", "TikTok", "Website", "Email"],
+  "unique_value_proposition": "Transparent, dermatologist-reviewed formulations at accessible prices, climate-specific products designed for heat and humidity, and fast regional shipping.",
+  "business_stage": "growth",
+  "geographic_focus": "local",
+  "additional_context": "Currently focused on growing TikTok and Instagram Reels content. Ships across UAE, Saudi Arabia, and Qatar. Considering an Eid gifting bundle campaign.",
+  "_source_file": "my_business.txt",
+  "_parsed_at": "demo-mode",
+  "_demo_mode": true
+}

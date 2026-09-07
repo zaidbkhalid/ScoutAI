@@ -39,6 +39,17 @@ def lc_pill(s):
     return f'<span style="display:inline-block;background:{col};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500">{label}</span>'
 
 
+def disclosure_pill(note):
+    if not note:
+        return ""
+    return (
+        f'<div style="margin-top:6px;font-size:11px;color:#5b6472;'
+        f'background:#eef1f5;border:1px solid #e2e6ec;padding:5px 9px;'
+        f'border-radius:5px;line-height:1.4">'
+        f'<span style="margin-right:4px">ℹ️</span>{note}</div>'
+    )
+
+
 def score_dot(n):
     n = int(n)
     dots = ""
@@ -70,7 +81,7 @@ def render_trend(t, idx):
             f'<span style="margin-right:12px">🍫 {p.get("flavor","")}</span>'
             f'<span style="margin-right:12px">👤 {p.get("target","")}</span>'
             f'<span>📌 {p.get("use_case","")}</span>'
-            f'</div></div>'
+            f'</div>{disclosure_pill(p.get("disclosure_note"))}</div>'
             for p in products[:2]
         )
         prod_html = f'<div style="margin-top:16px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#999;text-transform:uppercase;margin-bottom:8px">Product Ideas</div>{items}</div>'
@@ -83,6 +94,7 @@ def render_trend(t, idx):
             f'<div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">{c.get("platform","")}</div>'
             f'<div style="font-size:13px;color:#333;margin-bottom:6px">🎯 {c.get("hook","")}</div>'
             f'<div style="font-size:13px;color:#555;font-style:italic;border-left:2px solid #ddd;padding-left:10px;line-height:1.55">{c.get("caption","")}</div>'
+            f'{disclosure_pill(c.get("disclosure_note"))}'
             f'</div>'
             for c in content[:2]
         )
@@ -203,9 +215,16 @@ def generate_html(data):
   {trend_cards}
 </div>
 
+<!-- Disclosure disclaimer -->
+<div style="max-width:900px;margin:0 auto;padding:20px 40px 0">
+  <div style="font-size:12px;color:#888;line-height:1.6;padding:14px 16px;background:#fafafa;border:1px solid #ececec;border-radius:8px">
+    <strong style="color:#555">A note on disclosure:</strong> Disclosure regulations around AI-generated and sponsored content are active and evolving as of 2026. Any disclosure notes (ℹ️) in this report are general awareness, not legal advice, and not a complete or confirmed statement of your obligations. Consult a qualified attorney about what applies to your specific situation before publishing anything.
+  </div>
+</div>
+
 <!-- Footer -->
 <div style="border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#ccc">
-  Trend Intelligence Agent · Google Trends + GPT-4o · {gen_at[:10]}
+  Trend Intelligence Agent · Google + YouTube + RSS + TikTok + GPT-4o · {gen_at[:10]}
 </div>
 
 </body>

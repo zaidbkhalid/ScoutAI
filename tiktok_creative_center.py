@@ -252,7 +252,7 @@ def main():
             "live extraction unavailable; using labeled synthetic data"
         )
 
-    filename = snapshot_filename("snapshot")
+    filename = snapshot_filename("snapshot", "tiktok_creative_center")
     write_snapshot(filename, "tiktok_creative_center",
                    source_meta, entities)
 

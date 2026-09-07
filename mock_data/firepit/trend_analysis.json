@@ -1,0 +1,132 @@
+{
+  "business_snapshot": "FirePit BBQ Co. is an early-stage Lahore barbecue restaurant built on generous, consistently good charcoal-grilled platters -- competing against a crowded local BBQ scene mostly by not skimping on portion size or flavor.",
+  "positioning_note": "As an early-stage player, FirePit's fastest path to visibility is riding group/social eating occasions -- match nights, Ramadan iftars, and viral food formats -- rather than trying to out-market established BBQ names on brand alone.",
+  "trends": [
+    {
+      "trend": "psl",
+      "source": "google_trends",
+      "why_people_care": "PSL match nights mean groups gathering to watch together, and grilled food is the default order for exactly this kind of social, hands-on eating.",
+      "bridge_to_business": "This is close to a direct fit rather than a stretch -- BBQ platters are already built for group sharing. The move is to package it explicitly as match-night food with a same-day ordering window, not just have platters available and hope people think of it.",
+      "relevance_score": 9,
+      "timing": "act now",
+      "lifecycle": "rising",
+      "product_ideas": [
+        {
+          "name": "Match Night Mixed Grill Platter",
+          "description": "A scaled-up family platter (tikka, seekh kebab, bihari boti, naan) sized and priced for a group of 4-6 watching together.",
+          "design_concept": "Single large sharing platter, disposable-but-sturdy packaging built for a coffee table, extra naan included by default",
+          "target": "Groups hosting or attending PSL watch parties",
+          "use_case": "Ordered a few hours before a big match for evening group delivery"
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Instagram Reels",
+          "hook": "Match night without a mixed grill platter isn't really match night",
+          "angle": "Fast reel: platter being plated, delivered, table shot mid-match",
+          "caption": "Tonight's match needs tonight's platter 🔥🏏 Match Night Mixed Grill, feeds 4-6, order before 5pm for evening delivery. #PSL2026 #LahoreEats #FirePitBBQ"
+        },
+        {
+          "platform": "WhatsApp",
+          "hook": "Match night, sorted.",
+          "angle": "Direct broadcast to past customers with a same-day cutoff time",
+          "caption": "Big match tonight -- get the Match Night Platter ordered before 5pm for on-time delivery. Reply to book your platter."
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "ramadan",
+      "source": "rss",
+      "why_people_care": "Ramadan iftars are the highest-frequency group dining occasion of the year -- families and friend groups eating together every single evening for a month.",
+      "bridge_to_business": "A direct, high-volume fit. The opportunity isn't just 'we're open for iftar' -- it's a dedicated iftar combo that removes decision-making (fixed platter, fixed price, ready at iftar time) for a customer who's ordering food daily and wants it simple.",
+      "relevance_score": 9,
+      "timing": "this week",
+      "lifecycle": "rising",
+      "product_ideas": [
+        {
+          "name": "Iftar Family Combo",
+          "description": "A fixed-price daily combo (mixed grill platter + naan + a cooling drink) timed for iftar delivery, no ordering decisions required.",
+          "design_concept": "Same combo every day for consistency and speed of prep, clear iftar-time delivery slot",
+          "target": "Families ordering iftar delivery throughout Ramadan",
+          "use_case": "Recurring daily or near-daily order for the month"
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Facebook",
+          "hook": "One less decision to make this Ramadan.",
+          "angle": "Simple, practical post aimed at parents/household organizers -- reliability over hype",
+          "caption": "Iftar Family Combo: mixed grill platter, naan, and a cooling drink, delivered right on time -- every day of Ramadan. Same combo, same reliability. Order ahead to reserve your daily slot."
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "smash burger trend",
+      "source": "tiktok_creative_center",
+      "why_people_care": "Smash-style burgers (thin, crispy-edged patties smashed hard on the grill) have been a sustained food-content format -- people like watching the sear and the crunch.",
+      "bridge_to_business": "A stretch, but a fun one -- FirePit already grills, so a limited-time 'Smash Seekh Burger' (a seekh-kebab patty smashed and seared burger-style) is a genuine product, not just a marketing gimmick, and it's inherently video-friendly.",
+      "relevance_score": 6,
+      "timing": "this week",
+      "lifecycle": "peak",
+      "product_ideas": [
+        {
+          "name": "Smash Seekh Burger",
+          "description": "A seekh kebab patty, smashed thin and seared on the grill for a crispy edge, served burger-style in a bun with chutney.",
+          "design_concept": "Visibly crispy dark-seared edge, classic burger presentation, limited-time only",
+          "target": "Younger customers who follow food trend content, one-time trial purchase",
+          "use_case": "Limited-time menu item promoted specifically as a trend tie-in"
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "TikTok",
+          "hook": "We smashed a seekh kebab. Don't ask, just watch.",
+          "angle": "Close-up sizzle/sear shot in the classic smash-burger content format",
+          "caption": "Smash Seekh Burger -- limited time only. You know the format, now taste it. 🔥 #SmashBurger #LahoreFood #FirePitBBQ"
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "budget session parliament",
+      "source": "rss",
+      "why_people_care": "National political/legislative coverage.",
+      "bridge_to_business": "No workable connection to a BBQ restaurant. Forcing food branding into political news risks alienating some portion of the audience for no upside.",
+      "relevance_score": 1,
+      "timing": "skip",
+      "lifecycle": "peak",
+      "product_ideas": [],
+      "content_ideas": [],
+      "brand_safety": "avoid",
+      "safety_note": "Political topic, no natural tie-in, real downside risk with no offsetting benefit -- skip."
+    }
+  ],
+  "top_opportunities": [
+    {
+      "rank": 1,
+      "trend": "ramadan",
+      "one_line": "Launch the Iftar Family Combo this week -- fixed daily combo, positioned as one less decision during a demanding month.",
+      "urgency": "this week"
+    },
+    {
+      "rank": 2,
+      "trend": "psl",
+      "one_line": "Push the Match Night Mixed Grill Platter today for tonight's match with a hard same-day ordering cutoff.",
+      "urgency": "today"
+    },
+    {
+      "rank": 3,
+      "trend": "smash burger trend",
+      "one_line": "Run the Smash Seekh Burger as a limited-time TikTok-first item to catch the trend while it's still peaking.",
+      "urgency": "this week"
+    }
+  ],
+  "skip_these": [
+    "budget session parliament -- no natural bridge to a BBQ restaurant, real downside risk with no upside"
+  ]
+}

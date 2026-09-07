@@ -1,0 +1,49 @@
+{
+  "legibility_summary": "Velvet Crumbs is currently close to invisible to AI answer engines. The website has no structured data at all, so answer engines have nothing explicit to parse about what the business is, where it operates, or what it sells. In direct testing, Velvet Crumbs did not come up in any of the general 'best bakery' or 'recommend a bakery' style queries -- competitors Sugar & Slice Karachi and The Baking Room were cited instead in every case. The only query where the business's name appeared at all was a direct-name search, and even then the model reported having no information about it.",
+  "structured_data_gaps": [
+    {
+      "missing": "Business-identity schema (e.g. LocalBusiness or Bakery)",
+      "why_it_matters": "Without this, answer engines have no structured signal of what kind of business this is, where it's located, or how to contact it -- they have to infer it from plain text, which is unreliable and often skipped entirely."
+    },
+    {
+      "missing": "Review/AggregateRating schema",
+      "why_it_matters": "Even genuinely happy customers on Instagram don't help here -- without on-site review markup, an answer engine has no structured rating signal to surface, so the business can't compete on 'top-rated' style queries even if it deserves to."
+    },
+    {
+      "missing": "Product schema for signature cakes",
+      "why_it_matters": "Individual products (bento cakes, signature flavors) aren't independently discoverable -- a query about a specific product type has nothing on-site to match against."
+    }
+  ],
+  "visibility_gaps": [
+    {
+      "query": "best Bakery / Custom Cakes in Karachi, Pakistan",
+      "what_happened": "not mentioned -- cited instead: Sugar & Slice Karachi, The Baking Room",
+      "note": "Both competitors were named specifically; Velvet Crumbs didn't come up as an alternative."
+    },
+    {
+      "query": "Velvet Crumbs reviews",
+      "what_happened": "technically 'mentioned' (the name appears in the response), but only because the model repeated the business name while saying it had no information -- not a real signal of visibility.",
+      "note": "This is worth knowing about the check itself: a 'no info found' response can look like a name match on a simple text-contains basis."
+    },
+    {
+      "query": "recommend a good Bakery / Custom Cakes in Karachi, Pakistan",
+      "what_happened": "not mentioned -- cited instead: Sugar & Slice Karachi, The Baking Room",
+      "note": "Same two competitors recommended again, reinforcing that they currently own this query pattern."
+    }
+  ],
+  "recommended_fixes": [
+    {
+      "fix": "Add LocalBusiness (or Bakery) JSON-LD to the homepage with name, address, phone, and hours.",
+      "reasoning": "This is the single most direct fix for the biggest gap found -- there's currently zero structured signal of what the business is or where it operates."
+    },
+    {
+      "fix": "Add AggregateRating schema if there's a genuine rating to reference (Google Business Profile, Facebook), rather than leaving it unmarked.",
+      "reasoning": "Competitor citations in the visibility check leaned on being 'well-known' rather than a stated rating, so this could be a way to compete on a signal they aren't using either."
+    },
+    {
+      "fix": "Add Product schema for the named signature cakes (e.g. Chocolate Fudge Overload, Lotus Biscoff Dream).",
+      "reasoning": "Directly addresses the missing Product markup, and could help the business surface for product-specific queries rather than only generic 'bakery' ones."
+    }
+  ],
+  "caveat": "This is based on a single automated homepage check and 5 test queries to one AI answer engine -- a small, point-in-time sample, not a comprehensive audit. None of these fixes are guaranteed to change visibility; they're worth testing and re-checking, not treating as settled."
+}

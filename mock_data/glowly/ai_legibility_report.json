@@ -1,0 +1,49 @@
+{
+  "legibility_summary": "Glowly Skincare is partially legible to answer engines on the product-catalog side (the site does carry Product/Offer schema, likely from its storefront platform) but invisible on the business-identity and trust side. In all 5 test queries, larger regional players Dermalux UAE and Souq Skin Co. were cited; Glowly did not appear even as a secondary mention, unlike a smaller physical business that can sometimes pick up hedged local mentions.",
+  "structured_data_gaps": [
+    {
+      "missing": "Business-identity schema (e.g. Store or Organization)",
+      "why_it_matters": "Product schema tells an answer engine what's for sale, but not what the business is, where it operates, or that it's UAE/Gulf-specific -- that framing has to come from a business-identity type, which is currently absent."
+    },
+    {
+      "missing": "Review/AggregateRating schema",
+      "why_it_matters": "Dermalux UAE's citation leaned partly on clinical/brand trust signals -- without any rating markup, Glowly has no comparable trust signal for an answer engine to surface."
+    },
+    {
+      "missing": "FAQPage schema",
+      "why_it_matters": "Given the brand's climate-specific formulation story, FAQ content ('why formulate for humidity', 'is this dermatologist-reviewed') is exactly the kind of specific claim FAQ schema is built to surface verbatim -- currently unused."
+    }
+  ],
+  "visibility_gaps": [
+    {
+      "query": "best D2C Skincare in Dubai, UAE",
+      "what_happened": "not mentioned -- cited instead: Dermalux UAE, Souq Skin Co.",
+      "note": "Both larger regional competitors named directly."
+    },
+    {
+      "query": "top-rated Beauty and Personal Care near Dubai, UAE",
+      "what_happened": "not mentioned -- cited instead: Sephora Middle East, Namshi, Dermalux UAE",
+      "note": "Query pulled in large retailers as well as brands -- an even more crowded field than the D2C-specific query."
+    },
+    {
+      "query": "recommend a good D2C Skincare in Dubai, UAE",
+      "what_happened": "not mentioned -- cited instead: Dermalux UAE, Souq Skin Co., with a generic acknowledgment that 'smaller, newer brands' exist but aren't well covered",
+      "note": "This is a fairly direct statement of the actual problem -- the model is aware smaller brands exist but has nothing specific to say about any of them, Glowly included."
+    }
+  ],
+  "recommended_fixes": [
+    {
+      "fix": "Add Organization or Store JSON-LD with brand name, description, and service area (UAE, Saudi Arabia, Qatar).",
+      "reasoning": "Product schema alone doesn't establish brand identity or region -- this is the most direct way to close that gap, and it's a smaller lift than it looks since the storefront platform likely already supports it."
+    },
+    {
+      "fix": "Add FAQPage schema built around the climate-specific formulation story (e.g. 'why formulate for humidity', ingredient transparency).",
+      "reasoning": "This plays directly to the brand's stated differentiation angle from the competitor analysis, in a format answer engines can quote directly rather than paraphrase."
+    },
+    {
+      "fix": "Add AggregateRating schema once there's a real rating source to reference (site reviews, Trustpilot, etc.).",
+      "reasoning": "Dermalux's citation carried an implicit trust signal Glowly currently has no structured equivalent for."
+    }
+  ],
+  "caveat": "Based on a single automated homepage check and 5 test queries to one AI answer engine -- a small, point-in-time sample. None of these fixes are guaranteed to improve visibility; worth testing and re-checking, not treating as settled."
+}

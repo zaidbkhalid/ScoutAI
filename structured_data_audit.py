@@ -35,6 +35,8 @@ from pathlib import Path
 
 import requests
 
+from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+
 BUSINESS_PROFILE_PATH = "business_profile.json"
 BUSINESS_WEBSITE_PATH = "business_website.json"
 
@@ -282,18 +284,36 @@ def main():
         print(f"  NOTE: {BUSINESS_PROFILE_PATH} not found. Continuing "
               f"without business context (industry hints won't be used).")
 
-    url, source = resolve_website(business)
-    if not url:
-        print(f"\n  No website URL configured.")
-        print(f"  Either add a \"website\" field to {BUSINESS_PROFILE_PATH} "
-              f"(re-run parse_business.py after the source .txt mentions "
-              f"a website), or fill in {BUSINESS_WEBSITE_PATH}.")
-        sys.exit(1)
+    # -- DEMO_MODE: skip the real fetch entirely for the 3 built-in
+    # synthetic businesses (no website URL needed), using a hand-written
+    # canned audit instead. See demo_mode.py. This doesn't call a paid
+    # API either way -- it's here purely so the 3 presets work with zero
+    # setup. Falls through to the real fetch below for anything else.
+    result = None
+    if is_demo_mode() and business:
+        preset_key = resolve_preset_key(business.get("business_name", ""))
+        mock = load_mock(preset_key, "structured_data_audit.json")
+        if mock:
+            print(f"  [DEMO_MODE] Using canned structured data audit for "
+                  f"'{business.get('business_name')}' -- no fetch made.\n")
+            result = mock.get("audit", {})
+            print(f"  Website : {result.get('url')}")
+            print(f"  Source  : demo-mode\n")
+    # -- end DEMO_MODE --
 
-    print(f"  Website : {url}")
-    print(f"  Source  : {source}\n")
+    if result is None:
+        url, source = resolve_website(business)
+        if not url:
+            print(f"\n  No website URL configured.")
+            print(f"  Either add a \"website\" field to {BUSINESS_PROFILE_PATH} "
+                  f"(re-run parse_business.py after the source .txt mentions "
+                  f"a website), or fill in {BUSINESS_WEBSITE_PATH}.")
+            sys.exit(1)
 
-    result = run_audit(url, business)
+        print(f"  Website : {url}")
+        print(f"  Source  : {source}\n")
+
+        result = run_audit(url, business)
 
     if not result["fetched"]:
         print(f"  ERROR: Could not fetch the homepage ({result['error']}).")

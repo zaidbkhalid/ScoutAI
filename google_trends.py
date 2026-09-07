@@ -208,7 +208,7 @@ def main():
     data = fetch_google_trends(keywords, args.timeframe, args.geo)
     entities = normalize_to_entities(data)
 
-    filename = snapshot_filename("snapshot")
+    filename = snapshot_filename("snapshot", "google_trends")
     write_snapshot(filename, "google_trends", data["meta"], entities)
 
     print(f"\n  Saved {len(entities)} entities -> {filename}")

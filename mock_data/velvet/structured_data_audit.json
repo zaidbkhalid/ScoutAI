@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "generated_at": "demo-mode",
+    "business_file": "business_profile.json",
+    "_demo_mode": true
+  },
+  "audit": {
+    "url": "https://velvetcrumbs.pk",
+    "fetched": true,
+    "jsonld_blocks_found": 0,
+    "jsonld_parse_errors": 0,
+    "schema_types_found": [],
+    "categories": {
+      "business_identity": {"present": false, "matched_types": []},
+      "reviews": {"present": false, "matched_types": []},
+      "faq": {"present": false, "matched_types": []},
+      "product": {"present": false, "matched_types": []}
+    },
+    "text_check": {
+      "visible_text_length": 640,
+      "has_meaningful_text": true,
+      "contains_business_name": true,
+      "contains_phone_like_number": false,
+      "text_sample": "Velvet Crumbs - Custom Cakes & Desserts, Karachi. Premium home-based bakery specializing in custom-designed cakes and artisanal desserts. Order celebration cakes, bento cakes, and cupcake boxes. Based in Karachi, delivery to DHA, Clifton, Gulshan, Bahria Town. Order via Instagram or WhatsApp."
+    },
+    "notes": [
+      "No JSON-LD structured data found at all. AI answer engines and search engines have to fall back to guessing from plain text, which is far less reliable than an explicit schema.org declaration.",
+      "No business-identity schema type found (e.g. Restaurant or FoodEstablishment). This is usually the single highest-value fix -- it tells answer engines what kind of business this is, where it is, and how to contact it, in a format they can parse directly.",
+      "No Review/AggregateRating markup found. Even if the business has real reviews elsewhere (Google, Facebook), without Review/AggregateRating schema on the site itself, answer engines can't easily surface a rating for this business.",
+      "No FAQPage markup found. FAQ schema is one of the more direct ways to get specific Q&A content picked up verbatim by answer engines.",
+      "No Product/Offer markup found. If specific products or menu items should be individually discoverable, this is missing."
+    ]
+  }
+}

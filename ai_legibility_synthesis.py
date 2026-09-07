@@ -24,6 +24,8 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
+from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+
 load_dotenv()
 
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
@@ -178,6 +180,34 @@ def main():
         print(f"  Run: python parse_business.py my_business.txt")
         sys.exit(1)
     business = load_json(BUSINESS_PROFILE_PATH)
+
+    # -- DEMO_MODE: skip the real audit/visibility/API requirement entirely
+    # for the 3 built-in synthetic businesses, using a hand-written canned
+    # report instead. See demo_mode.py. Falls through to the real flow
+    # below for anything else.
+    if is_demo_mode():
+        preset_key = resolve_preset_key(business.get("business_name", ""))
+        mock = load_mock(preset_key, "ai_legibility_report.json")
+        if mock:
+            print(f"  [DEMO_MODE] Using canned legibility report for "
+                  f"'{business.get('business_name')}' -- no fetch, no API "
+                  f"call made.\n")
+            result = dict(mock)
+            result["_meta"] = {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "business_file": str(Path(BUSINESS_PROFILE_PATH).name),
+                "audit_file": "demo-mode",
+                "visibility_file": "demo-mode",
+                "_demo_mode": True,
+            }
+            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            out_path = f"ai_legibility_report_{ts}.json"
+            Path(out_path).write_text(
+                json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"  Report saved -> {out_path}")
+            print_readable(result)
+            return
+    # -- end DEMO_MODE --
 
     audit_path = find_latest("structured_data_audit_*.json")
     visibility_path = find_latest("ai_visibility_*.json")

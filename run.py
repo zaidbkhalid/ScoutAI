@@ -2,7 +2,9 @@
 run.py -- Trend Intelligence Agent (Full Pipeline)
 --------------------------------------------------
 One command runs everything:
-  1. Fetch trends from all sources (Google, YouTube, RSS, TikTok)
+  1. Fetch trends from all sources (Google realtime, YouTube, RSS, TikTok) --
+     no keywords needed, these are all live "what's trending right now"
+     feeds, and RSS is capped to the last few days (see rss_trends.py)
   2. Parse business .txt into structured profile
   3. Score trend freshness across snapshots
   4. Analyze trends against the business
@@ -11,7 +13,6 @@ One command runs everything:
 Usage:
     python run.py my_business.txt
     python run.py my_business.txt --geo PK
-    python run.py my_business.txt --keywords "coffee,cafe,espresso" --geo PK
     python run.py my_business.txt --skip-fetch   # use existing snapshots
 """
 
@@ -47,9 +48,6 @@ def main():
                         help="Path to your business description .txt file")
     parser.add_argument("--geo", default="PK",
                         help="Country code (default: PK)")
-    parser.add_argument("--keywords",
-                        default="AI,marketing,business,social media,ecommerce",
-                        help="Comma-separated keywords for Google Trends (max 5)")
     parser.add_argument("--skip-fetch", action="store_true",
                         help="Skip fetching trends and use existing snapshots")
     args = parser.parse_args()
@@ -59,45 +57,33 @@ def main():
     print("=" * 50)
     print(f"\n  Business : {args.business_txt}")
     print(f"  Geo      : {args.geo}")
-    print(f"  Keywords : {args.keywords}")
     print()
 
     BASE = str(Path(__file__).parent.resolve())
 
     # -- Step 1: Fetch Trends from all sources --
     if not args.skip_fetch:
-        kw_str = ",".join(
-            [k.strip() for k in args.keywords.split(",")][:5])
-
-        ok = run_step("Step 1a: Fetching keyword trends (Google)...", [
-            sys.executable, str(Path(BASE) / "google_trends.py"),
-            "--keywords", kw_str,
-            "--geo", args.geo,
-        ])
-        if not ok:
-            print("  Keyword trends fetch failed. Continuing...")
-
-        ok = run_step("Step 1b: Fetching realtime trends (Google)...", [
+        ok = run_step("Step 1a: Fetching realtime trends (Google)...", [
             sys.executable, str(Path(BASE) / "google_trending_now.py"),
             "--geo", args.geo,
         ])
         if not ok:
             print("  Realtime trends fetch failed. Continuing...")
 
-        ok = run_step("Step 1c: Fetching YouTube trending...", [
+        ok = run_step("Step 1b: Fetching YouTube trending...", [
             sys.executable, str(Path(BASE) / "youtube_trending.py"),
             "--geo", args.geo,
         ])
         if not ok:
             print("  YouTube fetch failed. Continuing...")
 
-        ok = run_step("Step 1d: Fetching RSS articles...", [
+        ok = run_step("Step 1c: Fetching RSS articles...", [
             sys.executable, str(Path(BASE) / "rss_trends.py"),
         ])
         if not ok:
             print("  RSS fetch failed. Continuing...")
 
-        ok = run_step("Step 1e: Fetching TikTok hashtags...", [
+        ok = run_step("Step 1d: Fetching TikTok hashtags...", [
             sys.executable,
             str(Path(BASE) / "tiktok_creative_center.py"),
             "--geo", args.geo,

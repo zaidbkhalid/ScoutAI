@@ -1,0 +1,32 @@
+{
+  "business_snapshot": "Velvet Crumbs is a premium home bakery in Karachi known for custom-designed cakes that don't sacrifice flavor for looks -- balanced sweetness, real ingredients, and fast turnaround for a market used to choosing between pretty and good.",
+  "top_for_your_business": [
+    {
+      "trend": "eid",
+      "source": "rss",
+      "why_people_care": "Eid is the single biggest gifting and hosting occasion in the Pakistani calendar -- everyone is planning family gatherings and gift boxes for weeks in advance.",
+      "bridge_to_business": "Gifting boxes and celebration cakes are already the core product -- the opportunity is booking early and owning the 'Eid dessert table' framing before competitors do.",
+      "relevance_score": 9,
+      "timing": "this week",
+      "lifecycle": "rising"
+    },
+    {
+      "trend": "psl",
+      "source": "google_trends",
+      "why_people_care": "PSL season turns Karachi into a city of watch parties -- friends and family gathering at home for every match, especially the high-stakes ones.",
+      "bridge_to_business": "Cakes aren't the first thing people think of for a cricket watch party, which is exactly the opening -- a shareable dessert box reframes the brand from 'occasion cake shop' to 'anytime-people-are-gathering shop'.",
+      "relevance_score": 8,
+      "timing": "act now",
+      "lifecycle": "rising"
+    },
+    {
+      "trend": "rain karachi",
+      "source": "google_trends",
+      "why_people_care": "Rain in Karachi is rare enough to be an event -- it triggers a very specific craving: warm, comforting, indulgent food, ordered in rather than gone out for.",
+      "bridge_to_business": "Nobody positions cake as rainy-day comfort food -- that space is currently owned by chai and samosas, and it's a genuinely under-claimed angle.",
+      "relevance_score": 7,
+      "timing": "act now",
+      "lifecycle": "emerging"
+    }
+  ]
+}

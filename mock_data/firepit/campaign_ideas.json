@@ -1,0 +1,55 @@
+{
+  "campaigns": [
+    {
+      "trend": "psl",
+      "campaign_name": "Match Night Mixed Grill",
+      "core_idea": "Package FirePit's group-sharing platters explicitly as match-night food, with a same-day ordering window -- close to a direct fit rather than a stretch, since BBQ platters are already built for group sharing.",
+      "target_audience_angle": "Groups of 4-6 hosting or attending PSL watch parties who default to ordering grilled food for exactly this kind of social, hands-on eating.",
+      "timing": "act now",
+      "execution_directions": [
+        {
+          "direction": "A scaled-up family platter sized and priced for match-night groups, with a hard same-day cutoff time for ordering.",
+          "why_it_works": "Removes decision friction for a customer who already knows they want grilled food for the match -- just makes FirePit the obvious specific choice."
+        },
+        {
+          "direction": "WhatsApp broadcast to past customers on match days.",
+          "why_it_works": "Reaches an existing warm audience directly with a clear ordering deadline, rather than relying on same-day organic reach."
+        }
+      ]
+    },
+    {
+      "trend": "ramadan",
+      "campaign_name": "The Iftar Combo",
+      "core_idea": "A fixed-price daily iftar combo that removes decision-making entirely for a customer ordering food every evening for a month -- a direct, high-volume fit for the highest-frequency group dining occasion of the year.",
+      "target_audience_angle": "Families ordering iftar delivery throughout Ramadan who want reliability and simplicity, not another menu to think through daily.",
+      "timing": "this week",
+      "execution_directions": [
+        {
+          "direction": "Same combo every day (platter + naan + a cooling drink) for consistency and faster prep, with a reserved daily delivery slot.",
+          "why_it_works": "Predictable production and predictable delivery both matter more than menu variety for a daily-use product during Ramadan."
+        },
+        {
+          "direction": "A practical, reliability-focused Facebook post aimed at parents/household organizers rather than a hype-driven one.",
+          "why_it_works": "This audience is optimizing for one less decision, not novelty -- the message should match that."
+        }
+      ]
+    },
+    {
+      "trend": "smash burger trend",
+      "campaign_name": "Smash Seekh Burger (Limited Run)",
+      "core_idea": "A stretch, but a fun one -- a seekh kebab patty smashed and seared burger-style, riding the sustained smash-burger content format while staying true to FirePit's charcoal-grilling identity.",
+      "target_audience_angle": "Younger customers who follow food trend content on TikTok -- a one-time trial purchase, not a core menu bet.",
+      "timing": "this week",
+      "execution_directions": [
+        {
+          "direction": "Limited-time-only menu item, promoted specifically as a trend tie-in rather than a permanent addition.",
+          "why_it_works": "Keeps the risk small if it doesn't land, while still being a genuine product (not just a marketing gimmick) if it does."
+        },
+        {
+          "direction": "A close-up sizzle/sear TikTok in the classic smash-burger content format.",
+          "why_it_works": "The format itself is inherently video-friendly and already has a proven audience appetite -- FirePit just needs to show up in it authentically."
+        }
+      ]
+    }
+  ]
+}

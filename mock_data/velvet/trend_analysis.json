@@ -1,0 +1,132 @@
+{
+  "business_snapshot": "Velvet Crumbs is a premium home bakery in Karachi known for custom-designed cakes that don't sacrifice flavor for looks -- balanced sweetness, real ingredients, and fast turnaround for a market used to choosing between pretty and good.",
+  "positioning_note": "Karachi's cake market is either mass-produced and generic or expensive and slow. Velvet Crumbs should keep leaning into 'looks incredible, actually tastes good, delivered on time' as the wedge -- especially around high-emotion, high-gifting moments where people default to whatever bakery is fastest to book, not necessarily the best.",
+  "trends": [
+    {
+      "trend": "psl",
+      "source": "google_trends",
+      "why_people_care": "PSL season turns Karachi into a city of watch parties -- friends and family gathering at home for every match, especially the high-stakes ones. It's appointment viewing with snacks as a given.",
+      "bridge_to_business": "Cakes aren't the first thing people think of for a cricket watch party -- which is exactly the opening. A 'Match Night Dessert Box' reframes Velvet Crumbs from 'occasion cake shop' to 'anytime-people-are-gathering shop', without diluting the premium positioning.",
+      "relevance_score": 8,
+      "timing": "act now",
+      "lifecycle": "rising",
+      "product_ideas": [
+        {
+          "name": "Match Night Dessert Box",
+          "description": "A shareable box of 6 mini bento-style cakes in team-color icing (green/white or opponent colors), sized for passing around during a match.",
+          "design_concept": "Small round bento cakes, minimalist team-color drip icing, no elaborate piping -- fast to produce, easy to eat one-handed while watching.",
+          "target": "Groups of friends/family hosting or attending PSL watch parties",
+          "use_case": "Ordered the afternoon of a big match for same-evening pickup or delivery"
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Instagram Reels",
+          "hook": "POV: your watch party has cake and everyone else's doesn't",
+          "angle": "Fast-cut reel of the boxed cakes being packed, delivered, and opened mid-match",
+          "caption": "Match night hits different with a Velvet Crumbs box on the table 🏏🍰 6 mini cakes, team colors, ready before kickoff. Order by 3pm for evening delivery. #PSL2026 #KarachiEats #VelvetCrumbs"
+        },
+        {
+          "platform": "WhatsApp",
+          "hook": "Match night sorted?",
+          "angle": "Direct broadcast to repeat customers with a same-day ordering window",
+          "caption": "Tonight's match calls for something sweet 🏆 Match Night Dessert Boxes available for same-day delivery -- order before 3pm. Reply to book."
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "rain karachi",
+      "source": "google_trends",
+      "why_people_care": "Rain in Karachi is rare enough to be an event -- it shuts the city down a little, and it triggers a very specific craving: warm, comforting, indulgent food, ordered in rather than gone out for.",
+      "bridge_to_business": "Nobody positions cake as 'rainy day comfort food' -- that space is currently owned by chai and samosas. A limited 'Rainy Day' menu of warm-spiced, richer flavors (think chai-spiced or salted caramel) ordered specifically for delivery on rainy days is a genuinely under-claimed angle.",
+      "relevance_score": 7,
+      "timing": "act now",
+      "lifecycle": "emerging",
+      "product_ideas": [
+        {
+          "name": "Rainy Day Bento Cake -- Chai Spice",
+          "description": "A limited-run bento cake flavored with cardamom-chai spice and a caramel drizzle, framed as cozy comfort food rather than a celebration cake.",
+          "design_concept": "Warm brown/caramel tones, simple swirl top, mug-shaped packaging insert referencing chai",
+          "target": "People staying in on a rainy day, ordering comfort food for themselves or their household",
+          "use_case": "Impulse delivery order triggered specifically by rain, not a planned celebration"
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Instagram Stories",
+          "hook": "It's raining in Karachi. You know what that means.",
+          "angle": "Real-time, weather-triggered story posted the moment rain starts, with a swipe-up/link order option",
+          "caption": "Rain + chai-spice cake = the only plan today. Rainy Day Bento Cakes, delivering now while it lasts ☔️"
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "eid",
+      "source": "rss",
+      "why_people_care": "Eid is the single biggest gifting and hosting occasion in the Pakistani calendar -- everyone is planning family gatherings and gift boxes for weeks in advance.",
+      "bridge_to_business": "This is Velvet Crumbs' most natural, least-forced trend -- gifting boxes and celebration cakes are already the core product. The opportunity is booking early and owning the 'Eid dessert table' framing before competitors do.",
+      "relevance_score": 9,
+      "timing": "this week",
+      "lifecycle": "rising",
+      "product_ideas": [
+        {
+          "name": "Eid Gifting Box",
+          "description": "A curated box of mini cupcakes and 2 bento cakes in gold/pastel packaging, designed specifically to be gifted rather than kept.",
+          "design_concept": "Gold foil box, pastel or metallic cake toppers, a small tag for a personal message",
+          "target": "Families and professionals buying gifts for relatives, neighbors, or coworkers",
+          "use_case": "Pre-ordered days ahead for Eid gifting, higher order volume than usual"
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Instagram Carousel",
+          "hook": "Eid gifting, sorted in one order.",
+          "angle": "Carousel showing the box being packed, then a family receiving/opening it",
+          "caption": "This Eid, skip the last-minute scramble. Our Eid Gifting Boxes are open for pre-order -- limited slots per day as we get closer to Eid. Link in bio to book. ✨"
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "federal budget 2026 debate",
+      "source": "rss",
+      "why_people_care": "National economic policy coverage -- inflation, taxation, budget allocation debates.",
+      "bridge_to_business": "No meaningful, non-forced connection to a bakery's product or audience. Attempting to insert a dessert brand into fiscal policy news reads as tone-deaf rather than clever.",
+      "relevance_score": 1,
+      "timing": "skip",
+      "lifecycle": "peak",
+      "product_ideas": [],
+      "content_ideas": [],
+      "brand_safety": "avoid",
+      "safety_note": "Politically/economically sensitive topic with no natural brand tie-in -- skip rather than force a connection."
+    }
+  ],
+  "top_opportunities": [
+    {
+      "rank": 1,
+      "trend": "eid",
+      "one_line": "Open Eid Gifting Box pre-orders this week, before competitors claim the 'Eid dessert table' framing.",
+      "urgency": "this week"
+    },
+    {
+      "rank": 2,
+      "trend": "psl",
+      "one_line": "Launch the Match Night Dessert Box today for tonight's match -- same-day delivery window, WhatsApp broadcast to repeat customers.",
+      "urgency": "today"
+    },
+    {
+      "rank": 3,
+      "trend": "rain karachi",
+      "one_line": "Have the Rainy Day Bento Cake ready to post the moment rain hits -- weather-triggered content performs best posted in the moment, not planned days ahead.",
+      "urgency": "today"
+    }
+  ],
+  "skip_these": [
+    "federal budget 2026 debate -- no natural bridge to a dessert brand, forcing it risks looking tone-deaf"
+  ]
+}

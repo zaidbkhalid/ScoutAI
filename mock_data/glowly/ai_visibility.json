@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "generated_at": "demo-mode",
+    "business_file": "business_profile.json",
+    "business_name": "Glowly Skincare",
+    "location_used": "Dubai, UAE",
+    "location_source": "business_profile.json location field",
+    "model": "sonar",
+    "total_queries": 5,
+    "succeeded": 5,
+    "failed": 0,
+    "mentioned_count": 1,
+    "_demo_mode": true
+  },
+  "results": [
+    {
+      "query": "best D2C Skincare in Dubai, UAE",
+      "success": true,
+      "response_text": "Popular D2C skincare brands available in the UAE include Dermalux UAE, known for clinical, dermatologist-branded products, and Souq Skin Co., known for a wide, affordable product range with regional shipping.",
+      "citations": ["https://dermalux.ae", "https://souqskin.com"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "where can I get Hydrating Gel Cleanser in Dubai, UAE",
+      "success": true,
+      "response_text": "Hydrating gel cleansers are widely available from UAE-based retailers and brands, including Dermalux UAE and various international brands stocked at Sephora Middle East and Namshi.",
+      "citations": ["https://dermalux.ae", "https://sephora.ae", "https://namshi.com"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "Glowly Skincare reviews",
+      "success": true,
+      "response_text": "I don't have specific review data for a brand called Glowly Skincare. It may be a newer or smaller D2C brand not yet indexed in the review sources I have access to.",
+      "citations": [],
+      "search_results": [],
+      "mentioned_exact": true,
+      "mentioned_partial": true
+    },
+    {
+      "query": "top-rated Beauty and Personal Care near Dubai, UAE",
+      "success": true,
+      "response_text": "Dubai's beauty retail scene is dominated by Sephora Middle East, Namshi, and regional brands like Dermalux UAE. For skincare specifically, Dermalux UAE and Souq Skin Co. are commonly mentioned D2C options.",
+      "citations": ["https://sephora.ae", "https://dermalux.ae", "https://souqskin.com"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "recommend a good D2C Skincare in Dubai, UAE",
+      "success": true,
+      "response_text": "For D2C skincare in the UAE, Dermalux UAE is often recommended for its clinical positioning, and Souq Skin Co. for affordability and range. Smaller, newer brands may also be worth exploring but tend to have less established online coverage.",
+      "citations": ["https://dermalux.ae", "https://souqskin.com"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    }
+  ]
+}

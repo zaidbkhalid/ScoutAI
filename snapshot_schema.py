@@ -129,9 +129,17 @@ def make_entity(
     }
 
 
-def snapshot_filename(prefix="snapshot"):
-    """Generate a timestamped snapshot filename (UTC)."""
+def snapshot_filename(prefix="snapshot", source=""):
+    """Generate a timestamped snapshot filename (UTC).
+
+    Includes the source name when given, since the timestamp alone is
+    only second-precision -- two fast fetchers (e.g. rss + tiktok) can
+    finish in the same second, and without a per-source distinguisher
+    the second write would silently overwrite the first's file.
+    """
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    if source:
+        return f"{prefix}_{source}_{ts}.json"
     return f"{prefix}_{ts}.json"
 
 

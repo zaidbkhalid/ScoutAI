@@ -143,7 +143,7 @@ def main():
         "fetched_at": observed_at,
     }
 
-    filename = snapshot_filename("snapshot")
+    filename = snapshot_filename("snapshot", "youtube_trending")
     write_snapshot(filename, "youtube_trending", source_meta, entities)
 
     print(f"  Saved {len(entities)} entities -> {filename}")

@@ -1,0 +1,49 @@
+{
+  "legibility_summary": "FirePit BBQ Co. has partial but fragile AI visibility. The website carries no structured data, but the business does get a passing mention in 2 of 5 test queries -- likely from organic mentions on food delivery platforms or social media rather than anything the website itself is doing. Established competitors Bar-B-Q Tonight and Butt Karahi are cited as the primary recommendation in every query; FirePit shows up as a secondary, less-confident mention ('some diners mention trying newer entrants') rather than a peer recommendation.",
+  "structured_data_gaps": [
+    {
+      "missing": "Business-identity schema (e.g. Restaurant or FoodEstablishment)",
+      "why_it_matters": "Currently there's no structured way for an answer engine to confirm FirePit is a restaurant, what it serves, or where it's located -- everything it 'knows' is inferred indirectly, which likely explains the hedged, low-confidence phrasing in the responses that did mention it."
+    },
+    {
+      "missing": "Review/AggregateRating schema",
+      "why_it_matters": "Both cited competitors lean on being well-established rather than a stated rating either, so this is an open opportunity, not just a gap to close defensively."
+    },
+    {
+      "missing": "Product/menu schema for signature platters",
+      "why_it_matters": "Specific items (the Match Night Platter, Iftar Combo) aren't independently discoverable -- only the restaurant as a whole gets a vague, hedged mention."
+    }
+  ],
+  "visibility_gaps": [
+    {
+      "query": "best Barbecue Restaurant in Lahore, Pakistan",
+      "what_happened": "not mentioned -- cited instead: Bar-B-Q Tonight, Butt Karahi",
+      "note": "Both established chains named directly; FirePit absent even as an alternative."
+    },
+    {
+      "query": "top-rated Food and Beverage near Lahore, Pakistan",
+      "what_happened": "mentioned, but hedged -- named as a newer entrant 'gaining attention' rather than a confident recommendation",
+      "note": "This is a real, if fragile, signal -- worth reinforcing rather than starting from zero."
+    },
+    {
+      "query": "recommend a good Barbecue Restaurant in Lahore, Pakistan",
+      "what_happened": "mentioned, but hedged -- described as an option 'some diners mention trying' with 'limited coverage'",
+      "note": "The hedging language itself is informative: it reads like the model has weak, secondhand signal rather than strong on-site information."
+    }
+  ],
+  "recommended_fixes": [
+    {
+      "fix": "Add Restaurant/FoodEstablishment JSON-LD to the homepage with name, address, phone, and cuisine type.",
+      "reasoning": "The existing partial mentions suggest FirePit already has some organic presence -- structured data on the site itself could turn the current hedged mentions into more confident ones."
+    },
+    {
+      "fix": "Add Menu/Product schema for a few signature items (Match Night Platter, Iftar Family Combo).",
+      "reasoning": "Directly targets the missing product-level markup, and both items are already built around named, ownable positioning that would translate well into structured data."
+    },
+    {
+      "fix": "Add AggregateRating schema if there's a real rating to reference from delivery platforms or Google Business Profile.",
+      "reasoning": "Neither established competitor has this either based on the audit -- it's a real gap in the category, not just for FirePit specifically."
+    }
+  ],
+  "caveat": "Based on a single automated homepage check and 5 test queries to one AI answer engine -- a small, point-in-time sample. None of these fixes are guaranteed to improve visibility; they're worth testing and re-checking over time, not treated as settled."
+}

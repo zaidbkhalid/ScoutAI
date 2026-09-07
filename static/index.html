@@ -3,590 +3,720 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trend Intelligence Agent</title>
+<title>ScoutAI — Trend & Marketing Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-  :root {
-    --bg: #f5f2eb;
-    --ink: #1a1814;
-    --muted: #8a8578;
-    --border: #d8d3c8;
-    --accent: #c8402a;
-    --accent2: #2a6bc8;
-    --surface: #ffffff;
-    --surface2: #ede9e0;
-    --r: 4px;
+  :root{
+    --bg:#faf9f5; --surface:#ffffff; --surface2:#f0f4f3;
+    --ink:#14201d; --muted:#68766f; --border:#e4e8e4;
+    --teal:#0d9488; --teal-dark:#0f766e; --teal-tint:#ecfdf9; --teal-light:#ccfbf1;
+    --amber:#b45309; --amber-bg:#fef3c7;
+    --red:#b91c1c; --red-bg:#fee2e2;
+    --blue:#1d4ed8; --blue-bg:#dbeafe;
   }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif; -webkit-font-smoothing:antialiased;}
+  .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; line-height:1;}
+  .icon-fill{font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;}
+  .icon-sm{font-size:16px}
+  .icon-md{font-size:20px}
+  .icon-lg{font-size:26px}
+  .icon-xl{font-size:38px}
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Cabinet Grotesk', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  .step{display:none;animation:fadeUp .35s ease}
+  .step.active{display:block}
 
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 1000; opacity: 0.4;
-  }
+  .field-input{width:100%;background:var(--surface2);border:1.5px solid transparent;border-radius:12px;padding:13px 16px;font:inherit;font-size:15px;color:var(--ink);outline:none;transition:all .15s}
+  .field-input:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+  textarea.field-input{min-height:96px;line-height:1.6;resize:vertical}
+  .field-label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
+  .field-label .opt{color:var(--muted);font-weight:500}
 
-  /* ── Header ── */
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 40px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 15px; font-weight: 800; letter-spacing: -0.02em;
-  }
-  .logo-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
-  .header-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--muted);
-    border: 1px solid var(--border);
-    padding: 4px 10px; border-radius: 20px;
-  }
+  .chip{padding:7px 14px;border-radius:999px;border:1.5px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;user-select:none;transition:all .15s;background:var(--surface);color:var(--ink)}
+  .chip:hover{border-color:var(--ink)}
+  .chip.selected{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-  /* ── Main layout ── */
-  .main {
-    max-width: 780px; margin: 0 auto;
-    padding: 60px 24px 100px;
-  }
+  .preset-card{cursor:pointer;transition:all .15s;border:1.5px solid var(--border)}
+  .preset-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(20,32,29,.06)}
+  .preset-card.active{border-color:var(--teal) !important;box-shadow:0 0 0 3px rgba(13,148,136,.15)}
+  .preset-toast{opacity:0;transition:opacity .3s}
+  .preset-toast.show{opacity:1}
 
-  /* ── Hero ── */
-  .hero { margin-bottom: 56px; }
-  .hero-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.15em;
-    color: var(--accent); text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .hero h1 {
-    font-size: clamp(36px, 6vw, 58px);
-    font-weight: 900; line-height: 1.05;
-    letter-spacing: -0.03em;
-    margin-bottom: 16px;
-  }
-  .hero h1 em {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic; font-weight: 400;
-    color: var(--accent);
-  }
-  .hero p {
-    font-size: 17px; color: var(--muted);
-    max-width: 520px; line-height: 1.65;
-  }
+  .mode-card{cursor:pointer;transition:all .15s;border:1.5px solid var(--border)}
+  .mode-card.selected{border-color:var(--teal) !important;box-shadow:0 0 0 3px rgba(13,148,136,.15);background:var(--teal-tint)}
 
-  /* ── Preset quick-fill ── */
-  .preset-block { margin-bottom: 40px; }
-  .preset-block-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 12px;
-  }
-  .preset-row {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-  }
-  @media(max-width:640px) { .preset-row { grid-template-columns: 1fr; } }
-  .preset-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r);
-    padding: 16px 18px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .preset-card:hover { border-color: var(--ink); transform: translateY(-1px); }
-  .preset-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,64,42,0.1); }
-  .preset-emoji { font-size: 22px; margin-bottom: 6px; }
-  .preset-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-  .preset-desc { font-size: 12px; color: var(--muted); }
-  .preset-hint { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
-  .preset-toast {
-    display: inline-block; margin-top: 8px;
-    font-size: 12px; font-weight: 600; color: var(--accent);
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .preset-toast.show { opacity: 1; }
+  .app-tab{cursor:pointer;transition:all .15s;color:var(--muted)}
+  .app-tab:hover{color:var(--ink)}
+  .app-tab.active{background:var(--ink);color:#fff}
 
-  /* ── Step indicator ── */
-  .steps-bar {
-    display: flex; gap: 6px; margin-bottom: 40px;
-    align-items: center;
-  }
-  .step-dot {
-    height: 3px; border-radius: 2px;
-    background: var(--border);
-    transition: all 0.3s ease; flex: 1;
-  }
-  .step-dot.active { background: var(--accent); }
-  .step-dot.done   { background: var(--ink); }
-  .step-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--muted);
-    margin-left: 8px; white-space: nowrap;
-  }
+  .step-dot{height:5px;border-radius:3px;background:var(--border);transition:background .25s;flex:1}
+  .step-dot.active{background:var(--teal)}
+  .step-dot.done{background:var(--ink)}
 
-  /* ── Form steps ── */
-  .step { display: none; animation: fadeUp 0.35s ease; }
-  .step.active { display: block; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .macro-step{transition:all .2s;color:var(--muted)}
+  .macro-step.active{background:var(--teal);color:#fff}
+  .macro-step.done{color:var(--ink)}
+  .macro-badge{background:var(--surface2);color:var(--muted)}
+  .macro-step.active .macro-badge{background:#fff;color:var(--teal)}
+  .macro-step.done .macro-badge{background:var(--ink);color:#fff}
 
-  .step-header { margin-bottom: 32px; }
-  .step-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--muted);
-    margin-bottom: 8px;
-  }
-  .step-title {
-    font-size: 26px; font-weight: 800;
-    letter-spacing: -0.02em; margin-bottom: 8px;
-  }
-  .step-desc { font-size: 15px; color: var(--muted); }
+  .log-box{background:#0f1712;color:#8fe3b0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.8;padding:18px 20px;border-radius:14px;white-space:pre-wrap;max-height:220px;overflow-y:auto}
 
-  /* ── Fields ── */
-  .field { margin-bottom: 24px; }
-  .field label {
-    display: block;
-    font-size: 13px; font-weight: 700;
-    letter-spacing: 0.01em;
-    margin-bottom: 8px;
-  }
-  .field label span { color: var(--muted); font-weight: 400; }
-  .field input, .field textarea, .field select {
-    width: 100%;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r);
-    padding: 13px 16px;
-    font-family: 'Cabinet Grotesk', sans-serif;
-    font-size: 15px; color: var(--ink);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    resize: vertical;
-  }
-  .field input:focus, .field textarea:focus, .field select:focus {
-    border-color: var(--ink);
-    box-shadow: 0 0 0 3px rgba(26,24,20,0.06);
-  }
-  .field textarea { min-height: 110px; line-height: 1.6; }
+  input[type=checkbox]{accent-color:var(--teal);width:18px;height:18px;cursor:pointer;flex-shrink:0}
 
-  .field-hint {
-    font-size: 12px; color: var(--muted);
-    margin-top: 6px; line-height: 1.5;
-  }
+  .spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+  .pop{animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
 
-  /* ── Two column fields ── */
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width:560px) { .field-row { grid-template-columns: 1fr; } }
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:18px}
+  .result-list{list-style:none}
+  .result-list li{font-size:13.5px;color:#3f4a45;line-height:1.65;padding:10px 0;border-bottom:1px solid var(--border)}
+  .result-list li:last-child{border-bottom:none}
+  .result-list li strong{color:var(--ink)}
 
-  /* ── Chip selector ── */
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip {
-    padding: 7px 14px; border-radius: 20px;
-    border: 1.5px solid var(--border);
-    font-size: 13px; font-weight: 500;
-    cursor: pointer; user-select: none;
-    transition: all 0.15s;
-    background: var(--surface);
-  }
-  .chip:hover { border-color: var(--ink); }
-  .chip.selected {
-    background: var(--ink); color: var(--bg);
-    border-color: var(--ink);
-  }
+  .error-msg{background:var(--red-bg);border:1px solid #f5b8b8;color:var(--red);border-radius:12px;padding:12px 16px;font-size:13px;margin-top:12px;display:none}
 
-  /* ── Navigation buttons ── */
-  .nav-row {
-    display: flex; justify-content: space-between;
-    align-items: center; margin-top: 40px;
-    padding-top: 24px; border-top: 1px solid var(--border);
-  }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 13px 28px; border-radius: var(--r);
-    font-family: 'Cabinet Grotesk', sans-serif;
-    font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: all 0.15s;
-    border: none; outline: none;
-  }
-  .btn-primary {
-    background: var(--ink); color: var(--bg);
-  }
-  .btn-primary:hover { background: #333; transform: translateY(-1px); }
-  .btn-ghost {
-    background: transparent; color: var(--muted);
-    border: 1.5px solid var(--border);
-  }
-  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
-  .btn-accent {
-    background: var(--accent); color: white;
-    font-size: 16px; padding: 15px 36px;
-  }
-  .btn-accent:hover { background: #a8341f; transform: translateY(-1px); }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-  .btn svg { width: 16px; height: 16px; }
-
-  /* ── Geo / keyword config ── */
-  .config-box {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px 22px;
-    margin-bottom: 24px;
-  }
-  .config-box-title {
-    font-size: 13px; font-weight: 700;
-    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-  }
-  .config-box-title span {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; color: var(--muted);
-    font-weight: 400;
-  }
-
-  /* ── Processing screen ── */
-  #screen-processing { display: none; }
-  .processing-wrap {
-    text-align: center; padding: 80px 20px;
-  }
-  .processing-icon {
-    width: 64px; height: 64px; margin: 0 auto 28px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .processing-title {
-    font-size: 24px; font-weight: 800;
-    letter-spacing: -0.02em; margin-bottom: 10px;
-  }
-  .processing-sub { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
-  .log-box {
-    background: var(--ink); color: #a8e6a0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; line-height: 1.8;
-    padding: 20px 24px; border-radius: var(--r);
-    text-align: left; max-height: 240px;
-    overflow-y: auto; white-space: pre-wrap;
-  }
-
-  /* ── Done screen ── */
-  #screen-done { display: none; }
-  .done-wrap { text-align: center; padding: 80px 20px; }
-  .done-icon {
-    font-size: 56px; margin-bottom: 24px;
-    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
-  .done-title {
-    font-size: 32px; font-weight: 900;
-    letter-spacing: -0.03em; margin-bottom: 10px;
-  }
-  .done-sub { color: var(--muted); font-size: 16px; margin-bottom: 36px; }
-  .done-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-
-  /* ── Error ── */
-  .error-msg {
-    background: #fff0ee; border: 1px solid #f8c8c0;
-    color: var(--accent); border-radius: var(--r);
-    padding: 12px 16px; font-size: 13px;
-    margin-top: 12px; display: none;
-  }
-
-  /* ── Divider ── */
-  .divider {
-    border: none; border-top: 1px solid var(--border);
-    margin: 32px 0;
-  }
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">
-    <div class="logo-dot"></div>
-    Trend Intelligence
+<header class="sticky top-0 z-50 bg-[#faf9f5]/95 backdrop-blur border-b border-[var(--border)]">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2 cursor-pointer select-none" onclick="goHome()">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+        <rect x="2" y="2" width="36" height="36" rx="11" fill="#0F766E"/>
+        <circle cx="20" cy="20" r="11" stroke="#99F6E4" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>
+        <circle cx="20" cy="20" r="5.5" stroke="#FFFFFF" stroke-width="1.5" opacity="0.85"/>
+        <circle cx="20" cy="20" r="2" fill="#2DD4BF"/>
+        <path d="M20 9L23.5 18L20 20L16.5 18Z" fill="#2DD4BF"/>
+        <path d="M20 31L16.5 22L20 20L23.5 22Z" fill="#FFFFFF" opacity="0.85"/>
+      </svg>
+      <span class="text-lg font-extrabold tracking-tight">Scout<span class="text-[var(--teal)]">AI</span></span>
+    </div>
+    <nav class="hidden sm:flex items-center gap-1 text-sm font-bold">
+      <div class="app-tab px-4 py-2 rounded-xl" id="nav-home" onclick="goHome()">Overview</div>
+      <div class="app-tab px-4 py-2 rounded-xl" id="nav-trends" onclick="switchTab('trends')">Trend Analysis</div>
+      <div class="app-tab px-4 py-2 rounded-xl" id="nav-competitor" onclick="switchTab('competitor')">Competitor Check</div>
+    </nav>
+    <button class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors" onclick="switchTab('trends')">
+      <span class="material-symbols-outlined icon-sm">explore</span>
+      <span class="hidden sm:inline">Analyze My Business</span>
+      <span class="sm:hidden">Start</span>
+    </button>
   </div>
-  <div class="header-tag">BETA · v1.0</div>
 </header>
 
-<main class="main">
+<!-- ══════════════════════ LANDING ══════════════════════ -->
+<section id="view-landing">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 pt-14 pb-24">
 
-  <!-- ══ FORM SCREEN ══ -->
-  <div id="screen-form">
-
-    <div class="hero">
-      <div class="hero-label">AI-Powered Marketing Intelligence</div>
-      <h1>Know <em>exactly</em> what's trending — and how to use it.</h1>
-      <p>Tell us about your business. We'll scan what Pakistan is searching for right now and generate specific marketing ideas for you.</p>
+    <div class="flex justify-center mb-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm text-[var(--teal-dark)] text-xs font-bold uppercase tracking-wider">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--teal)] opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--teal)]"></span>
+        </span>
+        <span class="material-symbols-outlined icon-sm">explore</span>
+        AI Marketing Scout
+      </div>
     </div>
 
-    <!-- Quick-fill example businesses -->
-    <div class="preset-block">
-      <div class="preset-block-label">Quick fill — synthetic example businesses</div>
-      <div class="preset-row">
-        <div class="preset-card" id="preset-velvet" onclick="applyPreset('velvet')">
-          <div class="preset-emoji">🎂</div>
-          <div class="preset-name">Velvet Crumbs</div>
-          <div class="preset-desc">Home bakery · Karachi, PK</div>
-        </div>
-        <div class="preset-card" id="preset-firepit" onclick="applyPreset('firepit')">
-          <div class="preset-emoji">🔥</div>
-          <div class="preset-name">FirePit BBQ Co.</div>
-          <div class="preset-desc">BBQ restaurant · Lahore, PK</div>
-        </div>
-        <div class="preset-card" id="preset-glowly" onclick="applyPreset('glowly')">
-          <div class="preset-emoji">✨</div>
-          <div class="preset-name">Glowly Skincare</div>
-          <div class="preset-desc">D2C skincare · Dubai, AE</div>
-        </div>
-      </div>
-      <div class="preset-hint">
-        Click one to instantly fill every field below (across all 4 steps) with synthetic example data — then edit anything before submitting. Or just start typing below to enter your own business manually.
-      </div>
-      <div id="preset-toast" class="preset-toast"></div>
+    <h1 class="text-center text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.08] max-w-3xl mx-auto">
+      Find out what's trending — <span class="text-[var(--teal)]">before it's old news.</span>
+    </h1>
+    <p class="text-center text-lg text-[var(--muted)] max-w-2xl mx-auto mt-5 leading-relaxed">
+      ScoutAI scans Google, YouTube, TikTok and news in real time, scores what's actually rising instead of just
+      currently popular, and turns it into marketing ideas for your business.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-9">
+      <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg shadow-teal-900/10 transition-all" onclick="switchTab('trends')">
+        <span class="material-symbols-outlined">explore</span> Analyze My Business
+      </button>
+      <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-[var(--surface2)] text-[var(--ink)] font-bold px-7 py-3.5 rounded-2xl shadow-sm transition-all" onclick="switchTab('competitor')">
+        <span class="material-symbols-outlined text-[var(--teal)]">track_changes</span> Check Competitors
+      </button>
     </div>
 
-    <!-- Progress bar -->
-    <div class="steps-bar">
-      <div class="step-dot active" id="dot-1"></div>
-      <div class="step-dot" id="dot-2"></div>
-      <div class="step-dot" id="dot-3"></div>
-      <div class="step-dot" id="dot-4"></div>
-      <div class="step-label" id="step-label">Step 1 of 4</div>
+    <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-7 text-sm text-[var(--muted)] font-semibold">
+      <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined icon-fill icon-sm text-[var(--teal)]">check_circle</span>No signup needed</span>
+      <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined icon-fill icon-sm text-[var(--teal)]">bolt</span>Try it instantly with a demo business</span>
+      <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined icon-fill icon-sm text-[var(--teal)]">schedule</span>Only ever the last few days of trends</span>
     </div>
 
-    <form id="biz-form">
-
-      <!-- ── Step 1: Basics ── -->
-      <div class="step active" id="step-1">
-        <div class="step-header">
-          <div class="step-num">01 / 04</div>
-          <div class="step-title">The Basics</div>
-          <div class="step-desc">Start with who you are and what you sell.</div>
+    <!-- Feature cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
+      <div class="card p-6 hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-xl bg-[var(--teal-tint)] flex items-center justify-center text-[var(--teal-dark)] mb-4">
+          <span class="material-symbols-outlined icon-lg">radar</span>
         </div>
-
-        <div class="field">
-          <label>Business Name <span>(required)</span></label>
-          <input type="text" id="business_name" placeholder="e.g. Velvet Crumbs" required>
-        </div>
-
-        <div class="field">
-          <label>Tagline <span>(optional)</span></label>
-          <input type="text" id="tagline" placeholder="e.g. Crafted with precision. Baked with heart.">
-        </div>
-
-        <div class="field">
-          <label>What does your business do? <span>(required)</span></label>
-          <textarea id="about" placeholder="Describe your business in a few sentences. What do you sell? When did you start? What's your story?" required></textarea>
-        </div>
-
-        <div class="field">
-          <label>Products or Services <span>(required)</span></label>
-          <textarea id="products" placeholder="List your main products or services. e.g.&#10;- Custom celebration cakes&#10;- Bento cakes&#10;- Cupcake boxes" required></textarea>
-        </div>
-
-        <div class="nav-row">
-          <div></div>
-          <button type="button" class="btn btn-primary" onclick="nextStep(1)">
-            Next
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-          </button>
-        </div>
+        <h3 class="font-bold text-[15px] mb-1.5">Real-Time Trend Scoring</h3>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">Freshness-scored trends from Google, YouTube, TikTok and news — capped to the last few days, never stale.</p>
       </div>
-
-      <!-- ── Step 2: Audience & Tone ── -->
-      <div class="step" id="step-2">
-        <div class="step-header">
-          <div class="step-num">02 / 04</div>
-          <div class="step-title">Your Audience & Voice</div>
-          <div class="step-desc">Who buys from you, and how do you speak to them?</div>
+      <div class="card p-6 hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-xl bg-[var(--blue-bg)] flex items-center justify-center text-[var(--blue)] mb-4">
+          <span class="material-symbols-outlined icon-lg">track_changes</span>
         </div>
-
-        <div class="field">
-          <label>Who is your target audience?</label>
-          <textarea id="target_audience" placeholder="e.g. Women aged 18–35 in Karachi, mostly buying for birthdays, gifting, or personal indulgence. Active on Instagram."></textarea>
-        </div>
-
-        <div class="field">
-          <label>What makes you different?</label>
-          <textarea id="usp" placeholder="e.g. Premium ingredients, balanced sweetness (not overly sugary), fast turnaround, custom designs."></textarea>
-        </div>
-
-        <div class="field">
-          <label>Brand Tone <span>(select all that apply)</span></label>
-          <div class="chips" id="tone-chips">
-            <div class="chip" data-val="warm">Warm</div>
-            <div class="chip" data-val="professional">Professional</div>
-            <div class="chip" data-val="playful">Playful</div>
-            <div class="chip" data-val="witty">Witty</div>
-            <div class="chip" data-val="inspirational">Inspirational</div>
-            <div class="chip" data-val="bold">Bold</div>
-            <div class="chip" data-val="aesthetic">Aesthetic</div>
-            <div class="chip" data-val="luxury">Luxury</div>
-            <div class="chip" data-val="edgy">Edgy</div>
-            <div class="chip" data-val="casual">Casual</div>
-          </div>
-        </div>
-
-        <div class="nav-row">
-          <button type="button" class="btn btn-ghost" onclick="prevStep(2)">← Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep(2)">
-            Next
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-          </button>
-        </div>
+        <h3 class="font-bold text-[15px] mb-1.5">Competitor Intelligence</h3>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">See how named competitors position themselves, and where you could stand out.</p>
       </div>
-
-      <!-- ── Step 3: Location & Channels ── -->
-      <div class="step" id="step-3">
-        <div class="step-header">
-          <div class="step-num">03 / 04</div>
-          <div class="step-title">Where You Operate</div>
-          <div class="step-desc">Location and marketing channels help us find locally relevant trends.</div>
+      <div class="card p-6 hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-xl bg-[var(--amber-bg)] flex items-center justify-center text-[var(--amber)] mb-4">
+          <span class="material-symbols-outlined icon-lg">psychology</span>
         </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label>City / Location</label>
-            <input type="text" id="location" placeholder="e.g. Karachi, Pakistan">
-          </div>
-          <div class="field">
-            <label>Business Stage</label>
-            <select id="stage">
-              <option value="">Select...</option>
-              <option value="idea">Idea stage</option>
-              <option value="early-stage">Early stage (0–1 yr)</option>
-              <option value="growth">Growth (1–3 yrs)</option>
-              <option value="established">Established (3+ yrs)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Marketing Channels <span>(select all that apply)</span></label>
-          <div class="chips" id="channel-chips">
-            <div class="chip" data-val="Instagram">Instagram</div>
-            <div class="chip" data-val="WhatsApp">WhatsApp</div>
-            <div class="chip" data-val="TikTok">TikTok</div>
-            <div class="chip" data-val="Facebook">Facebook</div>
-            <div class="chip" data-val="Twitter/X">Twitter/X</div>
-            <div class="chip" data-val="Email">Email</div>
-            <div class="chip" data-val="Website">Website</div>
-            <div class="chip" data-val="Word of mouth">Word of mouth</div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Anything else we should know? <span>(optional)</span></label>
-          <textarea id="extra" placeholder="e.g. We only take orders 2–3 days in advance. We're currently focusing on growing our Instagram. We do free tasting boxes for influencers."></textarea>
-          <div class="field-hint">Competitors, pricing range, seasonal notes — anything relevant.</div>
-        </div>
-
-        <div class="nav-row">
-          <button type="button" class="btn btn-ghost" onclick="prevStep(3)">← Back</button>
-          <button type="button" class="btn btn-primary" onclick="nextStep(3)">
-            Next
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-          </button>
-        </div>
+        <h3 class="font-bold text-[15px] mb-1.5">AI Visibility Check</h3>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">Find out whether AI answer engines currently recommend your business — or a competitor instead.</p>
       </div>
-
-      <!-- ── Step 4: Trend Config ── -->
-      <div class="step" id="step-4">
-        <div class="step-header">
-          <div class="step-num">04 / 04</div>
-          <div class="step-title">Trend Settings</div>
-          <div class="step-desc">Configure how we scan Google Trends for you.</div>
+      <div class="card p-6 hover:shadow-md transition-shadow">
+        <div class="w-11 h-11 rounded-xl bg-[var(--teal-tint)] flex items-center justify-center text-[var(--teal-dark)] mb-4">
+          <span class="material-symbols-outlined icon-lg">auto_awesome</span>
         </div>
-
-        <div class="config-box">
-          <div class="config-box-title">
-            📍 Country
-            <span>Which country's trends to monitor</span>
-          </div>
-          <div class="chips" id="geo-chips">
-            <div class="chip selected" data-val="PK">🇵🇰 Pakistan</div>
-            <div class="chip" data-val="US">🇺🇸 United States</div>
-            <div class="chip" data-val="IN">🇮🇳 India</div>
-            <div class="chip" data-val="GB">🇬🇧 United Kingdom</div>
-            <div class="chip" data-val="AE">🇦🇪 UAE</div>
-            <div class="chip" data-val="">🌍 Worldwide</div>
-          </div>
-        </div>
-
-        <div class="config-box">
-          <div class="config-box-title">
-            🔍 Trend Keywords
-            <span>Topics to pull from Google Trends (max 5, comma-separated)</span>
-          </div>
-          <div class="field" style="margin-bottom:0">
-            <input type="text" id="trend_keywords"
-              value="PSL,rain Karachi,Eid,drama Pakistan,celebrity"
-              placeholder="PSL, rain Karachi, Eid, drama Pakistan, celebrity">
-            <div class="field-hint">These are broad topics — NOT your products. The AI will figure out the connection.</div>
-          </div>
-        </div>
-
-        <div id="form-error" class="error-msg"></div>
-
-        <div class="nav-row">
-          <button type="button" class="btn btn-ghost" onclick="prevStep(4)">← Back</button>
-          <button type="submit" class="btn btn-accent" id="submit-btn">
-            🚀 Analyze My Trends
-          </button>
-        </div>
+        <h3 class="font-bold text-[15px] mb-1.5">Campaign Ideas in Minutes</h3>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">Turn any selected trend into a ready-to-use campaign concept, tailored to your business.</p>
       </div>
-
-    </form>
-  </div><!-- /screen-form -->
-
-  <!-- ══ PROCESSING SCREEN ══ -->
-  <div id="screen-processing">
-    <div class="processing-wrap">
-      <div class="processing-icon"></div>
-      <div class="processing-title">Analyzing your trends...</div>
-      <div class="processing-sub" id="processing-step">Fetching what Pakistan is searching for right now</div>
-      <div class="log-box" id="log-box">Starting pipeline...<br></div>
     </div>
+
+    <!-- Demo section -->
+    <div class="mt-16 bg-white rounded-3xl shadow-sm p-6 sm:p-10">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="material-symbols-outlined icon-md text-[var(--teal)]">bolt</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-[var(--teal-dark)]">Instant demo — no typing needed</span>
+      </div>
+      <h2 class="text-2xl font-extrabold tracking-tight mb-2">Try it now with a demo business</h2>
+      <p class="text-[var(--muted)] mb-6 max-w-2xl">Click a card to instantly load a synthetic example business and see a full report, at zero cost.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="preset-card rounded-2xl bg-[var(--surface2)] p-5" onclick="startWithPreset('velvet')">
+          <div class="text-3xl mb-2">🎂</div>
+          <div class="font-bold text-[15px]">Velvet Crumbs</div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">Home bakery · Karachi, PK</div>
+          <div class="text-xs font-bold text-[var(--teal-dark)] mt-3 inline-flex items-center gap-1">Load demo <span class="material-symbols-outlined icon-sm">arrow_forward</span></div>
+        </div>
+        <div class="preset-card rounded-2xl bg-[var(--surface2)] p-5" onclick="startWithPreset('firepit')">
+          <div class="text-3xl mb-2">🔥</div>
+          <div class="font-bold text-[15px]">FirePit BBQ Co.</div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">BBQ restaurant · Lahore, PK</div>
+          <div class="text-xs font-bold text-[var(--teal-dark)] mt-3 inline-flex items-center gap-1">Load demo <span class="material-symbols-outlined icon-sm">arrow_forward</span></div>
+        </div>
+        <div class="preset-card rounded-2xl bg-[var(--surface2)] p-5" onclick="startWithPreset('glowly')">
+          <div class="text-3xl mb-2">✨</div>
+          <div class="font-bold text-[15px]">Glowly Skincare</div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">D2C skincare · Dubai, AE</div>
+          <div class="text-xs font-bold text-[var(--teal-dark)] mt-3 inline-flex items-center gap-1">Load demo <span class="material-symbols-outlined icon-sm">arrow_forward</span></div>
+        </div>
+        <div class="preset-card rounded-2xl bg-[var(--surface2)] p-5" onclick="startWithPreset('reprange')">
+          <div class="text-3xl mb-2">🏋️</div>
+          <div class="font-bold text-[15px]">Rep Range Studio</div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">Fitness studio · Islamabad, PK</div>
+          <div class="text-xs font-bold text-[var(--teal-dark)] mt-3 inline-flex items-center gap-1">Load demo <span class="material-symbols-outlined icon-sm">arrow_forward</span></div>
+        </div>
+        <div class="preset-card rounded-2xl bg-[var(--surface2)] p-5" onclick="startWithPreset('khaata')">
+          <div class="text-3xl mb-2">🧾</div>
+          <div class="font-bold text-[15px]">Khaata</div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">B2B SaaS · Lahore, PK</div>
+          <div class="text-xs font-bold text-[var(--teal-dark)] mt-3 inline-flex items-center gap-1">Load demo <span class="material-symbols-outlined icon-sm">arrow_forward</span></div>
+        </div>
+        <div class="preset-card rounded-2xl bg-[var(--surface2)] p-5" onclick="startWithPreset('kitekora')">
+          <div class="text-3xl mb-2">🧵</div>
+          <div class="font-bold text-[15px]">Kite &amp; Kora</div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">Fashion label · London, UK</div>
+          <div class="text-xs font-bold text-[var(--teal-dark)] mt-3 inline-flex items-center gap-1">Load demo <span class="material-symbols-outlined icon-sm">arrow_forward</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
+</section>
 
-  <!-- ══ DONE SCREEN ══ -->
-  <div id="screen-done">
-    <div class="done-wrap">
-      <div class="done-icon">🎉</div>
-      <div class="done-title">Your report is ready.</div>
-      <div class="done-sub">We found trending topics and mapped them to specific marketing ideas for your business.</div>
-      <div class="done-actions">
-        <a id="view-report-btn" href="#" target="_blank" class="btn btn-accent">
-          📊 View Full Report
-        </a>
-        <button class="btn btn-ghost" onclick="startOver()">
-          ↩ Analyze Another Business
+<!-- ══════════════════════ TREND ANALYSIS APP ══════════════════════ -->
+<div id="app-trends" style="display:none">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 py-10">
+
+    <div class="flex justify-center mb-10">
+      <div class="inline-flex items-center gap-0.5 sm:gap-1 bg-white p-1.5 rounded-full shadow-sm text-[11px] sm:text-sm font-bold" id="macro-stepper">
+        <div class="macro-step flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-full" id="macro-1">
+          <span class="macro-badge w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" id="macro-badge-1">1</span>
+          <span>Business Profile</span>
+        </div>
+        <span class="material-symbols-outlined text-[var(--border)] icon-sm">chevron_right</span>
+        <div class="macro-step flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-full" id="macro-2">
+          <span class="macro-badge w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" id="macro-badge-2">2</span>
+          <span>Discover Trends</span>
+        </div>
+        <span class="material-symbols-outlined text-[var(--border)] icon-sm">chevron_right</span>
+        <div class="macro-step flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-full" id="macro-3">
+          <span class="macro-badge w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" id="macro-badge-3">3</span>
+          <span>Campaign Ideas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FORM SCREEN ══ -->
+    <div id="screen-form">
+
+      <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">Tell us about your business</h1>
+        <p class="text-[var(--muted)] max-w-xl mx-auto">A few quick questions, then we'll scan what's genuinely trending right now and match it to you.</p>
+      </div>
+
+      <div class="mb-8">
+        <div class="text-xs font-bold uppercase tracking-wider text-[var(--muted)] mb-3 text-center">Or instantly load a demo business</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="preset-card rounded-2xl bg-white p-4" id="preset-velvet" onclick="applyPreset('velvet')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🎂</div>
+              <div>
+                <div class="font-bold text-[13.5px]">Velvet Crumbs</div>
+                <div class="text-[11px] text-[var(--muted)]">Home bakery · Karachi, PK</div>
+              </div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="preset-firepit" onclick="applyPreset('firepit')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🔥</div>
+              <div>
+                <div class="font-bold text-[13.5px]">FirePit BBQ Co.</div>
+                <div class="text-[11px] text-[var(--muted)]">BBQ restaurant · Lahore, PK</div>
+              </div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="preset-glowly" onclick="applyPreset('glowly')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">✨</div>
+              <div>
+                <div class="font-bold text-[13.5px]">Glowly Skincare</div>
+                <div class="text-[11px] text-[var(--muted)]">D2C skincare · Dubai, AE</div>
+              </div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="preset-reprange" onclick="applyPreset('reprange')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🏋️</div>
+              <div>
+                <div class="font-bold text-[13.5px]">Rep Range Studio</div>
+                <div class="text-[11px] text-[var(--muted)]">Fitness studio · Islamabad, PK</div>
+              </div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="preset-khaata" onclick="applyPreset('khaata')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🧾</div>
+              <div>
+                <div class="font-bold text-[13.5px]">Khaata</div>
+                <div class="text-[11px] text-[var(--muted)]">B2B SaaS · Lahore, PK</div>
+              </div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="preset-kitekora" onclick="applyPreset('kitekora')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🧵</div>
+              <div>
+                <div class="font-bold text-[13.5px]">Kite &amp; Kora</div>
+                <div class="text-[11px] text-[var(--muted)]">Fashion label · London, UK</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="preset-toast" class="preset-toast text-center text-sm font-bold text-[var(--teal-dark)] mt-3"></div>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-sm p-6 sm:p-10">
+
+        <div class="flex items-center gap-3 mb-8">
+          <div class="flex-1 flex gap-1.5">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
+            <div class="step-dot" id="dot-4"></div>
+            <div class="step-dot" id="dot-5"></div>
+          </div>
+          <span class="text-xs font-bold text-[var(--muted)] whitespace-nowrap" id="step-label">Step 1 of 5</span>
+        </div>
+
+        <form id="biz-form">
+
+          <!-- Step 1: Basics -->
+          <div class="step active" id="step-1">
+            <div class="mb-7">
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">01 / 05</div>
+              <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">The Basics</h2>
+              <p class="text-[var(--muted)] text-[15px]">Start with who you are and what you sell.</p>
+            </div>
+
+            <div class="mb-5">
+              <label class="field-label">Business Name <span class="opt">(required)</span></label>
+              <input type="text" class="field-input" id="business_name" placeholder="e.g. Velvet Crumbs" required>
+            </div>
+            <div class="mb-5">
+              <label class="field-label">Tagline <span class="opt">(optional)</span></label>
+              <input type="text" class="field-input" id="tagline" placeholder="e.g. Crafted with precision. Baked with heart.">
+            </div>
+            <div class="mb-5">
+              <label class="field-label">What does your business do? <span class="opt">(required)</span></label>
+              <textarea class="field-input" id="about" placeholder="Describe your business in a few sentences. What do you sell? When did you start? What's your story?" required></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="field-label">Products or Services <span class="opt">(required)</span></label>
+              <textarea class="field-input" id="products" placeholder="List your main products or services. e.g.&#10;- Custom celebration cakes&#10;- Bento cakes&#10;- Cupcake boxes" required></textarea>
+            </div>
+
+            <div class="flex justify-end mt-8 pt-6 border-t border-[var(--border)]">
+              <button type="button" class="inline-flex items-center gap-2 bg-[var(--ink)] hover:bg-black text-white font-bold px-6 py-3 rounded-xl transition-colors" onclick="nextStep(1)">
+                Next <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Audience & Tone -->
+          <div class="step" id="step-2">
+            <div class="mb-7">
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">02 / 05</div>
+              <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">Your Audience & Voice</h2>
+              <p class="text-[var(--muted)] text-[15px]">Who buys from you, and how do you speak to them?</p>
+            </div>
+
+            <div class="mb-5">
+              <label class="field-label">Who is your target audience? <span class="opt">(optional)</span></label>
+              <textarea class="field-input" id="target_audience" placeholder="e.g. Women aged 18–35 in Karachi, mostly buying for birthdays, gifting, or personal indulgence. Active on Instagram."></textarea>
+            </div>
+            <div class="mb-5">
+              <label class="field-label">What makes you different? <span class="opt">(optional)</span></label>
+              <textarea class="field-input" id="usp" placeholder="e.g. Premium ingredients, balanced sweetness (not overly sugary), fast turnaround, custom designs."></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="field-label">Brand Tone <span class="opt">(select all that apply)</span></label>
+              <div class="flex flex-wrap gap-2" id="tone-chips">
+                <div class="chip" data-val="warm">Warm</div>
+                <div class="chip" data-val="professional">Professional</div>
+                <div class="chip" data-val="playful">Playful</div>
+                <div class="chip" data-val="witty">Witty</div>
+                <div class="chip" data-val="inspirational">Inspirational</div>
+                <div class="chip" data-val="bold">Bold</div>
+                <div class="chip" data-val="aesthetic">Aesthetic</div>
+                <div class="chip" data-val="luxury">Luxury</div>
+                <div class="chip" data-val="edgy">Edgy</div>
+                <div class="chip" data-val="casual">Casual</div>
+              </div>
+            </div>
+
+            <div class="flex justify-between mt-8 pt-6 border-t border-[var(--border)]">
+              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(2)">
+                <span class="material-symbols-outlined icon-sm">arrow_back</span> Back
+              </button>
+              <button type="button" class="inline-flex items-center gap-2 bg-[var(--ink)] hover:bg-black text-white font-bold px-6 py-3 rounded-xl transition-colors" onclick="nextStep(2)">
+                Next <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Location & Channels -->
+          <div class="step" id="step-3">
+            <div class="mb-7">
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">03 / 05</div>
+              <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">Where You Operate</h2>
+              <p class="text-[var(--muted)] text-[15px]">Location and marketing channels help us find locally relevant trends.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              <div>
+                <label class="field-label">City / Location</label>
+                <input type="text" class="field-input" id="location" placeholder="e.g. Karachi, Pakistan">
+              </div>
+              <div>
+                <label class="field-label">Business Stage</label>
+                <select class="field-input" id="stage">
+                  <option value="">Select...</option>
+                  <option value="idea">Idea stage</option>
+                  <option value="early-stage">Early stage (0–1 yr)</option>
+                  <option value="growth">Growth (1–3 yrs)</option>
+                  <option value="established">Established (3+ yrs)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <label class="field-label">Marketing Channels <span class="opt">(select all that apply)</span></label>
+              <div class="flex flex-wrap gap-2" id="channel-chips">
+                <div class="chip" data-val="Instagram">Instagram</div>
+                <div class="chip" data-val="WhatsApp">WhatsApp</div>
+                <div class="chip" data-val="TikTok">TikTok</div>
+                <div class="chip" data-val="Facebook">Facebook</div>
+                <div class="chip" data-val="Twitter/X">Twitter/X</div>
+                <div class="chip" data-val="Email">Email</div>
+                <div class="chip" data-val="Website">Website</div>
+                <div class="chip" data-val="Word of mouth">Word of mouth</div>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="field-label">Anything else we should know? <span class="opt">(optional)</span></label>
+              <textarea class="field-input" id="extra" placeholder="e.g. We only take orders 2–3 days in advance. We're currently focusing on growing our Instagram. We do free tasting boxes for influencers."></textarea>
+              <div class="text-xs text-[var(--muted)] mt-1.5">Competitors, pricing range, seasonal notes — anything relevant.</div>
+            </div>
+
+            <div class="flex justify-between mt-8 pt-6 border-t border-[var(--border)]">
+              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(3)">
+                <span class="material-symbols-outlined icon-sm">arrow_back</span> Back
+              </button>
+              <button type="button" class="inline-flex items-center gap-2 bg-[var(--ink)] hover:bg-black text-white font-bold px-6 py-3 rounded-xl transition-colors" onclick="nextStep(3)">
+                Next <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Region -->
+          <div class="step" id="step-4">
+            <div class="mb-7">
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">04 / 05</div>
+              <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">Region</h2>
+              <p class="text-[var(--muted)] text-[15px]">We scan what's trending right now — no keywords to guess at. Just tell us where.</p>
+            </div>
+
+            <div class="bg-[var(--surface2)] rounded-2xl p-5 sm:p-6">
+              <div class="flex items-center gap-2 text-[13px] font-bold mb-4">
+                📍 Country <span class="text-[var(--muted)] font-normal text-xs">— which country's trends to monitor</span>
+              </div>
+              <div class="flex flex-wrap gap-2" id="geo-chips">
+                <div class="chip selected" data-val="PK">🇵🇰 Pakistan</div>
+                <div class="chip" data-val="US">🇺🇸 United States</div>
+                <div class="chip" data-val="IN">🇮🇳 India</div>
+                <div class="chip" data-val="GB">🇬🇧 United Kingdom</div>
+                <div class="chip" data-val="AE">🇦🇪 UAE</div>
+                <div class="chip" data-val="">🌍 Worldwide</div>
+              </div>
+              <div class="text-xs text-[var(--muted)] mt-4 leading-relaxed">Trends are pulled live from Google, YouTube, RSS, and TikTok — at most the last few days, so nothing stale.</div>
+            </div>
+
+            <div class="flex justify-between mt-8 pt-6 border-t border-[var(--border)]">
+              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(4)">
+                <span class="material-symbols-outlined icon-sm">arrow_back</span> Back
+              </button>
+              <button type="button" class="inline-flex items-center gap-2 bg-[var(--ink)] hover:bg-black text-white font-bold px-6 py-3 rounded-xl transition-colors" onclick="nextStep(4)">
+                Next <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 5: AI Visibility (optional) -->
+          <div class="step" id="step-5">
+            <div class="mb-7">
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">05 / 05</div>
+              <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">AI Visibility Check <span class="text-[var(--muted)] font-semibold text-base">(optional)</span></h2>
+              <p class="text-[var(--muted)] text-[15px]">Leave this blank to skip it — the trend report doesn't need it. Fill it in to also check whether AI answer engines currently know your business exists.</p>
+            </div>
+
+            <div class="bg-[var(--surface2)] rounded-2xl p-5 sm:p-6 mb-2">
+              <div class="flex items-center gap-2 text-[13px] font-bold mb-4">
+                🌐 Your Website <span class="text-[var(--muted)] font-normal text-xs">— unlocks structured-data + answer-engine checks</span>
+              </div>
+              <input type="text" class="field-input" id="website" placeholder="https://yourbusiness.com">
+            </div>
+
+            <div id="form-error" class="error-msg"></div>
+
+            <div class="flex justify-between mt-8 pt-6 border-t border-[var(--border)]">
+              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(5)">
+                <span class="material-symbols-outlined icon-sm">arrow_back</span> Back
+              </button>
+              <button type="submit" class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-7 py-3.5 rounded-xl shadow-md transition-colors" id="submit-btn">
+                <span class="material-symbols-outlined icon-sm">explore</span> Analyze My Trends
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div><!-- /screen-form -->
+
+    <!-- ══ PROCESSING SCREEN ══ -->
+    <div id="screen-processing" style="display:none">
+      <div class="text-center py-20 px-4">
+        <div class="spinner mb-8"></div>
+        <div class="text-2xl font-extrabold tracking-tight mb-2">Finding what's trending...</div>
+        <div class="text-[var(--muted)] text-[15px] mb-8" id="processing-step">Fetching what's trending right now</div>
+        <div class="log-box max-w-xl mx-auto text-left" id="log-box">Starting pipeline...</div>
+      </div>
+    </div>
+
+    <!-- ══ DONE SCREEN ══ -->
+    <div id="screen-done" style="display:none">
+      <div class="text-center pb-10">
+        <div class="text-5xl mb-5 pop">📈</div>
+        <div class="text-3xl font-extrabold tracking-tight mb-4">Here's what's trending.</div>
+        <div class="card p-5 max-w-2xl mx-auto text-left flex items-start gap-3">
+          <span class="material-symbols-outlined icon-md text-[var(--teal)] mt-0.5">insights</span>
+          <div class="text-[14.5px] text-[#3f4a45] leading-relaxed" id="done-business-snapshot"></div>
+        </div>
+        <button class="inline-flex items-center gap-2 text-[var(--muted)] hover:text-[var(--ink)] font-bold text-sm mt-6" onclick="startOver()">
+          <span class="material-symbols-outlined icon-sm">restart_alt</span> Analyze Another Business
         </button>
       </div>
+
+      <div id="trend-results"></div>
+      <div id="legibility-results"></div>
+    </div>
+
+  </div>
+</div><!-- /app-trends -->
+
+<!-- ══════════════════════ COMPETITOR CHECK APP ══════════════════════ -->
+<div id="app-competitor" style="display:none">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 py-10">
+
+    <!-- ══ FORM SCREEN ══ -->
+    <div id="cc-screen-form">
+
+      <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">See what they're doing. <span class="text-[var(--teal)]">Or test what you're thinking.</span></h1>
+        <p class="text-[var(--muted)] max-w-xl mx-auto">Separate from the trend report — this doesn't need a trend analysis first. Just a couple of competitors and, optionally, an idea you're weighing.</p>
+      </div>
+
+      <div class="mb-8">
+        <div class="text-xs font-bold uppercase tracking-wider text-[var(--muted)] mb-3 text-center">Or instantly load a demo business</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="preset-card rounded-2xl bg-white p-4" id="cc-preset-velvet" onclick="applyCcPreset('velvet')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🎂</div>
+              <div><div class="font-bold text-[13.5px]">Velvet Crumbs</div><div class="text-[11px] text-[var(--muted)]">Home bakery · Karachi, PK</div></div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="cc-preset-firepit" onclick="applyCcPreset('firepit')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🔥</div>
+              <div><div class="font-bold text-[13.5px]">FirePit BBQ Co.</div><div class="text-[11px] text-[var(--muted)]">BBQ restaurant · Lahore, PK</div></div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="cc-preset-glowly" onclick="applyCcPreset('glowly')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">✨</div>
+              <div><div class="font-bold text-[13.5px]">Glowly Skincare</div><div class="text-[11px] text-[var(--muted)]">D2C skincare · Dubai, AE</div></div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="cc-preset-reprange" onclick="applyCcPreset('reprange')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🏋️</div>
+              <div><div class="font-bold text-[13.5px]">Rep Range Studio</div><div class="text-[11px] text-[var(--muted)]">Fitness studio · Islamabad, PK</div></div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="cc-preset-khaata" onclick="applyCcPreset('khaata')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🧾</div>
+              <div><div class="font-bold text-[13.5px]">Khaata</div><div class="text-[11px] text-[var(--muted)]">B2B SaaS · Lahore, PK</div></div>
+            </div>
+          </div>
+          <div class="preset-card rounded-2xl bg-white p-4" id="cc-preset-kitekora" onclick="applyCcPreset('kitekora')">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">🧵</div>
+              <div><div class="font-bold text-[13.5px]">Kite &amp; Kora</div><div class="text-[11px] text-[var(--muted)]">Fashion label · London, UK</div></div>
+            </div>
+          </div>
+        </div>
+        <div id="cc-preset-toast" class="preset-toast text-center text-sm font-bold text-[var(--teal-dark)] mt-3"></div>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-sm p-6 sm:p-10">
+
+        <!-- Mode toggle -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-8">
+          <div class="mode-card selected rounded-2xl p-5 flex-1" id="mode-check" onclick="setCcMode('check')">
+            <div class="font-bold text-[15px] mb-1 flex items-center gap-2"><span class="material-symbols-outlined icon-md text-[var(--teal)]">storefront</span> Just check competitors</div>
+            <div class="text-[13px] text-[var(--muted)] leading-relaxed">See how they position themselves, what they emphasize, and where you could differentiate.</div>
+          </div>
+          <div class="mode-card rounded-2xl p-5 flex-1" id="mode-validate" onclick="setCcMode('validate')">
+            <div class="font-bold text-[15px] mb-1 flex items-center gap-2"><span class="material-symbols-outlined icon-md text-[var(--teal)]">verified_user</span> Validate my idea</div>
+            <div class="text-[13px] text-[var(--muted)] leading-relaxed">Describe something you're thinking of doing — get a read on it, based on what competitors are (or aren't) doing.</div>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <label class="field-label">Business Name <span class="opt">(required)</span></label>
+          <input type="text" class="field-input" id="cc_business_name" placeholder="e.g. Velvet Crumbs">
+        </div>
+        <div class="mb-5">
+          <label class="field-label">Briefly, what does your business do? <span class="opt">(optional but helps)</span></label>
+          <textarea class="field-input" id="cc_about" placeholder="A sentence or two of context — industry, products, audience."></textarea>
+        </div>
+        <div class="mb-5" id="cc-idea-field" style="display:none">
+          <label class="field-label">What are you thinking of doing? <span class="opt">(required for this mode)</span></label>
+          <textarea class="field-input" id="cc_idea" placeholder="e.g. I'm thinking of launching a monthly subscription box instead of one-off orders. Would that work?"></textarea>
+        </div>
+
+        <div class="bg-[var(--surface2)] rounded-2xl p-5 sm:p-6 mb-2">
+          <div class="flex items-center gap-2 text-[13px] font-bold mb-4">
+            🥊 Competitors <span class="text-[var(--muted)] font-normal text-xs">— name + website for each, at least one required</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <input type="text" class="field-input" id="cc_competitor1_name" placeholder="Competitor name">
+            <input type="text" class="field-input" id="cc_competitor1_url" placeholder="https://competitor.com">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <input type="text" class="field-input" id="cc_competitor2_name" placeholder="Competitor name">
+            <input type="text" class="field-input" id="cc_competitor2_url" placeholder="https://competitor.com">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" class="field-input" id="cc_competitor3_name" placeholder="Competitor name">
+            <input type="text" class="field-input" id="cc_competitor3_url" placeholder="https://competitor.com">
+          </div>
+        </div>
+
+        <div id="cc-form-error" class="error-msg"></div>
+
+        <div class="flex justify-end mt-8 pt-6 border-t border-[var(--border)]">
+          <button type="button" class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-7 py-3.5 rounded-xl shadow-md transition-colors" id="cc-submit-btn" onclick="submitCompetitorCheck()">
+            <span class="material-symbols-outlined icon-sm">track_changes</span> Run Competitor Check
+          </button>
+        </div>
+
+      </div>
+    </div><!-- /cc-screen-form -->
+
+    <!-- ══ PROCESSING SCREEN ══ -->
+    <div id="cc-screen-processing" style="display:none">
+      <div class="text-center py-20 px-4">
+        <div class="spinner mb-8"></div>
+        <div class="text-2xl font-extrabold tracking-tight mb-2" id="cc-processing-title">Checking competitors...</div>
+        <div class="text-[var(--muted)] text-[15px] mb-8" id="cc-processing-step">Fetching competitor homepages</div>
+        <div class="log-box max-w-xl mx-auto text-left" id="cc-log-box">Starting...</div>
+      </div>
+    </div>
+
+    <!-- ══ DONE SCREEN ══ -->
+    <div id="cc-screen-done" style="display:none">
+      <div class="text-center pb-10">
+        <div class="text-5xl mb-5 pop">🥊</div>
+        <div class="text-3xl font-extrabold tracking-tight mb-2" id="cc-done-title">Here's what we found.</div>
+        <div class="text-[var(--muted)] text-[15px] mb-6" id="cc-done-sub"></div>
+        <button class="inline-flex items-center gap-2 text-[var(--muted)] hover:text-[var(--ink)] font-bold text-sm" onclick="startOverCc()">
+          <span class="material-symbols-outlined icon-sm">restart_alt</span> Run Another Check
+        </button>
+      </div>
+
+      <div id="cc-results"></div>
+    </div>
+
+  </div>
+</div><!-- /app-competitor -->
+
+<footer class="border-t border-[var(--border)] mt-6">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-sm text-[var(--muted)] font-semibold">
+      <span class="font-extrabold text-[var(--ink)]">ScoutAI</span>
+      <span>·</span>
+      <span>Fresh intelligence for growing businesses</span>
+    </div>
+    <div class="text-xs text-[var(--muted)] text-center sm:text-right max-w-md">
+      General guidance based on available data — not a guarantee of search ranking, AI visibility, or business outcomes.
     </div>
   </div>
-
-</main>
+</footer>
 
 <script>
   // ── Preset example businesses ───────────────────────────────
@@ -604,7 +734,12 @@
       marketing_channels: ["Instagram", "WhatsApp", "Word of mouth"],
       extra: "Orders should be placed 2–3 days in advance. 50% advance payment required to confirm. Delivery via rider service (Careem/Bykea) to DHA, Clifton, Gulshan, Bahria Town.",
       geo: "PK",
-      trend_keywords: "PSL,rain Karachi,Eid,drama Pakistan,celebrity",
+      website: "https://velvetcrumbs.pk",
+      competitors: [
+        { name: "Sugar & Slice Karachi", url: "https://instagram.com/sugarandslice.pk" },
+        { name: "The Baking Room", url: "https://instagram.com/thebakingroom.pk" },
+      ],
+      idea: "Launching a monthly cake subscription box instead of relying only on one-off custom orders.",
     },
     firepit: {
       business_name: "FirePit BBQ Co.",
@@ -619,7 +754,12 @@
       marketing_channels: ["Instagram", "WhatsApp", "TikTok", "Facebook", "Word of mouth"],
       extra: "Emphasizes shareable platters and combo meals for groups. Competitors are local barbecue restaurants and food delivery services in Pakistan. Aiming to build a loyal customer base through consistent flavor, good portions, and reliable delivery.",
       geo: "PK",
-      trend_keywords: "PSL,Eid,Ramadan,cricket,drama Pakistan",
+      website: "https://firepitbbq.pk",
+      competitors: [
+        { name: "Bar-B-Q Tonight", url: "https://barbqtonight.com" },
+        { name: "Butt Karahi", url: "https://buttkarahi.com" },
+      ],
+      idea: "Opening a second physical location instead of continuing to focus delivery and dine-in from a single kitchen.",
     },
     glowly: {
       business_name: "Glowly Skincare",
@@ -634,7 +774,72 @@
       marketing_channels: ["Instagram", "TikTok", "Website", "Email"],
       extra: "Currently focused on growing TikTok and Instagram Reels content. Ships across UAE, Saudi Arabia, and Qatar. Considering an Eid gifting bundle campaign.",
       geo: "AE",
-      trend_keywords: "Ramadan beauty,Eid,skincare trends,celebrity,UAE fashion",
+      website: "https://glowlyskincare.ae",
+      competitors: [
+        { name: "Dermalux UAE", url: "https://dermalux.ae" },
+        { name: "Souq Skin Co.", url: "https://souqskin.com" },
+      ],
+      idea: "Adding a men's skincare line alongside Glowly's existing women's-focused product range.",
+    },
+    reprange: {
+      business_name: "Rep Range Studio",
+      tagline: "Train heavy. Train smart.",
+      about: "Rep Range Studio is a boutique strength and conditioning gym in Islamabad, opened in 2025. We run small-group coached sessions capped at 8 people, built around barbell strength work and structured progression rather than open-floor gym access. Every member gets a written programme and a coach who tracks their numbers week to week.",
+      products: "Small-group strength classes (max 8 per session)\nOne-on-one personal coaching\n8-week beginner barbell programme\nMonthly and quarterly memberships\nForm-check and programme-review sessions\nCorporate group packages",
+      target_audience: "Working professionals aged 25–40 in Islamabad (F-6, F-7, Blue Area) who find large commercial gyms intimidating and want structure and coaching rather than just an access card. Mostly discover us through Instagram and referrals.",
+      usp: "Coached small-group training with a real written programme and tracked progression, capped at 8 people so form actually gets corrected — versus commercial gyms that sell access and leave you to guess.",
+      brand_tone: ["bold", "professional", "inspirational"],
+      location: "Islamabad, Pakistan",
+      stage: "early-stage",
+      marketing_channels: ["Instagram", "WhatsApp", "Facebook", "Word of mouth"],
+      extra: "Peak demand is 6–9am and 6–10pm; midday slots sit almost empty. Memberships are monthly with a discounted 3-month option. We keep getting asked for a women-only time block.",
+      geo: "PK",
+      website: "https://reprangestudio.pk",
+      competitors: [
+        { name: "Shapes Fitness", url: "https://shapes.com.pk" },
+        { name: "Structure Gym Islamabad", url: "https://instagram.com/structuregym.isb" },
+      ],
+      idea: "Adding a women-only training block in the empty midday slots instead of only running mixed early-morning and evening sessions.",
+    },
+    khaata: {
+      business_name: "Khaata",
+      tagline: "Your shop's books, without the headache.",
+      about: "Khaata is a small software product that replaces the paper ledger for small retailers and wholesalers in Pakistan. Shop owners record sales, track udhaar (credit extended to regular customers), send payment reminders over WhatsApp, and see exactly what they're owed — in Urdu or English, from a phone. Launched in 2025, currently around 400 paying shops.",
+      products: "Daily sales and expense recording\nUdhaar (customer credit) ledger with running balances\nAutomated WhatsApp payment reminders\nInventory tracking with low-stock alerts\nMonthly profit summary\nFree tier plus a paid plan at PKR 1,500/month",
+      target_audience: "Owners of small retail and wholesale shops across Pakistan — kiryana stores, mobile accessories, garments, auto parts — typically aged 25–50 and running the entire business from a phone. Reached mainly through Facebook groups, WhatsApp, and shopkeeper word of mouth.",
+      usp: "Built specifically around udhaar — the informal credit relationships that actually run Pakistani retail — in Urdu, on a phone, instead of a desktop accounting suite designed for companies that employ accountants.",
+      brand_tone: ["professional", "warm", "casual"],
+      location: "Lahore, Pakistan",
+      stage: "growth",
+      marketing_channels: ["Facebook", "WhatsApp", "Website", "Email", "Word of mouth"],
+      extra: "Biggest growth channel by far is shopkeeper referrals. Churn spikes in month two, usually when an owner drifts back to the paper ledger. Currently month-to-month billing only.",
+      geo: "PK",
+      website: "https://khaata.pk",
+      competitors: [
+        { name: "Udhaar Book", url: "https://udhaarbook.com" },
+        { name: "CreditBook", url: "https://creditbook.pk" },
+      ],
+      idea: "Launching a discounted annual prepaid plan to cut month-two churn, instead of staying month-to-month only.",
+    },
+    kitekora: {
+      business_name: "Kite & Kora",
+      tagline: "Modest, modern, made to move.",
+      about: "Kite & Kora is a London-based modest fashion label founded in 2024. We design contemporary modest wear — longline layers, wide-leg cuts, and lightweight abayas — in natural fabrics, for women who want modest silhouettes without traditional or occasion-only styling. We sell direct through our own site and Instagram, shipping across the UK and EU.",
+      products: "Longline linen shirts and layering pieces\nWide-leg trousers and column skirts\nLightweight everyday abayas\nJersey and modal hijabs in matched colourways\nSeasonal capsule drops (4 per year)\nMade-to-order occasion pieces",
+      target_audience: "Women aged 22–38 across the UK and EU, mostly urban and professional, who want modest cuts in a modern design language rather than occasion-wear styling. Highly active on Instagram and Pinterest, and discover new labels through creators.",
+      usp: "Modest silhouettes designed as contemporary fashion first — natural fabrics, considered cuts, neutral palettes — rather than occasion-wear styling or a fast-fashion brand's modest side-line.",
+      brand_tone: ["aesthetic", "luxury", "professional"],
+      location: "London, United Kingdom",
+      stage: "growth",
+      marketing_channels: ["Instagram", "TikTok", "Website", "Email"],
+      extra: "Capsule drops sell through unevenly — neutrals go first, prints linger. Most returns are sizing-related. We get constant requests for GCC shipping but currently only ship UK and EU.",
+      geo: "GB",
+      website: "https://kiteandkora.co.uk",
+      competitors: [
+        { name: "Aab Collection", url: "https://www.aabcollection.com" },
+        { name: "INAYAH", url: "https://inayah.co" },
+      ],
+      idea: "Opening GCC shipping to meet repeated customer demand, instead of staying UK and EU only.",
     },
   };
 
@@ -645,13 +850,33 @@
     });
   }
 
-  let presetToastTimer = null;
-  function showPresetToast(msg) {
-    const toast = document.getElementById("preset-toast");
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(presetToastTimer);
-    presetToastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+  // ── Navigation: landing / trends / competitor ───────────────
+  function setNavActive(id) {
+    ["nav-home", "nav-trends", "nav-competitor"].forEach(n => {
+      document.getElementById(n).classList.toggle("active", n === id);
+    });
+  }
+
+  function goHome() {
+    document.getElementById("view-landing").style.display = "block";
+    document.getElementById("app-trends").style.display = "none";
+    document.getElementById("app-competitor").style.display = "none";
+    setNavActive("nav-home");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function switchTab(tab) {
+    document.getElementById("view-landing").style.display = "none";
+    document.getElementById("app-trends").style.display = tab === "trends" ? "block" : "none";
+    document.getElementById("app-competitor").style.display = tab === "competitor" ? "block" : "none";
+    setNavActive(tab === "trends" ? "nav-trends" : "nav-competitor");
+    if (tab === "trends") setMacroStage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function startWithPreset(key) {
+    switchTab("trends");
+    applyPreset(key);
   }
 
   function applyPreset(key) {
@@ -667,34 +892,42 @@
     document.getElementById("location").value         = p.location;
     document.getElementById("stage").value            = p.stage;
     document.getElementById("extra").value            = p.extra;
-    document.getElementById("trend_keywords").value   = p.trend_keywords;
+    document.getElementById("website").value           = p.website || "";
 
     setChips("tone-chips", p.brand_tone);
     setChips("channel-chips", p.marketing_channels);
     setChips("geo-chips", [p.geo]);
 
-    document.querySelectorAll(".preset-card").forEach(c => c.classList.remove("active"));
+    document.querySelectorAll("#app-trends .preset-card").forEach(c => c.classList.remove("active"));
     document.getElementById(`preset-${key}`).classList.add("active");
 
-    showPresetToast(`Filled with ${p.business_name} example ✓`);
+    showToast("preset-toast", `Filled with ${p.business_name} example ✓`);
+  }
+
+  let toastTimers = {};
+  function showToast(id, msg) {
+    const toast = document.getElementById(id);
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimers[id]);
+    toastTimers[id] = setTimeout(() => toast.classList.remove("show"), 2500);
   }
 
   // ── Step management ──────────────────────────────────────
   let currentStep = 1;
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   function updateProgress() {
     for (let i = 1; i <= totalSteps; i++) {
       const dot = document.getElementById(`dot-${i}`);
-      if (i < currentStep)       dot.className = "step-dot done";
-      else if (i === currentStep) dot.className = "step-dot active";
-      else                        dot.className = "step-dot";
+      dot.classList.remove("active", "done");
+      if (i < currentStep)       dot.classList.add("done");
+      else if (i === currentStep) dot.classList.add("active");
     }
     document.getElementById("step-label").textContent = `Step ${currentStep} of ${totalSteps}`;
   }
 
   function nextStep(from) {
-    // Validate required fields on step 1
     if (from === 1) {
       const name  = document.getElementById("business_name").value.trim();
       const about = document.getElementById("about").value.trim();
@@ -743,11 +976,22 @@
   initChips("channel-chips", true);
   initChips("geo-chips", false);
 
+  // ── Macro stepper (Business Profile -> Discover Trends -> Campaign Ideas) ──
+  function setMacroStage(n) {
+    for (let i = 1; i <= 3; i++) {
+      const step = document.getElementById(`macro-${i}`);
+      step.classList.remove("active", "done");
+      if (i < n) step.classList.add("done");
+      else if (i === n) step.classList.add("active");
+    }
+  }
+
   // ── Form submit ───────────────────────────────────────────
   document.getElementById("biz-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const geo = getSelectedChips("geo-chips")[0] || "PK";
+    const geoChip = document.querySelector("#geo-chips .chip.selected");
+    const geo = geoChip ? geoChip.dataset.val : "PK";
     const data = {
       business_name  : document.getElementById("business_name").value.trim(),
       tagline        : document.getElementById("tagline").value.trim(),
@@ -761,14 +1005,15 @@
       marketing_channels: getSelectedChips("channel-chips"),
       extra          : document.getElementById("extra").value.trim(),
       geo            : geo,
-      trend_keywords : document.getElementById("trend_keywords").value.trim(),
+      website        : document.getElementById("website").value.trim(),
     };
 
     const errEl = document.getElementById("form-error");
     errEl.style.display = "none";
 
-    document.getElementById("submit-btn").disabled = true;
-    document.getElementById("submit-btn").textContent = "Submitting...";
+    const submitBtn = document.getElementById("submit-btn");
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = "Submitting...";
 
     try {
       const resp = await fetch("/api/submit", {
@@ -781,31 +1026,633 @@
       if (result.error) {
         errEl.textContent = result.error;
         errEl.style.display = "block";
-        document.getElementById("submit-btn").disabled = false;
-        document.getElementById("submit-btn").textContent = "🚀 Analyze My Trends";
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined icon-sm">explore</span> Analyze My Trends';
         return;
       }
 
-      // Switch to processing screen
       document.getElementById("screen-form").style.display = "none";
       document.getElementById("screen-processing").style.display = "block";
+      setMacroStage(2);
       pollStatus(result.job_id);
 
     } catch (err) {
       errEl.textContent = "Network error. Is the server running?";
       errEl.style.display = "block";
-      document.getElementById("submit-btn").disabled = false;
-      document.getElementById("submit-btn").textContent = "🚀 Analyze My Trends";
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span class="material-symbols-outlined icon-sm">explore</span> Analyze My Trends';
     }
   });
 
-  // ── Polling ───────────────────────────────────────────────
+  // ── Shared helpers ───────────────────────────────────────────
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  function sectionHeader(icon, title, colorClass) {
+    return `<div class="flex items-center gap-2 mb-4">
+      <span class="material-symbols-outlined icon-md ${colorClass}">${icon}</span>
+      <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">${escapeHtml(title)}</span>
+    </div>`;
+  }
+
+  function caveatBox(text) {
+    if (!text) return "";
+    return `<div class="text-xs text-[var(--muted)] italic mt-4 pt-4 border-t border-[var(--border)] flex items-start gap-2">
+      <span class="material-symbols-outlined icon-sm mt-0.5">info</span><span>${escapeHtml(text)}</span>
+    </div>`;
+  }
+
+  // ── Competitor / Legibility result rendering ────────────────
+  function renderCompetitorResults(data) {
+    const el = document.getElementById("cc-results");
+    if (!data) { el.innerHTML = ""; return; }
+
+    const summaries = data.competitor_summaries || [];
+    const patterns  = data.cross_competitor_patterns || [];
+    const angles    = data.differentiation_angles || [];
+
+    const summaryCards = summaries.map(c => `
+      <div class="card p-6">
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <div class="font-bold text-[15px] flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-[var(--surface2)] flex items-center justify-center text-[var(--muted)]"><span class="material-symbols-outlined icon-sm">storefront</span></span>
+            ${escapeHtml(c.name)}
+          </div>
+        </div>
+        <div class="text-[13.5px] text-[#3f4a45] leading-relaxed mb-3">${escapeHtml(c.positioning_summary)}</div>
+        ${(c.notable_emphasis || []).length ? `<div class="flex flex-wrap gap-1.5">${
+          c.notable_emphasis.map(t => `<span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[var(--surface2)] text-[var(--ink)]">${escapeHtml(t)}</span>`).join("")
+        }</div>` : ""}
+      </div>`).join("");
+
+    const patternsCard = patterns.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2"><span class="material-symbols-outlined icon-md text-[var(--blue)]">hub</span>Patterns Across Competitors</div>
+        <ul class="result-list">${patterns.map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    const anglesCard = angles.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2"><span class="material-symbols-outlined icon-md text-[var(--teal)]">lightbulb</span>Differentiation Opportunities</div>
+        <ul class="result-list">${angles.map(a => `<li><strong>${escapeHtml(a.angle)}</strong><br>${escapeHtml(a.reasoning)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    el.innerHTML = `
+      <div class="mb-10">
+        ${sectionHeader("storefront", "Competitor Landscape", "text-[var(--blue)]")}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${summaryCards}</div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        ${patternsCard}
+        ${anglesCard}
+      </div>
+      ${caveatBox(data.caveat)}`;
+  }
+
+  function renderIdeaValidation(data) {
+    const el = document.getElementById("cc-results");
+    if (!data) { el.innerHTML = ""; return; }
+
+    const supporting = data.supporting_signals || [];
+    const risks      = data.risk_signals || [];
+    const parallels  = data.competitor_parallels || [];
+
+    const READ_STYLE = {
+      "proceed": ["#ecfdf9", "#0f766e"],
+      "proceed with caution": ["#fef3c7", "#b45309"],
+      "hold off": ["#fee2e2", "#b91c1c"],
+    };
+    const [rbg, rcolor] = READ_STYLE[(data.overall_read || "").toLowerCase()] || ["#f0f4f3", "#68766f"];
+
+    const recapCard = data.idea_recap ? `
+      <div class="card p-6">
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <div class="font-bold text-[15px]">The idea</div>
+          ${data.overall_read ? `<span class="text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full" style="background:${rbg};color:${rcolor}">${escapeHtml(data.overall_read)}</span>` : ""}
+        </div>
+        <div class="text-[13.5px] text-[#3f4a45] leading-relaxed">${escapeHtml(data.idea_recap)}</div>
+      </div>` : "";
+
+    const supportingCard = supporting.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2 text-[#0f766e]"><span class="material-symbols-outlined icon-md">shield</span>Supporting signals</div>
+        <ul class="result-list">${supporting.map(s => `<li><strong>${escapeHtml(s.signal)}</strong><br>${escapeHtml(s.reasoning)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    const risksCard = risks.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2 text-[#b45309]"><span class="material-symbols-outlined icon-md">speed</span>Risk signals</div>
+        <ul class="result-list">${risks.map(r => `<li><strong>${escapeHtml(r.signal)}</strong><br>${escapeHtml(r.reasoning)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    const parallelsCard = parallels.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2"><span class="material-symbols-outlined icon-md text-[var(--blue)]">history</span>Competitor parallels</div>
+        <ul class="result-list">${parallels.map(p => `<li><strong>${escapeHtml(p.competitor)}</strong><br>${escapeHtml(p.observation)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    const nextStepCard = data.suggested_next_step ? `
+      <div class="card p-6 bg-[var(--teal-tint)] border-[var(--teal-light)]">
+        <div class="font-bold text-[15px] mb-2 flex items-center gap-2 text-[var(--teal-dark)]"><span class="material-symbols-outlined icon-md">send</span>Suggested next step</div>
+        <div class="text-[13.5px] text-[#3f4a45] leading-relaxed">${escapeHtml(data.suggested_next_step)}</div>
+      </div>` : "";
+
+    el.innerHTML = `
+      <div class="flex flex-col gap-4 max-w-3xl mx-auto">
+        ${recapCard}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${supportingCard}
+          ${risksCard}
+        </div>
+        ${parallelsCard}
+        ${nextStepCard}
+        ${caveatBox(data.caveat)}
+      </div>`;
+  }
+
+  function renderLegibilityResults(data) {
+    const el = document.getElementById("legibility-results");
+    if (!data) { el.innerHTML = ""; return; }
+
+    const gaps  = data.structured_data_gaps || [];
+    const vgaps = data.visibility_gaps || [];
+    const fixes = data.recommended_fixes || [];
+
+    const summaryCard = data.legibility_summary ? `
+      <div class="card p-6 mb-6">
+        <div class="text-[14px] text-[#3f4a45] leading-relaxed">${escapeHtml(data.legibility_summary)}</div>
+      </div>` : "";
+
+    const gapsCard = gaps.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2 text-[#b91c1c]"><span class="material-symbols-outlined icon-md">report</span>Structured data gaps</div>
+        <ul class="result-list">${gaps.map(g => `<li><strong>${escapeHtml(g.missing)}</strong><br>${escapeHtml(g.why_it_matters)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    const vgapsCards = vgaps.map(v => {
+      const mentioned = /^mentioned/i.test(v.what_happened || "");
+      return `
+      <div class="flex flex-col gap-2 mb-4">
+        <div class="flex justify-end">
+          <div class="bg-[var(--surface2)] rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-md text-[13.5px] font-medium">"${escapeHtml(v.query)}"</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="w-7 h-7 rounded-full bg-[var(--teal-tint)] flex items-center justify-center text-[var(--teal-dark)] shrink-0 mt-0.5"><span class="material-symbols-outlined icon-sm">smart_toy</span></span>
+          <div class="bg-white border border-[var(--border)] rounded-2xl rounded-tl-sm px-4 py-3 max-w-lg">
+            <div class="text-[11px] font-bold uppercase tracking-wide mb-1" style="color:${mentioned ? '#b45309' : '#b91c1c'}">${mentioned ? "Mentioned, but hedged" : "Not mentioned"}</div>
+            <div class="text-[13.5px] text-[#3f4a45] leading-relaxed">${escapeHtml(v.what_happened)}</div>
+            ${v.note ? `<div class="text-xs text-[var(--muted)] mt-1.5">${escapeHtml(v.note)}</div>` : ""}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+
+    const vgapsCard = vgaps.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-4 flex items-center gap-2"><span class="material-symbols-outlined icon-md text-[var(--teal)]">chat</span>What Perplexity says (real answer-engine queries)</div>
+        ${vgapsCards}
+      </div>` : "";
+
+    const fixesCard = fixes.length ? `
+      <div class="card p-6">
+        <div class="font-bold text-[15px] mb-3 flex items-center gap-2 text-[var(--teal-dark)]"><span class="material-symbols-outlined icon-md">tips_and_updates</span>Recommended fixes to consider</div>
+        <ul class="result-list">${fixes.map(f => `<li><strong>${escapeHtml(f.fix)}</strong><br>${escapeHtml(f.reasoning)}</li>`).join("")}</ul>
+      </div>` : "";
+
+    el.innerHTML = `
+      <div class="mt-12">
+        ${sectionHeader("psychology", "AI Visibility Check", "text-[var(--amber)]")}
+        ${summaryCard}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          ${gapsCard}
+          ${fixesCard}
+        </div>
+        ${vgapsCard}
+        ${caveatBox(data.caveat)}
+      </div>`;
+  }
+
+  // ── Trend result styling helpers ─────────────────────────────
+  const TIMING_STYLE = {
+    "act now":    ["#14201d", "#fff", "⚡ Act Now"],
+    "this week":  ["#ecfdf9", "#0f766e", "✓ This Week"],
+    "plan ahead": ["#fef3c7", "#b45309", "↗ Plan Ahead"],
+  };
+  const LIFECYCLE_STYLE = {
+    "emerging":   ["#dbeafe", "#1d4ed8"],
+    "rising":     ["#ecfdf9", "#0f766e"],
+    "peak":       ["#fef3c7", "#b45309"],
+    "saturating": ["#fee2e2", "#b91c1c"],
+    "declining":  ["#f0f4f3", "#68766f"],
+  };
+  const SOURCE_META = {
+    google_trends:          { icon: "search",       label: "Google",  bg: "#dbeafe", color: "#1d4ed8" },
+    google_trending_now:    { icon: "search",       label: "Google",  bg: "#dbeafe", color: "#1d4ed8" },
+    youtube:                { icon: "smart_display", label: "YouTube", bg: "#fee2e2", color: "#b91c1c" },
+    youtube_trending:       { icon: "smart_display", label: "YouTube", bg: "#fee2e2", color: "#b91c1c" },
+    rss:                    { icon: "newspaper",     label: "News",    bg: "#f0f4f3", color: "#475569" },
+    tiktok_creative_center: { icon: "play_circle",   label: "TikTok",  bg: "#fce7f3", color: "#a21caf" },
+  };
+  function sourceMeta(s) {
+    return SOURCE_META[s] || { icon: "travel_explore", label: s || "Source", bg: "#f0f4f3", color: "#475569" };
+  }
+  function ageLabel(hours) {
+    if (hours === null || hours === undefined) return "";
+    if (hours < 1) return "Just now";
+    if (hours < 48) return `${Math.round(hours)}h old`;
+    return `${Math.round(hours / 24)}d old`;
+  }
+  function pill(bg, color, label) {
+    return `<span style="display:inline-block;background:${bg};color:${color};padding:4px 11px;border-radius:999px;font-size:11px;font-weight:700">${escapeHtml(label)}</span>`;
+  }
+
+  // ── Trend selection state (Stage 1 -> Stage 2) ──────────────
+  let currentJobId = null;
+  let trendPool = {};
+  let selectedTrendKeys = new Set();
+
+  function trendCheckbox(listType, idx) {
+    const key = `${listType}:${idx}`;
+    return `<input type="checkbox" onchange="toggleTrendSelection('${key}', this.checked)">`;
+  }
+
+  function toggleTrendSelection(key, checked) {
+    if (checked) selectedTrendKeys.add(key);
+    else selectedTrendKeys.delete(key);
+    const btn = document.getElementById("generate-campaigns-btn");
+    const count = document.getElementById("selected-trend-count");
+    if (btn) btn.disabled = selectedTrendKeys.size === 0;
+    if (count) count.textContent = selectedTrendKeys.size
+      ? `${selectedTrendKeys.size} trend${selectedTrendKeys.size > 1 ? "s" : ""} selected`
+      : "Select trends above to build campaigns from them";
+  }
+
+  function renderTrendResults(topTrends, topForBusiness) {
+    const el = document.getElementById("trend-results");
+    topTrends = topTrends || [];
+    topForBusiness = topForBusiness || [];
+    if (!topTrends.length && !topForBusiness.length) { el.innerHTML = ""; return; }
+
+    trendPool = {};
+    selectedTrendKeys = new Set();
+    topTrends.forEach((t, i) => trendPool[`top:${i}`] = t);
+    topForBusiness.forEach((t, i) => trendPool[`business:${i}`] = t);
+
+    const overallCards = topTrends.map((t, i) => {
+      const sm = sourceMeta(t.source);
+      const ctx = (t.context || "").trim();
+      return `
+      <div class="card p-4 flex items-start gap-3">
+        <div class="pt-0.5">${trendCheckbox("top", i)}</div>
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${sm.bg};color:${sm.color}"><span class="material-symbols-outlined icon-sm">${sm.icon}</span></span>
+        <div class="min-w-0 flex-1">
+          <div class="font-bold text-[13.5px]">#${i + 1} ${escapeHtml(t.entity_name)}</div>
+          <div class="text-[11.5px] text-[var(--muted)]">${escapeHtml(sm.label)}${t.category ? " · " + escapeHtml(t.category) : ""}${ageLabel(t.age_hours) ? " · " + ageLabel(t.age_hours) : ""}${t.is_new ? " · new" : ""}</div>
+          ${ctx ? `<div class="text-[11.5px] text-[#5b6862] mt-1.5 leading-snug border-l-2 border-[var(--border)] pl-2">${escapeHtml(ctx.length > 150 ? ctx.slice(0, 150) + "…" : ctx)}</div>` : ""}
+        </div>
+        <div class="text-right shrink-0">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)]">Score</div>
+          <div class="text-[13px] font-extrabold text-[var(--teal-dark)]">${escapeHtml(t.score)}</div>
+        </div>
+      </div>`;
+    }).join("");
+
+    const businessCards = topForBusiness.map((t, i) => {
+      const [tbg, tcolor, tlabel] = TIMING_STYLE[(t.timing || "").toLowerCase()] || ["#f0f4f3", "#68766f", t.timing || ""];
+      const [lbg, lcolor] = LIFECYCLE_STYLE[(t.lifecycle || "").toLowerCase()] || ["#f0f4f3", "#68766f"];
+      const pct = Math.max(0, Math.min(10, t.relevance_score || 0)) * 10;
+      return `
+      <div class="card p-5">
+        <div class="flex items-start gap-3">
+          <div class="pt-0.5">${trendCheckbox("business", i)}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-2">
+              <div class="font-bold text-[15px]">${escapeHtml(t.trend)} <span class="text-[var(--muted)] font-normal text-xs">(${escapeHtml(sourceMeta(t.source).label)})</span></div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-16 h-1.5 bg-[var(--surface2)] rounded-full overflow-hidden"><div class="h-full bg-[var(--teal)] rounded-full" style="width:${pct}%"></div></div>
+                <span class="text-[11px] font-bold text-[var(--muted)]">${t.relevance_score}/10</span>
+              </div>
+            </div>
+            <div class="flex gap-1.5 mb-3">
+              ${pill(tbg, tcolor, tlabel)}
+              ${pill(lbg, lcolor, (t.lifecycle || "").charAt(0).toUpperCase() + (t.lifecycle || "").slice(1))}
+            </div>
+            <div class="text-[13px] text-[#3f4a45] leading-relaxed mb-1.5"><strong class="text-[var(--ink)]">Why people care:</strong> ${escapeHtml(t.why_people_care)}</div>
+            <div class="text-[13px] text-[#3f4a45] leading-relaxed"><strong class="text-[var(--ink)]">Bridge to your business:</strong> ${escapeHtml(t.bridge_to_business)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+
+    el.innerHTML = `
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
+        <div>
+          ${sectionHeader("radar", "Trending Right Now", "text-[var(--blue)]")}
+          <div class="flex flex-col gap-2.5">
+            ${overallCards || `<div class="card p-5 text-[13.5px] text-[var(--muted)]">No trend data available.</div>`}
+          </div>
+        </div>
+        <div>
+          ${sectionHeader("auto_awesome", "Matched To Your Business", "text-[var(--teal)]")}
+          <div class="flex flex-col gap-3">
+            ${businessCards || `<div class="card p-5 text-[13.5px] text-[var(--muted)]">No trends judged relevant to this business right now.</div>`}
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-6 mt-8 flex items-center justify-between gap-4 flex-wrap bg-[var(--teal-tint)] border-[var(--teal-light)]">
+        <div>
+          <div class="font-bold text-[15px]">Turn selected trends into campaign ideas</div>
+          <div id="selected-trend-count" class="text-[13px] text-[var(--muted)]">Select trends above to build campaigns from them</div>
+        </div>
+        <button class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed" id="generate-campaigns-btn" onclick="generateCampaignIdeas()" disabled>
+          <span class="material-symbols-outlined icon-sm">auto_awesome</span> Generate Campaign Ideas
+        </button>
+      </div>
+      <div id="campaign-log-box" class="log-box mt-4" style="display:none"></div>
+      <div id="campaign-results"></div>`;
+  }
+
+  async function generateCampaignIdeas() {
+    if (!currentJobId || selectedTrendKeys.size === 0) return;
+
+    const selected = [...selectedTrendKeys].map(k => trendPool[k]).filter(Boolean);
+    const btn = document.getElementById("generate-campaigns-btn");
+    const logBox = document.getElementById("campaign-log-box");
+    btn.disabled = true;
+    btn.innerHTML = "Generating...";
+    logBox.style.display = "block";
+    logBox.textContent = "Starting...";
+    document.getElementById("campaign-results").innerHTML = "";
+
+    try {
+      const resp = await fetch("/api/campaign-ideas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: currentJobId, selected_trends: selected })
+      });
+      const result = await resp.json();
+      if (result.error) {
+        logBox.textContent = "Error: " + result.error;
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined icon-sm">auto_awesome</span> Generate Campaign Ideas';
+        return;
+      }
+      pollCampaignStatus(currentJobId);
+    } catch (err) {
+      logBox.textContent = "Network error. Is the server running?";
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined icon-sm">auto_awesome</span> Generate Campaign Ideas';
+    }
+  }
+
+  async function pollCampaignStatus(jobId) {
+    const logBox = document.getElementById("campaign-log-box");
+    const btn = document.getElementById("generate-campaigns-btn");
+
+    const interval = setInterval(async () => {
+      try {
+        const resp = await fetch(`/api/status/${jobId}`);
+        const job  = await resp.json();
+        logBox.textContent = job.campaign_log || "";
+        logBox.scrollTop = logBox.scrollHeight;
+
+        if (job.campaign_status === "done") {
+          clearInterval(interval);
+          logBox.style.display = "none";
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined icon-sm">auto_awesome</span> Generate Campaign Ideas';
+          renderCampaignIdeas(job.campaign_ideas);
+        } else if (job.campaign_status === "error") {
+          clearInterval(interval);
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined icon-sm">auto_awesome</span> Generate Campaign Ideas';
+        }
+      } catch (err) {
+        clearInterval(interval);
+      }
+    }, 2000);
+  }
+
+  function renderCampaignIdeas(data) {
+    const el = document.getElementById("campaign-results");
+    const campaigns = (data && data.campaigns) || [];
+    setMacroStage(3);
+
+    if (!campaigns.length) {
+      el.innerHTML = `<div class="card p-6 mt-6 text-[13.5px] text-[var(--muted)]">No campaign ideas generated.</div>`;
+      return;
+    }
+
+    const cards = campaigns.map(c => {
+      const [tbg, tcolor, tlabel] = TIMING_STYLE[(c.timing || "").toLowerCase()] || ["#f0f4f3", "#68766f", c.timing || ""];
+      const directions = c.execution_directions || [];
+      return `
+      <div class="card p-6 flex flex-col">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          ${pill(tbg, tcolor, tlabel)}
+          <span class="text-[11px] text-[var(--muted)] font-semibold">built on "${escapeHtml(c.trend)}"</span>
+        </div>
+        <h3 class="font-extrabold text-[17px] tracking-tight mb-3">${escapeHtml(c.campaign_name)}</h3>
+        <div class="bg-[var(--surface2)] rounded-xl p-4 mb-3 flex items-start gap-2.5">
+          <span class="material-symbols-outlined icon-md text-[var(--teal)] mt-0.5">lightbulb</span>
+          <div class="text-[13px] text-[#3f4a45] leading-relaxed">${escapeHtml(c.core_idea)}</div>
+        </div>
+        <div class="mb-4">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)] mb-1">Who it's for</div>
+          <div class="text-[13px] text-[#3f4a45] leading-relaxed">${escapeHtml(c.target_audience_angle)}</div>
+        </div>
+        ${directions.length ? `
+        <div class="mb-5 flex-1">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)] mb-2">Execution directions</div>
+          <div class="flex flex-col gap-2.5">
+            ${directions.map(d => `
+              <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined icon-sm text-[var(--teal)] mt-0.5">radio_button_checked</span>
+                <div class="text-[13px] text-[#3f4a45] leading-relaxed"><strong class="text-[var(--ink)]">${escapeHtml(d.direction)}</strong><br>${escapeHtml(d.why_it_works)}</div>
+              </div>`).join("")}
+          </div>
+        </div>` : ""}
+        <button class="w-full inline-flex items-center justify-center gap-2 bg-[var(--surface2)] text-[var(--muted)] font-bold px-5 py-3 rounded-xl cursor-not-allowed mt-auto" disabled title="Picking a format (email, Instagram post, short video, etc.) is coming soon">
+          <span class="material-symbols-outlined icon-sm">campaign</span> Generate Ad Copy — Coming Soon
+        </button>
+      </div>`;
+    }).join("");
+
+    el.innerHTML = `
+      <div class="mt-10">
+        ${sectionHeader("auto_awesome", "Campaign Ideas", "text-[var(--teal)]")}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">${cards}</div>
+      </div>`;
+    window.scrollTo({ top: el.offsetTop - 100, behavior: "smooth" });
+  }
+
+  // ── Competitor Check tab ────────────────────────────────────
+  let ccMode = "check";
+  function setCcMode(mode) {
+    ccMode = mode;
+    document.getElementById("mode-check").classList.toggle("selected", mode === "check");
+    document.getElementById("mode-validate").classList.toggle("selected", mode === "validate");
+    document.getElementById("cc-idea-field").style.display = mode === "validate" ? "block" : "none";
+  }
+
+  function applyCcPreset(key) {
+    const p = PRESETS[key];
+    if (!p) return;
+
+    document.getElementById("cc_business_name").value = p.business_name;
+    document.getElementById("cc_about").value          = p.about;
+    document.getElementById("cc_idea").value            = p.idea || "";
+
+    const competitors = p.competitors || [];
+    for (let i = 0; i < 3; i++) {
+      document.getElementById(`cc_competitor${i + 1}_name`).value = competitors[i]?.name || "";
+      document.getElementById(`cc_competitor${i + 1}_url`).value  = competitors[i]?.url || "";
+    }
+
+    document.querySelectorAll("#app-competitor .preset-card").forEach(c => c.classList.remove("active"));
+    document.getElementById(`cc-preset-${key}`).classList.add("active");
+
+    showToast("cc-preset-toast", `Filled with ${p.business_name} example ✓`);
+  }
+
+  async function submitCompetitorCheck() {
+    const errEl = document.getElementById("cc-form-error");
+    errEl.style.display = "none";
+
+    const businessName = document.getElementById("cc_business_name").value.trim();
+    const idea          = document.getElementById("cc_idea").value.trim();
+    const competitors = [1, 2, 3].map(i => ({
+      name: document.getElementById(`cc_competitor${i}_name`).value.trim(),
+      url : document.getElementById(`cc_competitor${i}_url`).value.trim(),
+    })).filter(c => c.name && c.url);
+
+    if (!businessName) {
+      errEl.textContent = "Business name is required.";
+      errEl.style.display = "block";
+      return;
+    }
+    if (!competitors.length) {
+      errEl.textContent = "Add at least one competitor (name + URL).";
+      errEl.style.display = "block";
+      return;
+    }
+    if (ccMode === "validate" && !idea) {
+      errEl.textContent = "Describe the idea you want validated.";
+      errEl.style.display = "block";
+      return;
+    }
+
+    const data = {
+      business_name: businessName,
+      about        : document.getElementById("cc_about").value.trim(),
+      mode         : ccMode,
+      idea         : idea,
+      competitors  : competitors,
+    };
+
+    const btn = document.getElementById("cc-submit-btn");
+    btn.disabled = true;
+    btn.innerHTML = "Submitting...";
+
+    try {
+      const resp = await fetch("/api/competitor-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const result = await resp.json();
+
+      if (result.error) {
+        errEl.textContent = result.error;
+        errEl.style.display = "block";
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined icon-sm">track_changes</span> Run Competitor Check';
+        return;
+      }
+
+      document.getElementById("cc-processing-title").textContent =
+        ccMode === "validate" ? "Validating your idea..." : "Checking competitors...";
+      document.getElementById("cc-screen-form").style.display = "none";
+      document.getElementById("cc-screen-processing").style.display = "block";
+      pollCcStatus(result.job_id);
+
+    } catch (err) {
+      errEl.textContent = "Network error. Is the server running?";
+      errEl.style.display = "block";
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined icon-sm">track_changes</span> Run Competitor Check';
+    }
+  }
+
+  const ccStepMessages = [
+    "Fetching competitor homepages...",
+    "Reading what they emphasize...",
+    "Comparing patterns...",
+    "Almost there...",
+  ];
+  let ccStepIdx = 0;
+
+  async function pollCcStatus(jobId) {
+    const stepEl = document.getElementById("cc-processing-step");
+    const logEl  = document.getElementById("cc-log-box");
+
+    const interval = setInterval(async () => {
+      try {
+        const resp = await fetch(`/api/status/${jobId}`);
+        const job  = await resp.json();
+
+        logEl.textContent = job.log || "";
+        logEl.scrollTop   = logEl.scrollHeight;
+
+        ccStepIdx = (ccStepIdx + 1) % ccStepMessages.length;
+        stepEl.textContent = ccStepMessages[ccStepIdx];
+
+        if (job.status === "done") {
+          clearInterval(interval);
+          document.getElementById("cc-screen-processing").style.display = "none";
+          document.getElementById("cc-screen-done").style.display = "block";
+          if (ccMode === "validate") {
+            document.getElementById("cc-done-title").textContent = "Here's the read on your idea.";
+            document.getElementById("cc-done-sub").textContent = "Grounded in what your competitors visibly do (or don't) — not a guarantee.";
+            renderIdeaValidation(job.idea_validation);
+          } else {
+            document.getElementById("cc-done-title").textContent = "Here's what we found.";
+            document.getElementById("cc-done-sub").textContent = "Positioning, patterns, and possible angles based on their own homepages.";
+            renderCompetitorResults(job.competitor_analysis);
+          }
+        } else if (job.status === "error") {
+          clearInterval(interval);
+          stepEl.textContent = "Something went wrong. Check the log below.";
+        }
+      } catch (err) {
+        clearInterval(interval);
+        stepEl.textContent = "Lost connection to server.";
+      }
+    }, 2000);
+  }
+
+  function startOverCc() {
+    document.getElementById("cc-screen-done").style.display = "none";
+    document.getElementById("cc-results").innerHTML = "";
+    document.getElementById("cc-log-box").textContent = "Starting...";
+    document.getElementById("cc-form-error").style.display = "none";
+    document.getElementById("cc-screen-form").style.display = "block";
+    const btn = document.getElementById("cc-submit-btn");
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined icon-sm">track_changes</span> Run Competitor Check';
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ── Trend analysis polling ───────────────────────────────────
   const stepMessages = [
-    "Fetching what Pakistan is searching for right now...",
+    "Fetching what's trending right now...",
     "Parsing your business profile...",
-    "Mapping trends to your business...",
-    "Generating content ideas...",
-    "Building your report...",
+    "Scoring trend freshness...",
+    "Judging relevance to your business...",
     "Almost there...",
   ];
   let stepIdx = 0;
@@ -822,15 +1669,17 @@
         logEl.textContent = job.log || "";
         logEl.scrollTop   = logEl.scrollHeight;
 
-        // Rotate step messages
         stepIdx = (stepIdx + 1) % stepMessages.length;
         stepEl.textContent = stepMessages[stepIdx];
 
         if (job.status === "done") {
           clearInterval(interval);
+          currentJobId = jobId;
           document.getElementById("screen-processing").style.display = "none";
           document.getElementById("screen-done").style.display = "block";
-          document.getElementById("view-report-btn").href = `/api/report/${jobId}`;
+          document.getElementById("done-business-snapshot").textContent = job.business_snapshot || "";
+          renderTrendResults(job.top_trends, job.top_for_your_business);
+          renderLegibilityResults(job.legibility_report);
         } else if (job.status === "error") {
           clearInterval(interval);
           stepEl.textContent = "Something went wrong. Check the log below.";

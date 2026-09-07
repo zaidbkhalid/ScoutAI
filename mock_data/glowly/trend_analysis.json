@@ -1,0 +1,139 @@
+{
+  "business_snapshot": "Glowly Skincare is a growth-stage Dubai D2C skincare brand built on transparent, climate-specific formulations at accessible prices -- positioned against both overpriced luxury brands and Western formulas that weren't designed for Gulf heat and humidity.",
+  "positioning_note": "Glowly's edge is credibility and climate-relevance, not hype -- the content opportunities that work best are the ones that let the brand demonstrate ingredient/climate knowledge rather than just ride a trend aesthetically.",
+  "trends": [
+    {
+      "trend": "ramadan beauty",
+      "source": "google_trends",
+      "why_people_care": "During Ramadan, people search heavily for skincare that addresses fasting-related dehydration and dullness -- a specific, recurring seasonal concern.",
+      "bridge_to_business": "A strong, credible fit -- Glowly's Barrier Repair Moisturizer and hydrating cleanser directly address the actual skin issue people are searching about, not just a generic 'Ramadan sale'.",
+      "relevance_score": 9,
+      "timing": "act now",
+      "lifecycle": "rising",
+      "product_ideas": [
+        {
+          "name": "Ramadan Hydration Duo",
+          "description": "A bundle of the Hydrating Gel Cleanser and Barrier Repair Moisturizer, positioned specifically around fasting-related skin dehydration.",
+          "design_concept": "Simple two-product bundle box, minimal Ramadan-appropriate design (no heavy imagery, just clean typography)",
+          "target": "Women experiencing dry, dull skin during fasting hours",
+          "use_case": "Purchased as a proactive routine fix for the month, not an impulse buy",
+          "disclosure_note": null
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Instagram Reels",
+          "hook": "Why your skin feels different during Ramadan (and what actually helps)",
+          "angle": "Short educational reel explaining fasting-related dehydration and the barrier-repair routine fix -- credibility-first, not just a sale post",
+          "caption": "Fasting changes your skin's hydration baseline -- here's the two-step routine that actually helps. Ramadan Hydration Duo, link in bio. #RamadanSkincare #GlowlySkincare",
+          "disclosure_note": null
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "uae fashion week",
+      "source": "google_trending_now",
+      "why_people_care": "Fashion Week drives a spike in Dubai's beauty/style-conscious audience paying close attention to skin prep and 'get ready with me' content.",
+      "bridge_to_business": "A reasonable stretch -- Glowly isn't a fashion brand, but 'skin prep before a big event' is a legitimate, specific use case that fits the SPF/serum lineup without pretending to be something the brand isn't.",
+      "relevance_score": 6,
+      "timing": "this week",
+      "lifecycle": "peak",
+      "product_ideas": [
+        {
+          "name": "Event-Ready Glow Kit",
+          "description": "A short-term mini kit (Vitamin C Serum + SPF 50) framed as a 5-day pre-event skin prep routine.",
+          "design_concept": "Travel-size format, simple 5-day routine card included",
+          "target": "Women attending Fashion Week events or similar occasions wanting visibly better skin fast",
+          "use_case": "One-time purchase tied to a specific upcoming event",
+          "disclosure_note": null
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "TikTok",
+          "hook": "5 days of prep before Fashion Week, using what's already in your routine",
+          "angle": "Day-by-day mini series building anticipation, ending on event day",
+          "caption": "5 days out from Fashion Week -- here's the glow prep routine. Event-Ready Glow Kit, link in bio. ✨",
+          "disclosure_note": null
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "skin cycling",
+      "source": "tiktok_creative_center",
+      "why_people_care": "Skin cycling (rotating active nights with recovery nights) has been a sustained skincare-education trend -- people specifically search for products that fit a cycling routine.",
+      "bridge_to_business": "A strong, credibility-building fit -- this is exactly the kind of ingredient-literate audience Glowly's transparent-formulation positioning should be speaking to directly.",
+      "relevance_score": 8,
+      "timing": "this week",
+      "lifecycle": "rising",
+      "product_ideas": [
+        {
+          "name": "Skin Cycling Starter Set",
+          "description": "A bundle pairing the Vitamin C Serum (active night) with the Barrier Repair Moisturizer (recovery night), sold as a ready-made cycling routine.",
+          "design_concept": "Two-product set labeled 'Active Night' / 'Recovery Night' directly on packaging",
+          "target": "Skincare-engaged customers already familiar with the skin cycling method",
+          "use_case": "Routine-building purchase, higher intent than an impulse buy",
+          "disclosure_note": null
+        }
+      ],
+      "content_ideas": [
+        {
+          "platform": "Instagram Carousel",
+          "hook": "Your skin cycling routine, minus the guesswork",
+          "angle": "Educational carousel walking through a 4-night cycle using two specific products",
+          "caption": "Skin cycling made simple: Vitamin C on active nights, Barrier Repair on recovery nights. Skin Cycling Starter Set, link in bio.",
+          "disclosure_note": null
+        },
+        {
+          "platform": "TikTok",
+          "hook": "Repost a skincare creator's real 4-week skin cycling results using the Starter Set, with a short caption from Glowly framing it as 'see what [creator] found after 4 weeks'",
+          "angle": "UGC/creator testimonial repost -- results-focused, not brand-voiced",
+          "caption": "We sent @[creator] our Skin Cycling Starter Set 4 weeks ago. Here's what they found. #GlowlySkincare #SkinCycling",
+          "disclosure_note": "This reads as a creator endorsement/testimonial repost -- if the product was gifted, discounted, or paid for, disclose that material connection clearly and conspicuously (e.g. #ad or a plain-language note) rather than leaving it implied."
+        }
+      ],
+      "brand_safety": "safe",
+      "safety_note": null
+    },
+    {
+      "trend": "uae central bank interest rate decision",
+      "source": "rss",
+      "why_people_care": "Regional financial/monetary policy news.",
+      "bridge_to_business": "No workable connection to a skincare brand. Skip.",
+      "relevance_score": 1,
+      "timing": "skip",
+      "lifecycle": "peak",
+      "product_ideas": [],
+      "content_ideas": [],
+      "brand_safety": "avoid",
+      "safety_note": "No natural bridge; financial policy news is not a fit for a consumer skincare brand."
+    }
+  ],
+  "top_opportunities": [
+    {
+      "rank": 1,
+      "trend": "ramadan beauty",
+      "one_line": "Launch the Ramadan Hydration Duo now with an educational-first Reel explaining fasting-related dehydration.",
+      "urgency": "today"
+    },
+    {
+      "rank": 2,
+      "trend": "skin cycling",
+      "one_line": "Package the existing Vitamin C Serum + Barrier Repair Moisturizer as a Skin Cycling Starter Set this week -- credibility-building, low production cost.",
+      "urgency": "this week"
+    },
+    {
+      "rank": 3,
+      "trend": "uae fashion week",
+      "one_line": "Run a 5-day Event-Ready Glow Kit countdown series this week while Fashion Week attention is at its peak.",
+      "urgency": "this week"
+    }
+  ],
+  "skip_these": [
+    "uae central bank interest rate decision -- no natural bridge to a skincare brand"
+  ]
+}

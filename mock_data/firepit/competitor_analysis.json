@@ -1,0 +1,34 @@
+{
+  "competitor_summaries": [
+    {
+      "name": "Bar-B-Q Tonight",
+      "positioning_summary": "Long-established, heavily positions on brand legacy and being a Lahore institution -- messaging leans on years in business and being a known name rather than any specific menu detail.",
+      "notable_emphasis": ["Brand legacy / trust", "Wide branch network", "Family dining atmosphere"]
+    },
+    {
+      "name": "Butt Karahi",
+      "positioning_summary": "Positions on portion size and value, with a straightforward, no-frills menu presentation -- similar territory to FirePit's own stated USP.",
+      "notable_emphasis": ["Large portions", "Value pricing", "Simple, direct menu"]
+    }
+  ],
+  "cross_competitor_patterns": [
+    "Both established competitors lean on trust/legacy signals (years in business, branch count) rather than describing what makes the food itself distinct.",
+    "Neither makes a specific claim about grilling method, marinade, or ingredient sourcing -- 'authentic charcoal grilling' is not a claim either of them visibly makes.",
+    "Both are positioned for dine-in/family outings first, with delivery treated as secondary."
+  ],
+  "differentiation_angles": [
+    {
+      "angle": "Make 'authentic charcoal grilling with bold marinades' an explicit, visible claim rather than assumed.",
+      "reasoning": "Neither competitor states their grilling method or marinade approach anywhere visible -- as a new entrant, a specific, stated claim is more memorable than legacy/trust messaging you can't yet compete on."
+    },
+    {
+      "angle": "Lead with delivery-first, group-occasion framing (match nights, iftar) rather than positioning as a dine-in destination.",
+      "reasoning": "Both established players are dine-in-first; competing there directly means competing on legacy FirePit doesn't have yet. Group-delivery occasions are comparatively open ground."
+    },
+    {
+      "angle": "Use specific, named signature items (e.g. a distinctly branded platter) rather than a generic BBQ menu list.",
+      "reasoning": "Both competitors present fairly generic, undifferentiated menu listings -- a few named, ownable dishes could stand out precisely because the category default is genericness."
+    }
+  ],
+  "caveat": "Based on a light read of each competitor's own homepage/profile text, not a full market study -- informed context for your own judgment, not a verdict."
+}

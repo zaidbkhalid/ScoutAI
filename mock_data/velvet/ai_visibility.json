@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "generated_at": "demo-mode",
+    "business_file": "business_profile.json",
+    "business_name": "Velvet Crumbs",
+    "location_used": "Karachi, Pakistan",
+    "location_source": "business_profile.json location field",
+    "model": "sonar",
+    "total_queries": 5,
+    "succeeded": 5,
+    "failed": 0,
+    "mentioned_count": 1,
+    "_demo_mode": true
+  },
+  "results": [
+    {
+      "query": "best Bakery / Custom Cakes in Karachi, Pakistan",
+      "success": true,
+      "response_text": "Karachi has a strong home-bakery scene. Frequently recommended names include Sugar & Slice Karachi, known for elaborate custom cake designs, and The Baking Room, known for fast turnaround. Both are popular for birthdays and special occasions, with orders typically placed through Instagram DM.",
+      "citations": ["https://instagram.com/sugarandslice.pk", "https://instagram.com/thebakingroom.pk"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "where can I get Custom celebration cakes (birthdays, engagements, weddings, corporate events) in Karachi, Pakistan",
+      "success": true,
+      "response_text": "Several Karachi-based home bakeries offer custom celebration cakes, including Sugar & Slice Karachi for elaborate designs and a number of smaller Instagram-based bakeries. Most operate on a pre-order basis with a few days' notice.",
+      "citations": ["https://instagram.com/sugarandslice.pk"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "Velvet Crumbs reviews",
+      "success": true,
+      "response_text": "I don't have specific review information for a bakery called 'Velvet Crumbs' in my current sources. There are multiple bakeries with similar names in different cities, so results may not refer to the same business.",
+      "citations": [],
+      "search_results": [],
+      "mentioned_exact": true,
+      "mentioned_partial": true
+    },
+    {
+      "query": "top-rated Food and Beverage near Karachi, Pakistan",
+      "success": true,
+      "response_text": "Karachi's food scene spans BBQ restaurants, cafes, and dessert shops. For desserts specifically, commonly mentioned names include Sugar & Slice Karachi and The Baking Room, alongside larger chains like Cake Wala.",
+      "citations": ["https://instagram.com/sugarandslice.pk", "https://cakewala.pk"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    },
+    {
+      "query": "recommend a good Bakery / Custom Cakes in Karachi, Pakistan",
+      "success": true,
+      "response_text": "For custom cakes in Karachi, Sugar & Slice Karachi is frequently recommended for design-forward cakes, and The Baking Room for faster turnaround on simpler orders.",
+      "citations": ["https://instagram.com/sugarandslice.pk", "https://instagram.com/thebakingroom.pk"],
+      "search_results": [],
+      "mentioned_exact": false,
+      "mentioned_partial": false
+    }
+  ]
+}
