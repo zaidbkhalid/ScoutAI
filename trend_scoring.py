@@ -302,6 +302,64 @@ def score_all_trends(snapshots):
     return results
 
 
+# -- Top-trend selection, grouped by source --------------------------
+# The UI shows a small number of trends per source rather than a long
+# ranked list, so the selection rule lives here next to the scoring it
+# depends on.
+
+RECENCY_WINDOW_HOURS = 24
+
+# Which raw source names roll up into each UI group. Several sources can
+# map to one group (Google has two fetchers), and a group with no live
+# source configured simply comes back empty -- callers should say why
+# rather than pretend the group doesn't exist.
+SOURCE_GROUPS = {
+    "google":  ("google_trending_now", "google_trends"),
+    "youtube": ("youtube_trending", "youtube"),
+    "tiktok":  ("tiktok_creative_center",),
+    "news":    ("rss",),
+}
+
+
+def _rank_with_recency(items, limit, recency_hours):
+    """Freshest-first within a recency window, then best of the rest.
+
+    Sorting by score alone does NOT give "what's trending right now":
+    the age decay in compute_score is deliberately gentle (half-life
+    measured in days), so a high-signal three-day-old story outranks
+    something that broke this morning. This puts everything inside the
+    window first -- ordered by score among themselves -- and only falls
+    back to older entities to fill the remaining slots.
+    """
+    fresh, older = [], []
+    for it in items:
+        age = it.get("age_hours")
+        in_window = age is not None and age <= recency_hours
+        it = dict(it, within_recency_window=in_window)
+        (fresh if in_window else older).append(it)
+
+    fresh.sort(key=lambda r: r.get("score", 0), reverse=True)
+    older.sort(key=lambda r: r.get("score", 0), reverse=True)
+    return (fresh + older)[:limit]
+
+
+def select_top_trends(scores, per_group=3, recency_hours=RECENCY_WINDOW_HOURS):
+    """Top `per_group` trends overall and per source group.
+
+    Returns {"all": [...], "google": [...], "youtube": [...], ...}.
+    Groups with no data come back as empty lists, which is a real
+    answer (no API key configured, live source unavailable) and should
+    be surfaced as such, not hidden.
+    """
+    selection = {"all": _rank_with_recency(scores, per_group, recency_hours)}
+
+    for group, source_names in SOURCE_GROUPS.items():
+        items = [s for s in scores if s.get("source") in source_names]
+        selection[group] = _rank_with_recency(items, per_group, recency_hours)
+
+    return selection
+
+
 def filter_brand_unsafe(results):
     """Drop trends that are real but not campaign material.
 

@@ -68,6 +68,16 @@
   .macro-step.active .macro-badge{background:#fff;color:var(--teal)}
   .macro-step.done .macro-badge{background:var(--ink);color:#fff}
 
+  .fmt-option{border:1.5px solid var(--border);background:var(--surface);transition:all .15s}
+  .fmt-option:hover{border-color:var(--ink)}
+  .fmt-option:has(.fmt-check:checked){border-color:var(--teal);background:var(--teal-tint);box-shadow:0 0 0 2px rgba(13,148,136,.12)}
+
+  .disclosure{background:var(--amber-bg);color:#7c4a06;border-radius:10px;padding:10px 12px}
+
+  .trend-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}
+  .trend-tab:hover{border-color:var(--ink);color:var(--ink)}
+  .trend-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
   .log-box{background:#0f1712;color:#8fe3b0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.8;padding:18px 20px;border-radius:14px;white-space:pre-wrap;max-height:220px;overflow-y:auto}
 
   input[type=checkbox]{accent-color:var(--teal);width:18px;height:18px;cursor:pointer;flex-shrink:0}
@@ -109,7 +119,7 @@
     </nav>
     <button class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors" onclick="switchTab('trends')">
       <span class="material-symbols-outlined icon-sm">explore</span>
-      <span class="hidden sm:inline">Analyze My Business</span>
+      <span class="hidden sm:inline">See What's Trending</span>
       <span class="sm:hidden">Start</span>
     </button>
   </div>
@@ -140,7 +150,7 @@
 
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-9">
       <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-7 py-3.5 rounded-2xl shadow-lg shadow-teal-900/10 transition-all" onclick="switchTab('trends')">
-        <span class="material-symbols-outlined">explore</span> Analyze My Business
+        <span class="material-symbols-outlined">radar</span> See What's Trending
       </button>
       <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-[var(--surface2)] text-[var(--ink)] font-bold px-7 py-3.5 rounded-2xl shadow-sm transition-all" onclick="switchTab('competitor')">
         <span class="material-symbols-outlined text-[var(--teal)]">track_changes</span> Check Competitors
@@ -244,12 +254,12 @@
       <div class="inline-flex items-center gap-0.5 sm:gap-1 bg-white p-1.5 rounded-full shadow-sm text-[11px] sm:text-sm font-bold" id="macro-stepper">
         <div class="macro-step flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-full" id="macro-1">
           <span class="macro-badge w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" id="macro-badge-1">1</span>
-          <span>Business Profile</span>
+          <span>Discover Trends</span>
         </div>
         <span class="material-symbols-outlined text-[var(--border)] icon-sm">chevron_right</span>
         <div class="macro-step flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-full" id="macro-2">
           <span class="macro-badge w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" id="macro-badge-2">2</span>
-          <span>Discover Trends</span>
+          <span>Your Business</span>
         </div>
         <span class="material-symbols-outlined text-[var(--border)] icon-sm">chevron_right</span>
         <div class="macro-step flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-full" id="macro-3">
@@ -259,12 +269,46 @@
       </div>
     </div>
 
-    <!-- ══ FORM SCREEN ══ -->
-    <div id="screen-form">
+    <!-- ══ TRENDS START SCREEN (no input required) ══ -->
+    <div id="screen-trends-start">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">See what's trending right now</h1>
+        <p class="text-[var(--muted)] max-w-xl mx-auto">Pick a region and go. No sign-up, no business details — you can add those afterwards to see which trends actually fit you.</p>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-sm p-6 sm:p-10">
+        <div class="bg-[var(--surface2)] rounded-2xl p-5 sm:p-6">
+          <div class="flex items-center gap-2 text-[13px] font-bold mb-4">
+            📍 Country <span class="text-[var(--muted)] font-normal text-xs">— which country's trends to scan</span>
+          </div>
+          <div class="flex flex-wrap gap-2" id="geo-chips">
+            <div class="chip selected" data-val="PK">🇵🇰 Pakistan</div>
+            <div class="chip" data-val="US">🇺🇸 United States</div>
+            <div class="chip" data-val="IN">🇮🇳 India</div>
+            <div class="chip" data-val="GB">🇬🇧 United Kingdom</div>
+            <div class="chip" data-val="AE">🇦🇪 UAE</div>
+            <div class="chip" data-val="">🌍 Worldwide</div>
+          </div>
+          <div class="text-xs text-[var(--muted)] mt-4 leading-relaxed">Pulled live from Google, YouTube, RSS and TikTok — at most the last few days, so nothing stale.</div>
+        </div>
+
+        <div id="trends-start-error" class="error-msg"></div>
+
+        <div class="flex justify-center mt-8">
+          <button type="button" class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-8 py-4 rounded-2xl shadow-md transition-colors text-[15px]" id="fetch-trends-btn" onclick="fetchTrends()">
+            <span class="material-symbols-outlined icon-sm">radar</span> Fetch Trends
+          </button>
+        </div>
+        <div class="text-center text-xs text-[var(--muted)] mt-4">Takes about 30 seconds.</div>
+      </div>
+    </div><!-- /screen-trends-start -->
+
+    <!-- ══ BUSINESS FORM SCREEN (shown after trends) ══ -->
+    <div id="screen-form" style="display:none">
 
       <div class="text-center mb-8">
         <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">Tell us about your business</h1>
-        <p class="text-[var(--muted)] max-w-xl mx-auto">A few quick questions, then we'll scan what's genuinely trending right now and match it to you.</p>
+        <p class="text-[var(--muted)] max-w-xl mx-auto">We'll match the trends you just saw against your business — no re-fetching, just the cross-reference.</p>
       </div>
 
       <div class="mb-8">
@@ -336,9 +380,8 @@
             <div class="step-dot" id="dot-2"></div>
             <div class="step-dot" id="dot-3"></div>
             <div class="step-dot" id="dot-4"></div>
-            <div class="step-dot" id="dot-5"></div>
-          </div>
-          <span class="text-xs font-bold text-[var(--muted)] whitespace-nowrap" id="step-label">Step 1 of 5</span>
+                      </div>
+          <span class="text-xs font-bold text-[var(--muted)] whitespace-nowrap" id="step-label">Step 1 of 4</span>
         </div>
 
         <form id="biz-form">
@@ -346,7 +389,7 @@
           <!-- Step 1: Basics -->
           <div class="step active" id="step-1">
             <div class="mb-7">
-              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">01 / 05</div>
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">01 / 04</div>
               <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">The Basics</h2>
               <p class="text-[var(--muted)] text-[15px]">Start with who you are and what you sell.</p>
             </div>
@@ -378,7 +421,7 @@
           <!-- Step 2: Audience & Tone -->
           <div class="step" id="step-2">
             <div class="mb-7">
-              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">02 / 05</div>
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">02 / 04</div>
               <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">Your Audience & Voice</h2>
               <p class="text-[var(--muted)] text-[15px]">Who buys from you, and how do you speak to them?</p>
             </div>
@@ -420,7 +463,7 @@
           <!-- Step 3: Location & Channels -->
           <div class="step" id="step-3">
             <div class="mb-7">
-              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">03 / 05</div>
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">03 / 04</div>
               <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">Where You Operate</h2>
               <p class="text-[var(--muted)] text-[15px]">Location and marketing channels help us find locally relevant trends.</p>
             </div>
@@ -472,45 +515,12 @@
             </div>
           </div>
 
-          <!-- Step 4: Region -->
+          <!-- Step 4: AI Visibility (optional) -->
           <div class="step" id="step-4">
             <div class="mb-7">
-              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">04 / 05</div>
-              <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">Region</h2>
-              <p class="text-[var(--muted)] text-[15px]">We scan what's trending right now — no keywords to guess at. Just tell us where.</p>
-            </div>
-
-            <div class="bg-[var(--surface2)] rounded-2xl p-5 sm:p-6">
-              <div class="flex items-center gap-2 text-[13px] font-bold mb-4">
-                📍 Country <span class="text-[var(--muted)] font-normal text-xs">— which country's trends to monitor</span>
-              </div>
-              <div class="flex flex-wrap gap-2" id="geo-chips">
-                <div class="chip selected" data-val="PK">🇵🇰 Pakistan</div>
-                <div class="chip" data-val="US">🇺🇸 United States</div>
-                <div class="chip" data-val="IN">🇮🇳 India</div>
-                <div class="chip" data-val="GB">🇬🇧 United Kingdom</div>
-                <div class="chip" data-val="AE">🇦🇪 UAE</div>
-                <div class="chip" data-val="">🌍 Worldwide</div>
-              </div>
-              <div class="text-xs text-[var(--muted)] mt-4 leading-relaxed">Trends are pulled live from Google, YouTube, RSS, and TikTok — at most the last few days, so nothing stale.</div>
-            </div>
-
-            <div class="flex justify-between mt-8 pt-6 border-t border-[var(--border)]">
-              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(4)">
-                <span class="material-symbols-outlined icon-sm">arrow_back</span> Back
-              </button>
-              <button type="button" class="inline-flex items-center gap-2 bg-[var(--ink)] hover:bg-black text-white font-bold px-6 py-3 rounded-xl transition-colors" onclick="nextStep(4)">
-                Next <span class="material-symbols-outlined icon-sm">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Step 5: AI Visibility (optional) -->
-          <div class="step" id="step-5">
-            <div class="mb-7">
-              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">05 / 05</div>
+              <div class="text-[11px] font-bold text-[var(--teal-dark)] uppercase tracking-wider mb-1">04 / 04</div>
               <h2 class="text-2xl font-extrabold tracking-tight mb-1.5">AI Visibility Check <span class="text-[var(--muted)] font-semibold text-base">(optional)</span></h2>
-              <p class="text-[var(--muted)] text-[15px]">Leave this blank to skip it — the trend report doesn't need it. Fill it in to also check whether AI answer engines currently know your business exists.</p>
+              <p class="text-[var(--muted)] text-[15px]">Leave this blank to skip it — matching trends to your business doesn't need it. Fill it in to also check whether AI answer engines currently know your business exists.</p>
             </div>
 
             <div class="bg-[var(--surface2)] rounded-2xl p-5 sm:p-6 mb-2">
@@ -523,11 +533,11 @@
             <div id="form-error" class="error-msg"></div>
 
             <div class="flex justify-between mt-8 pt-6 border-t border-[var(--border)]">
-              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(5)">
+              <button type="button" class="inline-flex items-center gap-2 bg-transparent text-[var(--muted)] hover:text-[var(--ink)] font-bold px-5 py-3 rounded-xl border border-[var(--border)] transition-colors" onclick="prevStep(4)">
                 <span class="material-symbols-outlined icon-sm">arrow_back</span> Back
               </button>
               <button type="submit" class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-7 py-3.5 rounded-xl shadow-md transition-colors" id="submit-btn">
-                <span class="material-symbols-outlined icon-sm">explore</span> Analyze My Trends
+                <span class="material-symbols-outlined icon-sm">auto_awesome</span> Match Trends To My Business
               </button>
             </div>
           </div>
@@ -540,9 +550,9 @@
     <div id="screen-processing" style="display:none">
       <div class="text-center py-20 px-4">
         <div class="spinner mb-8"></div>
-        <div class="text-2xl font-extrabold tracking-tight mb-2">Finding what's trending...</div>
+        <div class="text-2xl font-extrabold tracking-tight mb-2" id="processing-title">Finding what's trending...</div>
         <div class="text-[var(--muted)] text-[15px] mb-8" id="processing-step">Fetching what's trending right now</div>
-        <div class="log-box max-w-xl mx-auto text-left" id="log-box">Starting pipeline...</div>
+        <div class="log-box max-w-xl mx-auto text-left" id="log-box">Starting...</div>
       </div>
     </div>
 
@@ -551,12 +561,12 @@
       <div class="text-center pb-10">
         <div class="text-5xl mb-5 pop">📈</div>
         <div class="text-3xl font-extrabold tracking-tight mb-4">Here's what's trending.</div>
-        <div class="card p-5 max-w-2xl mx-auto text-left flex items-start gap-3">
+        <div class="card p-5 max-w-2xl mx-auto text-left flex items-start gap-3" id="done-snapshot-card" style="display:none">
           <span class="material-symbols-outlined icon-md text-[var(--teal)] mt-0.5">insights</span>
           <div class="text-[14.5px] text-[#3f4a45] leading-relaxed" id="done-business-snapshot"></div>
         </div>
         <button class="inline-flex items-center gap-2 text-[var(--muted)] hover:text-[var(--ink)] font-bold text-sm mt-6" onclick="startOver()">
-          <span class="material-symbols-outlined icon-sm">restart_alt</span> Analyze Another Business
+          <span class="material-symbols-outlined icon-sm">restart_alt</span> Start Over
         </button>
       </div>
 
@@ -870,7 +880,12 @@
     document.getElementById("app-trends").style.display = tab === "trends" ? "block" : "none";
     document.getElementById("app-competitor").style.display = tab === "competitor" ? "block" : "none";
     setNavActive(tab === "trends" ? "nav-trends" : "nav-competitor");
-    if (tab === "trends") setMacroStage(1);
+    if (tab === "trends") {
+      // Trends come first now: land on the fetch screen, which needs no
+      // input at all. Business details are an optional second step.
+      showScreen("screen-trends-start");
+      setMacroStage(1);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -915,7 +930,7 @@
 
   // ── Step management ──────────────────────────────────────
   let currentStep = 1;
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   function updateProgress() {
     for (let i = 1; i <= totalSteps; i++) {
@@ -986,13 +1001,75 @@
     }
   }
 
-  // ── Form submit ───────────────────────────────────────────
+  // ── Phase 1: fetch trends (no business input required) ──────
+  let businessMatched = false;
+
+  function showScreen(id) {
+    ["screen-trends-start", "screen-form", "screen-processing", "screen-done"]
+      .forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = (s === id) ? "block" : "none";
+      });
+  }
+
+  async function fetchTrends() {
+    const geoChip = document.querySelector("#geo-chips .chip.selected");
+    const geo = geoChip ? geoChip.dataset.val : "PK";
+
+    const errEl = document.getElementById("trends-start-error");
+    errEl.style.display = "none";
+    const btn = document.getElementById("fetch-trends-btn");
+    btn.disabled = true;
+    btn.innerHTML = "Fetching...";
+
+    try {
+      const resp = await fetch("/api/fetch-trends", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ geo })
+      });
+      const result = await resp.json();
+      if (result.error) {
+        errEl.textContent = result.error;
+        errEl.style.display = "block";
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined icon-sm">radar</span> Fetch Trends';
+        return;
+      }
+      currentJobId = result.job_id;
+      document.getElementById("processing-title").textContent = "Finding what's trending...";
+      showScreen("screen-processing");
+      setMacroStage(1);
+      pollTrendStatus(result.job_id);
+    } catch (err) {
+      errEl.textContent = "Network error. Is the server running?";
+      errEl.style.display = "block";
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined icon-sm">radar</span> Fetch Trends';
+    }
+  }
+
+  function showBusinessForm() {
+    showScreen("screen-form");
+    setMacroStage(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ── Phase 2: match already-fetched trends to a business ─────
   document.getElementById("biz-form").addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    if (!currentJobId) {
+      const err = document.getElementById("form-error");
+      err.textContent = "Fetch trends first, then match them to your business.";
+      err.style.display = "block";
+      return;
+    }
 
     const geoChip = document.querySelector("#geo-chips .chip.selected");
     const geo = geoChip ? geoChip.dataset.val : "PK";
     const data = {
+      job_id         : currentJobId,
       business_name  : document.getElementById("business_name").value.trim(),
       tagline        : document.getElementById("tagline").value.trim(),
       about          : document.getElementById("about").value.trim(),
@@ -1012,11 +1089,12 @@
     errEl.style.display = "none";
 
     const submitBtn = document.getElementById("submit-btn");
+    const submitLabel = '<span class="material-symbols-outlined icon-sm">auto_awesome</span> Match Trends To My Business';
     submitBtn.disabled = true;
-    submitBtn.innerHTML = "Submitting...";
+    submitBtn.innerHTML = "Matching...";
 
     try {
-      const resp = await fetch("/api/submit", {
+      const resp = await fetch("/api/match-business", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -1027,20 +1105,20 @@
         errEl.textContent = result.error;
         errEl.style.display = "block";
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="material-symbols-outlined icon-sm">explore</span> Analyze My Trends';
+        submitBtn.innerHTML = submitLabel;
         return;
       }
 
-      document.getElementById("screen-form").style.display = "none";
-      document.getElementById("screen-processing").style.display = "block";
+      document.getElementById("processing-title").textContent = "Matching trends to your business...";
+      showScreen("screen-processing");
       setMacroStage(2);
-      pollStatus(result.job_id);
+      pollMatchStatus(currentJobId);
 
     } catch (err) {
       errEl.textContent = "Network error. Is the server running?";
       errEl.style.display = "block";
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span class="material-symbols-outlined icon-sm">explore</span> Analyze My Trends';
+      submitBtn.innerHTML = submitLabel;
     }
   });
 
@@ -1290,83 +1368,99 @@
       : "Select trends above to build campaigns from them";
   }
 
-  function renderTrendResults(topTrends, topForBusiness) {
+  // ── Source filtering for the raw "Trending Right Now" list ──────
+  // Only the raw list gets source tabs: it's the one with a source
+  // field to filter on. "Matched to your business" is already a short,
+  // GPT-curated list drawn from every source at once, so slicing it by
+  // source would mostly produce empty tabs.
+  const TREND_TABS = [
+    { key: "all",     label: "All",           icon: "radar" },
+    { key: "google",  label: "Google Trends", icon: "search" },
+    { key: "youtube", label: "YouTube",       icon: "smart_display" },
+    { key: "tiktok",  label: "TikTok",        icon: "play_circle" },
+    { key: "news",    label: "News",          icon: "newspaper" },
+  ];
+  // Why a tab can legitimately be empty, so the UI can say so plainly
+  // instead of rendering a blank box.
+  const EMPTY_REASON = {
+    youtube: "YouTube trending needs a YOUTUBE_API_KEY. Add one to .env and re-run to see this source.",
+    tiktok:  "TikTok's live source isn't available here, and its placeholder data is deliberately excluded so it can't be mistaken for a real trend.",
+    google:  "No Google trending searches came back for this region.",
+    news:    "No news articles came back for this region.",
+    all:     "No trend data available.",
+  };
+
+  let trendsBySource = {};
+  let activeTrendTab = "all";
+
+  function selectTrendTab(key) {
+    activeTrendTab = key;
+    TREND_TABS.forEach(t => {
+      const el = document.getElementById(`trend-tab-${t.key}`);
+      if (el) el.classList.toggle("active", t.key === key);
+    });
+    const body = document.getElementById("trend-tab-body");
+    if (body) body.innerHTML = renderTrendTabBody(key);
+  }
+
+  function renderTrendTabBody(key) {
+    const items = (trendsBySource && trendsBySource[key]) || [];
+    if (!items.length) {
+      return emptyCard(EMPTY_REASON[key] || "Nothing here right now.");
+    }
+    const stale = items.some(t => t.within_recency_window === false);
+    const cards = items.map((t, i) => trendCard(t, i, `src:${key}`)).join("");
+    return cards + (stale
+      ? `<div class="text-[11.5px] text-[var(--muted)] mt-1 px-1">Fewer than three trends broke in the last 24 hours, so older ones fill the rest.</div>`
+      : "");
+  }
+
+  function renderTrendResults(topForBusiness, bySource) {
     const el = document.getElementById("trend-results");
-    topTrends = topTrends || [];
     topForBusiness = topForBusiness || [];
-    if (!topTrends.length && !topForBusiness.length) { el.innerHTML = ""; return; }
+    trendsBySource = bySource || {};
+    const hasSourceData = Object.values(trendsBySource).some(v => (v || []).length);
+    if (!topForBusiness.length && !hasSourceData) { el.innerHTML = ""; return; }
 
     trendPool = {};
     selectedTrendKeys = new Set();
-    topTrends.forEach((t, i) => trendPool[`top:${i}`] = t);
+    // Keyed by tab so a trend stays selectable no matter which tab it
+    // was ticked from.
+    Object.entries(trendsBySource).forEach(([group, items]) => {
+      (items || []).forEach((t, i) => trendPool[`src:${group}:${i}`] = t);
+    });
     topForBusiness.forEach((t, i) => trendPool[`business:${i}`] = t);
 
-    const overallCards = topTrends.map((t, i) => {
-      const sm = sourceMeta(t.source);
-      const ctx = (t.context || "").trim();
-      return `
-      <div class="card p-4 flex items-start gap-3">
-        <div class="pt-0.5">${trendCheckbox("top", i)}</div>
-        <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${sm.bg};color:${sm.color}"><span class="material-symbols-outlined icon-sm">${sm.icon}</span></span>
-        <div class="min-w-0 flex-1">
-          <div class="font-bold text-[13.5px]">#${i + 1} ${escapeHtml(t.entity_name)}</div>
-          <div class="text-[11.5px] text-[var(--muted)]">${escapeHtml(sm.label)}${t.category ? " · " + escapeHtml(t.category) : ""}${ageLabel(t.age_hours) ? " · " + ageLabel(t.age_hours) : ""}${t.is_new ? " · new" : ""}</div>
-          ${ctx ? `<div class="text-[11.5px] text-[#5b6862] mt-1.5 leading-snug border-l-2 border-[var(--border)] pl-2">${escapeHtml(ctx.length > 150 ? ctx.slice(0, 150) + "…" : ctx)}</div>` : ""}
-        </div>
-        <div class="text-right shrink-0">
-          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)]">Score</div>
-          <div class="text-[13px] font-extrabold text-[var(--teal-dark)]">${escapeHtml(t.score)}</div>
-        </div>
-      </div>`;
-    }).join("");
+    const businessCards = topForBusiness.map((t, i) => matchCard(t, i)).join("");
 
-    const businessCards = topForBusiness.map((t, i) => {
-      const [tbg, tcolor, tlabel] = TIMING_STYLE[(t.timing || "").toLowerCase()] || ["#f0f4f3", "#68766f", t.timing || ""];
-      const [lbg, lcolor] = LIFECYCLE_STYLE[(t.lifecycle || "").toLowerCase()] || ["#f0f4f3", "#68766f"];
-      const pct = Math.max(0, Math.min(10, t.relevance_score || 0)) * 10;
-      return `
-      <div class="card p-5">
-        <div class="flex items-start gap-3">
-          <div class="pt-0.5">${trendCheckbox("business", i)}</div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2 flex-wrap mb-2">
-              <div class="font-bold text-[15px]">${escapeHtml(t.trend)} <span class="text-[var(--muted)] font-normal text-xs">(${escapeHtml(sourceMeta(t.source).label)})</span></div>
-              <div class="flex items-center gap-1.5">
-                <div class="w-16 h-1.5 bg-[var(--surface2)] rounded-full overflow-hidden"><div class="h-full bg-[var(--teal)] rounded-full" style="width:${pct}%"></div></div>
-                <span class="text-[11px] font-bold text-[var(--muted)]">${t.relevance_score}/10</span>
-              </div>
-            </div>
-            <div class="flex gap-1.5 mb-3">
-              ${pill(tbg, tcolor, tlabel)}
-              ${pill(lbg, lcolor, (t.lifecycle || "").charAt(0).toUpperCase() + (t.lifecycle || "").slice(1))}
-            </div>
-            <div class="text-[13px] text-[#3f4a45] leading-relaxed mb-1.5"><strong class="text-[var(--ink)]">Why people care:</strong> ${escapeHtml(t.why_people_care)}</div>
-            <div class="text-[13px] text-[#3f4a45] leading-relaxed"><strong class="text-[var(--ink)]">Bridge to your business:</strong> ${escapeHtml(t.bridge_to_business)}</div>
-          </div>
-        </div>
-      </div>`;
+    const tabs = TREND_TABS.map(t => {
+      const count = (trendsBySource[t.key] || []).length;
+      return `<button class="trend-tab${t.key === activeTrendTab ? " active" : ""}" id="trend-tab-${t.key}" onclick="selectTrendTab('${t.key}')">
+        <span class="material-symbols-outlined icon-sm">${t.icon}</span>${escapeHtml(t.label)}${count ? "" : `<span class="opacity-40">·0</span>`}
+      </button>`;
     }).join("");
 
     el.innerHTML = `
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 mt-6">
         <div>
           ${sectionHeader("radar", "Trending Right Now", "text-[var(--blue)]")}
-          <div class="flex flex-col gap-2.5">
-            ${overallCards || `<div class="card p-5 text-[13.5px] text-[var(--muted)]">No trend data available.</div>`}
-          </div>
+          <div class="flex flex-wrap gap-2 mb-5">${tabs}</div>
+          <div class="flex flex-col gap-4" id="trend-tab-body">${renderTrendTabBody(activeTrendTab)}</div>
         </div>
         <div>
           ${sectionHeader("auto_awesome", "Matched To Your Business", "text-[var(--teal)]")}
-          <div class="flex flex-col gap-3">
-            ${businessCards || `<div class="card p-5 text-[13.5px] text-[var(--muted)]">No trends judged relevant to this business right now.</div>`}
+          <div class="flex flex-col gap-4">
+            ${businessCards || (businessMatched
+              ? emptyCard("None of these trends had a defensible connection to your business right now. That's a real answer — a forced tie-in usually reads as one.")
+              : matchPromptCard())}
           </div>
         </div>
       </div>
 
-      <div class="card p-6 mt-8 flex items-center justify-between gap-4 flex-wrap bg-[var(--teal-tint)] border-[var(--teal-light)]">
+      <div class="card p-7 mt-12 flex items-center justify-between gap-5 flex-wrap bg-[var(--teal-tint)] border-[var(--teal-light)]">
         <div>
           <div class="font-bold text-[15px]">Turn selected trends into campaign ideas</div>
-          <div id="selected-trend-count" class="text-[13px] text-[var(--muted)]">Select trends above to build campaigns from them</div>
+          <div id="selected-trend-count" class="text-[13px] text-[var(--muted)] mt-1">Select trends above to build campaigns from them</div>
         </div>
         <button class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed" id="generate-campaigns-btn" onclick="generateCampaignIdeas()" disabled>
           <span class="material-symbols-outlined icon-sm">auto_awesome</span> Generate Campaign Ideas
@@ -1374,6 +1468,68 @@
       </div>
       <div id="campaign-log-box" class="log-box mt-4" style="display:none"></div>
       <div id="campaign-results"></div>`;
+  }
+
+  function emptyCard(msg) {
+    return `<div class="card p-6 text-[13.5px] text-[var(--muted)]">${escapeHtml(msg)}</div>`;
+  }
+
+  // Shown in the business column before any business details exist --
+  // the trends above are already usable on their own, this is the
+  // optional second step.
+  function matchPromptCard() {
+    return `
+      <div class="card p-7 text-center bg-[var(--teal-tint)] border-[var(--teal-light)]">
+        <span class="material-symbols-outlined icon-xl text-[var(--teal)]">auto_awesome</span>
+        <div class="font-bold text-[15px] mt-3 mb-1.5">Which of these fit your business?</div>
+        <div class="text-[13px] text-[var(--muted)] leading-relaxed mb-5">Add your business details and we'll cross-reference the trends you're looking at — no re-fetching.</div>
+        <button class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors" onclick="showBusinessForm()">
+          <span class="material-symbols-outlined icon-sm">arrow_forward</span> Add my business details
+        </button>
+      </div>`;
+  }
+
+  // A raw trend. Deliberately sparse: name, where it came from, how old.
+  // The freshness score is the ranking input, not something a small
+  // business owner needs read back at them, so it isn't shown.
+  function trendCard(t, i, listType = "top") {
+    const sm = sourceMeta(t.source);
+    const ctx = (t.context || "").trim();
+    const age = ageLabel(t.age_hours);
+    return `
+      <div class="card px-5 py-4 flex items-start gap-4">
+        <div class="pt-1">${trendCheckbox(listType, i)}</div>
+        <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background:${sm.bg};color:${sm.color}">
+          <span class="material-symbols-outlined icon-sm">${sm.icon}</span>
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="font-bold text-[14px] leading-snug">${escapeHtml(t.entity_name)}</div>
+          <div class="text-[11.5px] text-[var(--muted)] mt-1.5">
+            ${escapeHtml(sm.label)}${age ? " · " + escapeHtml(age) : ""}
+          </div>
+          ${ctx ? `<div class="text-[12px] text-[#5b6862] mt-3 leading-relaxed">${escapeHtml(ctx.length > 110 ? ctx.slice(0, 110) + "…" : ctx)}</div>` : ""}
+        </div>
+      </div>`;
+  }
+
+  // A trend matched to the business. One reason line, not two -- the
+  // bridge is the part that's actually actionable.
+  function matchCard(t, i) {
+    const [tbg, tcolor, tlabel] = TIMING_STYLE[(t.timing || "").toLowerCase()] || ["#f0f4f3", "#68766f", t.timing || ""];
+    return `
+      <div class="card px-5 py-5">
+        <div class="flex items-start gap-4">
+          <div class="pt-1">${trendCheckbox("business", i)}</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-[15px] leading-snug mb-2.5">${escapeHtml(t.trend)}</div>
+            <div class="flex items-center gap-2 flex-wrap mb-4">
+              ${pill(tbg, tcolor, tlabel)}
+              <span class="text-[11px] font-bold text-[var(--muted)]">${t.relevance_score}/10 fit</span>
+            </div>
+            <div class="text-[13px] text-[#3f4a45] leading-relaxed">${escapeHtml(t.bridge_to_business)}</div>
+          </div>
+        </div>
+      </div>`;
   }
 
   async function generateCampaignIdeas() {
@@ -1447,7 +1603,8 @@
       return;
     }
 
-    const cards = campaigns.map(c => {
+    campaignPool = campaigns;
+    const cards = campaigns.map((c, idx) => {
       const [tbg, tcolor, tlabel] = TIMING_STYLE[(c.timing || "").toLowerCase()] || ["#f0f4f3", "#68766f", c.timing || ""];
       const directions = c.execution_directions || [];
       return `
@@ -1476,8 +1633,8 @@
               </div>`).join("")}
           </div>
         </div>` : ""}
-        <button class="w-full inline-flex items-center justify-center gap-2 bg-[var(--surface2)] text-[var(--muted)] font-bold px-5 py-3 rounded-xl cursor-not-allowed mt-auto" disabled title="Picking a format (email, Instagram post, short video, etc.) is coming soon">
-          <span class="material-symbols-outlined icon-sm">campaign</span> Generate Ad Copy — Coming Soon
+        <button class="w-full inline-flex items-center justify-center gap-2 bg-[var(--ink)] hover:bg-black text-white font-bold px-5 py-3 rounded-xl transition-colors mt-auto" onclick="openAdCopyPicker(${idx})">
+          <span class="material-symbols-outlined icon-sm">campaign</span> Generate Ad Copy
         </button>
       </div>`;
     }).join("");
@@ -1486,6 +1643,267 @@
       <div class="mt-10">
         ${sectionHeader("auto_awesome", "Campaign Ideas", "text-[var(--teal)]")}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">${cards}</div>
+      </div>
+      <div id="adcopy-picker"></div>
+      <div id="adcopy-log-box" class="log-box mt-4" style="display:none"></div>
+      <div id="adcopy-results"></div>`;
+    window.scrollTo({ top: el.offsetTop - 100, behavior: "smooth" });
+  }
+
+  // ── Stage 3: Ad copy ────────────────────────────────────────
+  let campaignPool = [];
+  let adFormatGroups = null;      // fetched once from the backend catalogue
+  let adCopyCampaignIdx = null;
+
+  async function loadAdFormats() {
+    if (adFormatGroups) return adFormatGroups;
+    const resp = await fetch("/api/ad-copy-formats");
+    const data = await resp.json();
+    adFormatGroups = data.groups || [];
+    return adFormatGroups;
+  }
+
+  async function openAdCopyPicker(idx) {
+    adCopyCampaignIdx = idx;
+    const campaign = campaignPool[idx];
+    if (!campaign) return;
+
+    const groups = await loadAdFormats();
+    const el = document.getElementById("adcopy-picker");
+
+    const groupsHtml = groups.map(g => `
+      <div class="mb-6">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-3">${escapeHtml(g.group)}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          ${g.formats.map(f => `
+            <label class="fmt-option flex items-start gap-2.5 px-4 py-3 rounded-xl cursor-pointer">
+              <input type="checkbox" class="fmt-check mt-0.5" value="${escapeHtml(f.key)}" onchange="updateAdCopyCount()">
+              <span class="min-w-0">
+                <span class="block font-bold text-[13px] leading-snug">${escapeHtml(f.label)}</span>
+                <span class="block text-[11px] text-[var(--muted)] mt-0.5">${escapeHtml(f.hint)}</span>
+              </span>
+            </label>`).join("")}
+        </div>
+      </div>`).join("");
+
+    el.innerHTML = `
+      <div class="card p-7 mt-8" id="adcopy-picker-card">
+        <div class="flex items-start justify-between gap-4 flex-wrap mb-1">
+          <div>
+            <div class="font-extrabold text-[17px] tracking-tight">Which formats do you want?</div>
+            <div class="text-[13px] text-[var(--muted)] mt-1">Writing copy for <strong class="text-[var(--ink)]">${escapeHtml(campaign.campaign_name)}</strong>. Pick as many as you like — they'll all carry the same offer.</div>
+          </div>
+          <button class="text-[var(--muted)] hover:text-[var(--ink)]" onclick="closeAdCopyPicker()" title="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap gap-2 my-5">
+          <button class="trend-tab" onclick="presetFormats(['instagram_post','facebook_post','whatsapp_broadcast'])">Quick social set</button>
+          <button class="trend-tab" onclick="presetFormats(['tiktok_script','instagram_reel_script','youtube_shorts_script'])">All short video</button>
+          <button class="trend-tab" onclick="presetFormats(['meta_ad','google_search_ad'])">Paid ads</button>
+          <button class="trend-tab" onclick="presetFormats([])">Clear</button>
+        </div>
+
+        ${groupsHtml}
+
+        <div class="flex items-center justify-between gap-4 flex-wrap pt-5 border-t border-[var(--border)]">
+          <div class="text-[13px] text-[var(--muted)]" id="adcopy-count">No formats selected</div>
+          <button class="inline-flex items-center gap-2 bg-[var(--teal)] hover:bg-[var(--teal-dark)] text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed" id="adcopy-go-btn" onclick="generateAdCopy()" disabled>
+            <span class="material-symbols-outlined icon-sm">campaign</span> Write The Copy
+          </button>
+        </div>
+      </div>`;
+
+    document.getElementById("adcopy-results").innerHTML = "";
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function closeAdCopyPicker() {
+    document.getElementById("adcopy-picker").innerHTML = "";
+  }
+
+  function presetFormats(keys) {
+    const want = new Set(keys);
+    document.querySelectorAll(".fmt-check").forEach(c => {
+      c.checked = want.has(c.value);
+    });
+    updateAdCopyCount();
+  }
+
+  function selectedFormats() {
+    return [...document.querySelectorAll(".fmt-check")]
+      .filter(c => c.checked).map(c => c.value);
+  }
+
+  function updateAdCopyCount() {
+    const n = selectedFormats().length;
+    const label = document.getElementById("adcopy-count");
+    const btn = document.getElementById("adcopy-go-btn");
+    if (label) label.textContent = n
+      ? `${n} format${n > 1 ? "s" : ""} selected`
+      : "No formats selected";
+    if (btn) btn.disabled = n === 0;
+  }
+
+  async function generateAdCopy() {
+    const campaign = campaignPool[adCopyCampaignIdx];
+    const formats = selectedFormats();
+    if (!currentJobId || !campaign || !formats.length) return;
+
+    const btn = document.getElementById("adcopy-go-btn");
+    const logBox = document.getElementById("adcopy-log-box");
+    btn.disabled = true;
+    btn.innerHTML = "Writing...";
+    logBox.style.display = "block";
+    logBox.textContent = "Starting...";
+    document.getElementById("adcopy-results").innerHTML = "";
+
+    try {
+      const resp = await fetch("/api/ad-copy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: currentJobId, campaign, formats })
+      });
+      const result = await resp.json();
+      if (result.error) {
+        logBox.textContent = "Error: " + result.error;
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined icon-sm">campaign</span> Write The Copy';
+        return;
+      }
+      pollAdCopyStatus(currentJobId);
+    } catch (err) {
+      logBox.textContent = "Network error. Is the server running?";
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined icon-sm">campaign</span> Write The Copy';
+    }
+  }
+
+  async function pollAdCopyStatus(jobId) {
+    const logBox = document.getElementById("adcopy-log-box");
+    const btn = document.getElementById("adcopy-go-btn");
+
+    const interval = setInterval(async () => {
+      try {
+        const resp = await fetch(`/api/status/${jobId}`);
+        const job  = await resp.json();
+        logBox.textContent = job.adcopy_log || "";
+        logBox.scrollTop = logBox.scrollHeight;
+
+        if (job.adcopy_status === "done") {
+          clearInterval(interval);
+          logBox.style.display = "none";
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined icon-sm">campaign</span> Write The Copy';
+          }
+          renderAdCopy(job.ad_copy);
+        } else if (job.adcopy_status === "error") {
+          clearInterval(interval);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined icon-sm">campaign</span> Write The Copy';
+          }
+        }
+      } catch (err) {
+        clearInterval(interval);
+      }
+    }, 2000);
+  }
+
+  function copyToClipboard(id, btn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.dataset.copy || "").then(() => {
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined icon-sm">check</span> Copied';
+      setTimeout(() => { btn.innerHTML = original; }, 1800);
+    }).catch(() => {});
+  }
+
+  function renderAdCopy(data) {
+    const el = document.getElementById("adcopy-results");
+    const blocks = (data && data.formats) || [];
+    if (!blocks.length) {
+      el.innerHTML = `<div class="card p-6 mt-6 text-[13.5px] text-[var(--muted)]">No copy was generated.</div>`;
+      return;
+    }
+
+    const cards = blocks.map((b, i) => {
+      const beats = b.script_beats || [];
+      const variants = b.variants || [];
+      const tags = b.hashtags || [];
+      // Everything a person would actually paste, in one copyable blob.
+      const plain = [
+        b.headline ? `${b.headline}` : "",
+        b.primary_text || "",
+        beats.length ? beats.map(x => `${x.beat}: ${x.content}`).join("\n") : "",
+        variants.length ? `Alternatives:\n- ${variants.join("\n- ")}` : "",
+        tags.length ? tags.join(" ") : "",
+        b.call_to_action ? `CTA: ${b.call_to_action}` : "",
+      ].filter(Boolean).join("\n\n");
+
+      return `
+      <div class="card p-6" id="adcopy-block-${i}" data-copy="${escapeHtml(plain)}">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <div class="font-extrabold text-[15px]">${escapeHtml(b.label || b.format || "")}</div>
+            ${b.group ? `<div class="text-[11px] text-[var(--muted)] mt-0.5">${escapeHtml(b.group)}</div>` : ""}
+          </div>
+          <button class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[var(--muted)] hover:text-[var(--ink)] border border-[var(--border)] rounded-lg px-2.5 py-1.5 shrink-0"
+                  onclick="copyToClipboard('adcopy-block-${i}', this)">
+            <span class="material-symbols-outlined icon-sm">content_copy</span> Copy
+          </button>
+        </div>
+
+        ${b.headline ? `<div class="mb-3">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)] mb-1">Headline</div>
+          <div class="text-[14px] font-bold leading-snug">${escapeHtml(b.headline)}</div>
+        </div>` : ""}
+
+        ${b.primary_text ? `<div class="mb-4">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)] mb-1.5">Copy</div>
+          <div class="text-[13.5px] text-[#3f4a45] leading-relaxed whitespace-pre-wrap">${escapeHtml(b.primary_text)}</div>
+        </div>` : ""}
+
+        ${beats.length ? `<div class="mb-4">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)] mb-2">Script</div>
+          <div class="flex flex-col gap-2.5">
+            ${beats.map(x => `
+              <div class="flex items-start gap-2.5">
+                <span class="text-[11px] font-bold text-[var(--teal-dark)] bg-[var(--teal-tint)] rounded px-2 py-0.5 shrink-0 mt-0.5 whitespace-nowrap">${escapeHtml(x.beat || "")}</span>
+                <span class="text-[13px] text-[#3f4a45] leading-relaxed">${escapeHtml(x.content || "")}</span>
+              </div>`).join("")}
+          </div>
+        </div>` : ""}
+
+        ${variants.length ? `<div class="mb-4">
+          <div class="text-[10px] font-bold uppercase tracking-wide text-[var(--muted)] mb-1.5">Alternatives to test</div>
+          <ul class="result-list">${variants.map(v => `<li>${escapeHtml(v)}</li>`).join("")}</ul>
+        </div>` : ""}
+
+        ${tags.length ? `<div class="mb-4 flex flex-wrap gap-1.5">
+          ${tags.map(t => `<span class="text-[11px] font-semibold px-2 py-1 rounded-full bg-[var(--surface2)] text-[var(--muted)]">${escapeHtml(t)}</span>`).join("")}
+        </div>` : ""}
+
+        ${b.call_to_action ? `<div class="text-[12.5px] mb-3"><span class="font-bold">CTA:</span> <span class="text-[#3f4a45]">${escapeHtml(b.call_to_action)}</span></div>` : ""}
+
+        ${b.notes ? `<div class="text-[12px] text-[var(--muted)] leading-relaxed border-t border-[var(--border)] pt-3 mt-1">${escapeHtml(b.notes)}</div>` : ""}
+
+        ${b.disclosure_note ? `<div class="disclosure text-[12px] leading-relaxed mt-3 flex items-start gap-2">
+          <span class="material-symbols-outlined icon-sm mt-0.5">info</span><span>${escapeHtml(b.disclosure_note)}</span>
+        </div>` : ""}
+      </div>`;
+    }).join("");
+
+    el.innerHTML = `
+      <div class="mt-10">
+        ${sectionHeader("campaign", "Ad Copy", "text-[var(--teal)]")}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">${cards}</div>
+        <div class="text-[11.5px] text-[var(--muted)] italic mt-5 leading-relaxed">
+          Drafts to edit, not final copy. Check any price, date or claim before publishing — anything in [brackets] is a placeholder for you to fill in.
+        </div>
       </div>`;
     window.scrollTo({ top: el.offsetTop - 100, behavior: "smooth" });
   }
@@ -1647,40 +2065,41 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // ── Trend analysis polling ───────────────────────────────────
-  const stepMessages = [
+  // ── Polling ──────────────────────────────────────────────────
+  const trendStepMessages = [
     "Fetching what's trending right now...",
-    "Parsing your business profile...",
+    "Reading news and search feeds...",
     "Scoring trend freshness...",
-    "Judging relevance to your business...",
     "Almost there...",
   ];
-  let stepIdx = 0;
+  const matchStepMessages = [
+    "Reading your business profile...",
+    "Judging which trends genuinely fit...",
+    "Almost there...",
+  ];
 
-  async function pollStatus(jobId) {
+  // One poller for both phases -- they differ only in which status/log
+  // keys they watch and what to do when finished.
+  function pollPhase({ jobId, statusKey, logKey, messages, onDone }) {
     const stepEl = document.getElementById("processing-step");
     const logEl  = document.getElementById("log-box");
+    let idx = 0;
 
     const interval = setInterval(async () => {
       try {
         const resp = await fetch(`/api/status/${jobId}`);
         const job  = await resp.json();
 
-        logEl.textContent = job.log || "";
+        logEl.textContent = job[logKey] || "";
         logEl.scrollTop   = logEl.scrollHeight;
 
-        stepIdx = (stepIdx + 1) % stepMessages.length;
-        stepEl.textContent = stepMessages[stepIdx];
+        idx = (idx + 1) % messages.length;
+        stepEl.textContent = messages[idx];
 
-        if (job.status === "done") {
+        if (job[statusKey] === "done") {
           clearInterval(interval);
-          currentJobId = jobId;
-          document.getElementById("screen-processing").style.display = "none";
-          document.getElementById("screen-done").style.display = "block";
-          document.getElementById("done-business-snapshot").textContent = job.business_snapshot || "";
-          renderTrendResults(job.top_trends, job.top_for_your_business);
-          renderLegibilityResults(job.legibility_report);
-        } else if (job.status === "error") {
+          onDone(job);
+        } else if (job[statusKey] === "error") {
           clearInterval(interval);
           stepEl.textContent = "Something went wrong. Check the log below.";
         }
@@ -1689,6 +2108,38 @@
         stepEl.textContent = "Lost connection to server.";
       }
     }, 2000);
+  }
+
+  function pollTrendStatus(jobId) {
+    pollPhase({
+      jobId, statusKey: "status", logKey: "log",
+      messages: trendStepMessages,
+      onDone: (job) => {
+        currentJobId = jobId;
+        businessMatched = false;
+        activeTrendTab = "all";
+        showScreen("screen-done");
+        document.getElementById("done-snapshot-card").style.display = "none";
+        renderTrendResults(job.top_for_your_business, job.trends_by_source);
+        renderLegibilityResults(job.legibility_report);
+      }
+    });
+  }
+
+  function pollMatchStatus(jobId) {
+    pollPhase({
+      jobId, statusKey: "match_status", logKey: "match_log",
+      messages: matchStepMessages,
+      onDone: (job) => {
+        businessMatched = true;
+        showScreen("screen-done");
+        const snap = document.getElementById("done-snapshot-card");
+        document.getElementById("done-business-snapshot").textContent = job.business_snapshot || "";
+        snap.style.display = job.business_snapshot ? "flex" : "none";
+        renderTrendResults(job.top_for_your_business, job.trends_by_source);
+        renderLegibilityResults(job.legibility_report);
+      }
+    });
   }
 
   // ── Start over ────────────────────────────────────────────

@@ -1,0 +1,91 @@
+{
+  "campaign_name": "Match Night Mixed Grill",
+  "formats": [
+    {
+      "format": "instagram_post",
+      "primary_text": "🏏🎉 Watching the PSL this week? Elevate your match night with our special Match Night Mixed Grill! Perfect for groups of 4-6, our platters offer generous portions of mouth-watering BBQ. Order by [ORDER CUTOFF TIME] today and let FirePit BBQ Co. be your match-day hero! 🍢🔥\n\nOrder now through our bio link and turn your watch party into a flavor fiesta! 📲",
+      "hashtags": [
+        "#MatchNightBBQ",
+        "#PSL2023",
+        "#BBQPlatter",
+        "#FirePitBBQ",
+        "#GrillAndChill",
+        "#LahoreEats",
+        "#PakistaniBBQ",
+        "#WatchPartyFeast"
+      ],
+      "call_to_action": "Order now through our bio link to secure your platter!",
+      "notes": "Post on days with PSL matches for maximum relevance and engagement.",
+      "label": "Instagram post",
+      "group": "Social posts"
+    },
+    {
+      "format": "tiktok_script",
+      "script_beats": [
+        {
+          "beat": "Hook (0-2s)",
+          "content": "Close-up on sizzling BBQ grill, text: 'PSL Match Night Sorted!'"
+        },
+        {
+          "beat": "Mid (2-30s)",
+          "content": "Show vibrant platters, text: 'Our Match Night Mixed Grill feeds 4-6!' Captivating shots of chicken tikka, seekh kebabs, and more."
+        },
+        {
+          "beat": "Finale (30-45s)",
+          "content": "Overlay footage of a group enjoying the grill, text: 'Order by [ORDER CUTOFF TIME] today!' Voiceover: 'Turn your PSL night into a feast!'"
+        }
+      ],
+      "notes": "Use trending music related to cricket or exciting match nights for better engagement.",
+      "disclosure_note": "Ensure any paid promotion or creator involvement is clear to viewers.",
+      "label": "TikTok video script",
+      "group": "Short video scripts"
+    },
+    {
+      "format": "email_campaign",
+      "variants": [
+        "PSL BBQ: Your Match Night Feast!",
+        "Match Night Mixed Grill: Order Now!",
+        "Turn PSL Nights into BBQ Parties!"
+      ],
+      "headline": "Get Ready for PSL with FirePit BBQ!",
+      "primary_text": "Dear BBQ Lovers,\n\nExcited for the PSL match? We know the perfect accompaniment – our Match Night Mixed Grill! Designed for groups of 4-6, this platter is packed with delicious BBQ favorites like beef seekh kebabs, chicken tikka, and more.\n\nOrder by [ORDER CUTOFF TIME] so you and your friends can enjoy a hassle-free, flavorful evening. Don't miss out – transform your match night into a true FirePit BBQ experience!\n\nClick here to order now!",
+      "call_to_action": "Click here to order now!",
+      "notes": "Send on the morning of match days to ensure it lands in inboxes early.",
+      "label": "Email campaign",
+      "group": "Direct messaging"
+    },
+    {
+      "format": "whatsapp_broadcast",
+      "primary_text": "Hey [Name]! Got match night plans? 🎉 Order our Match Night Mixed Grill, perfect for 4-6! Just make sure to order by [ORDER CUTOFF TIME]. 🍢🔥 Let FirePit BBQ spice up your PSL night! 📲",
+      "notes": "This should only go to people who opted in for messaging updates.",
+      "label": "WhatsApp broadcast",
+      "group": "Direct messaging"
+    },
+    {
+      "format": "meta_ad",
+      "primary_text": "PSL match night plans? 🎉 Get the perfect feast with our Match Night Mixed Grill! Designed for 4-6, it’s packed with mouth-watering BBQ.",
+      "headline": "Match Night BBQ Feast!",
+      "description": "Order today for the perfect BBQ night.",
+      "variants": [
+        "Hosting a PSL party? Our BBQ's got you covered!",
+        "Turn your PSL watch party into a flavor fest!",
+        "BBQ platters for the ultimate match night!"
+      ],
+      "disclosure_note": "Ensure that all paid ads are clearly marked as sponsored content.",
+      "label": "Facebook / Instagram ad",
+      "group": "Paid ads"
+    }
+  ],
+  "_meta": {
+    "generated_at": "demo-mode",
+    "campaign_name": "Match Night Mixed Grill",
+    "formats_requested": [
+      "instagram_post",
+      "tiktok_script",
+      "email_campaign",
+      "whatsapp_broadcast",
+      "meta_ad"
+    ],
+    "_demo_mode": true
+  }
+}

@@ -5,9 +5,10 @@ AI-powered marketing intelligence for small businesses. Scans what's genuinely t
 ## How It Works
 
 **1. Trend Analysis** (staged, so you're never handed a wall of output at once)
-- **Discover trends** — no keywords to guess at. Pulls live trending searches from Google (public Daily Search Trends RSS, with approximate search volume and the news story behind each spike), trending videos from YouTube, articles from a curated set of RSS feeds (regional + topical, capped to the last few days), and hashtags from TikTok Creative Center. Every source normalizes to one shared schema (`snapshot_schema.py`), gets scored for real freshness/velocity (`trend_scoring.py`), filtered for brand safety and synthetic placeholders, then GPT-4o judges which ones have a genuine connection to *your* business and why (`trend_analyzer.py`). You get two lists: what's trending overall, and what's trending for you.
+- **Discover trends — no input required.** Pick a region and hit "Fetch Trends". Nothing about your business is needed at this point. Pulls live trending searches from Google (public Daily Search Trends RSS, with approximate search volume and the news story behind each spike), trending videos from YouTube, articles from a curated set of RSS feeds (regional + topical, capped to the last few days), and hashtags from TikTok Creative Center. Every source normalizes to one shared schema (`snapshot_schema.py`) and gets scored for real freshness/velocity (`trend_scoring.py`), filtered for brand safety and synthetic placeholders. You get the top 3 trends, filterable by source (All / Google / YouTube / TikTok / News), preferring anything from the last 24 hours.
+- **Match to your business — optional, second.** Enter your business details and GPT-4o judges which of the *already-fetched* trends have a genuine connection to you and why (`trend_analyzer.py`). Nothing is re-fetched; this is purely the cross-reference step.
 - **Campaign ideas** — pick the trends worth acting on, and GPT-4o turns each into a campaign concept: core idea, audience angle, timing, and concrete execution directions (`campaign_ideas.py`).
-- Format-specific ad copy (email, Instagram post, short video, etc.) is a planned next stage, not yet built — the UI says so rather than pretending otherwise.
+- **Ad copy** — pick a campaign and the formats you want, and GPT-4o writes publishable copy for each (`ad_copy.py`). 20 formats across social posts, short-video scripts, email/WhatsApp/SMS, paid ads, and longer form — see `ad_formats.py`, which is the single source of truth for the catalogue and carries each platform's real constraints (Google's 30-character headline cap, the shape of a TikTok script, where an email subject line goes). One model call covers every requested format so they stay consistent with each other.
 
 **2. Competitor Check** (separate tab, doesn't require a trend analysis first)
 - **Check competitors** — give it a couple of competitor names + URLs and it reads their own homepages for positioning, patterns across them, and where you could differentiate (`competitor_research.py` → `competitor_synthesis.py`).
@@ -90,7 +91,7 @@ python app.py
 
 Open [http://localhost:5000](http://localhost:5000) in your browser. The landing page explains what ScoutAI does and lets you either fill in your own business or click one of six demo businesses to try it instantly. From there:
 
-- **Trend Analysis** tab: a short business-profile form → live trend discovery (top trends overall + trends matched to your business, each with a "why this fits" reasoning and a relevance score) → select the ones you want and generate campaign ideas from them. Add your website on the last form step to also get the AI Visibility Check.
+- **Trend Analysis** tab: pick a region and fetch trends immediately — no business details needed. You get the top 3, filterable by source. Then optionally add your business details to cross-reference those same trends against it (with a "why this fits" reasoning and a relevance score), and select the ones you want to generate campaign ideas from. Add your website on the last form step to also get the AI Visibility Check.
 - **Competitor Check** tab: independent of the above — give it competitor names/URLs and either get a positioning read or validate a specific idea against them.
 
 Everything runs in the background with live progress updates; each submission gets its own isolated working directory (`jobs/<job_id>/`) so concurrent submissions never cross-contaminate.
@@ -156,6 +157,10 @@ python trend_analyzer.py --business business_profile.json
 
 # 8. Stage 2: campaign ideas from trends you select (selected_trends.json -> {"trends": [...]})
 python campaign_ideas.py
+
+# 9. Stage 3: ad copy for one campaign in the formats you name
+#    (selected_campaign.json -> {"campaign": {...}, "formats": [...]})
+python ad_copy.py --formats instagram_post,email_campaign,tiktok_script
 ```
 
 `google_trends.py` (keyword-based Google Trends interest-over-time) is a separate standalone tool, not part of the automatic pipeline: `python google_trends.py --keywords "PSL,rain Karachi,Eid" --geo PK`
@@ -187,6 +192,8 @@ python test_trend_scoring.py
 ├── parse_business.py              # GPT-4o business profile extraction
 ├── trend_analyzer.py              # Stage 1: top trends + trends matched to the business
 ├── campaign_ideas.py              # Stage 2: campaign concepts from selected trends
+├── ad_copy.py                     # Stage 3: publishable copy per platform
+├── ad_formats.py                  # The ad-copy format catalogue (20 formats)
 ├── analyze_trends.py              # Legacy one-shot trend-to-business matching (used by run.py)
 ├── generate_report.py             # Legacy HTML report generator (used by run.py)
 │

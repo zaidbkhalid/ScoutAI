@@ -1,0 +1,90 @@
+{
+  "campaign_name": "The Eid Dessert Table",
+  "formats": [
+    {
+      "format": "instagram_post",
+      "primary_text": "🚨 Eid Alert! No Eid gathering is complete without our stunning dessert table centerpiece. Pre-order your Velvet Crumbs Eid Gifting Box today and be the host with the most! 🎉\n\nOur curated box features our signature flavors and mini delights, perfect for sharing with loved ones. Limited slots available!\n\n📲 Click the link in bio to order now!",
+      "hashtags": [
+        "#EidMubarak",
+        "#EidDesserts",
+        "#KarachiBakery",
+        "#VelvetCrumbs",
+        "#CustomCakes",
+        "#EidGifting",
+        "#SweetTooth",
+        "#DessertLovers",
+        "#EidCelebration"
+      ],
+      "call_to_action": "Click the link in bio to order now!",
+      "label": "Instagram post",
+      "group": "Social posts"
+    },
+    {
+      "format": "tiktok_script",
+      "script_beats": [
+        {
+          "beat": "Hook (0-2s)",
+          "content": "Close-up of Eid Gifting Box being opened, revealing an array of colorful desserts. On-screen text: 'This Eid, elevate your dessert table!'"
+        },
+        {
+          "beat": "Middle (3-30s)",
+          "content": "Show hands carefully placing each dessert into the box. Voiceover: 'Introducing the Velvet Crumbs Eid Gifting Box, curated to perfection.'"
+        },
+        {
+          "beat": "End (31-45s)",
+          "content": "Family enjoying the desserts at a beautifully set table. On-screen text: 'Pre-order now, limited slots!' End with Velvet Crumbs logo and website."
+        }
+      ],
+      "notes": "Use a trending Eid celebration sound or festive background music for an engaging effect.",
+      "disclosure_note": "Ensure users know this is sponsored content if posted through influencers.",
+      "label": "TikTok video script",
+      "group": "Short video scripts"
+    },
+    {
+      "format": "email_campaign",
+      "headline": "Pre-order Your Eid Gifting Box Now!",
+      "variants": [
+        "Don't Miss Our Eid Gifting Box!",
+        "Eid Desserts: Limited Slots Available!",
+        "Elevate Your Eid: Order Early!"
+      ],
+      "primary_text": "Eid isn't complete without a stunning dessert table. Our curated Eid Gifting Box is here to make your celebrations sweeter and more memorable.\n\nFeaturing our signature flavors combined with festive mini treats, it's the perfect gift for your loved ones or a treat for yourself.\n\nSlots are limited as Eid approaches, so pre-order now to secure yours!\n\n[Order Now on Velvet Crumbs](https://velvetcrumbs.pk)",
+      "call_to_action": "Order Now on Velvet Crumbs",
+      "label": "Email campaign",
+      "group": "Direct messaging"
+    },
+    {
+      "format": "whatsapp_broadcast",
+      "primary_text": "Hey [Name]! 🌙 Secure your Eid Gifting Box from Velvet Crumbs today! Limited slots available. Pre-order now for the perfect dessert table. 🎂",
+      "notes": "This should only go to people who opted in.",
+      "label": "WhatsApp broadcast",
+      "group": "Direct messaging"
+    },
+    {
+      "format": "meta_ad",
+      "primary_text": "This Eid, make your dessert table unforgettable with our curated Eid Gifting Box. Limited slots available—pre-order now!",
+      "headline": "Pre-order Eid Delights",
+      "description": "Secure your box today.",
+      "variants": [
+        "Elevate Your Eid with Velvet Crumbs.",
+        "Limited Eid Gifting Boxes Available.",
+        "Pre-order Your Eid Treats Now!"
+      ],
+      "disclosure_note": "Ensure users can identify this as a paid advertisement.",
+      "label": "Facebook / Instagram ad",
+      "group": "Paid ads"
+    }
+  ],
+  "_meta": {
+    "generated_at": "demo-mode",
+    "campaign_name": "The Eid Dessert Table",
+    "formats_requested": [
+      "instagram_post",
+      "tiktok_script",
+      "email_campaign",
+      "whatsapp_broadcast",
+      "meta_ad"
+    ],
+    "_demo_mode": true
+  }
+}

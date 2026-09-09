@@ -18,6 +18,8 @@ from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 
 from demo_mode import is_demo_mode, resolve_preset_key
+from trend_scoring import select_top_trends
+from ad_formats import FORMATS_BY_KEY, grouped as grouped_formats
 
 # Always resolve paths relative to this file's location
 BASE_DIR    = Path(__file__).parent.resolve()
@@ -68,6 +70,22 @@ def load_json_safe(path):
         return None
 
 
+def compute_trend_selection(job_dir):
+    """Top trends per source group from this job's freshest scores file.
+
+    Pure data -- no GPT, no business profile needed -- which is what lets
+    the UI show trends before anything is known about the business.
+    """
+    scores_json = find_latest("trend_scores_*.json", job_dir)
+    if not scores_json:
+        return None
+    data = load_json_safe(scores_json) or {}
+    scores = data.get("scores", [])
+    if not scores:
+        return None
+    return select_top_trends(scores)
+
+
 # ── Job state ─────────────────────────────────────────────────
 # Every job gets its own directory (jobs/<job_id>/) and all subprocesses
 # run with that directory as cwd, so business_profile.json,
@@ -77,13 +95,18 @@ def load_json_safe(path):
 jobs = {}
 
 
-def run_pipeline(job_id, job_dir, txt_path, geo, has_website):
-    jobs[job_id]["status"] = "running"
+def make_runner(job_id, job_dir, log_key, status_key):
+    """Build (log_step, run) helpers writing to one job's log/status keys.
+
+    Each phase of a job owns its own log and status field so they can run
+    independently -- and be polled independently -- without clobbering
+    each other's state.
+    """
     log = []
 
     def log_step(msg):
         log.append(msg)
-        jobs[job_id]["log"] = "\n".join(log)
+        jobs[job_id][log_key] = "\n".join(log)
 
     def run(label, cmd):
         log_step(f"\n▶ {label}")
@@ -97,72 +120,107 @@ def run_pipeline(job_id, job_dir, txt_path, geo, has_website):
             log_step(result.stdout.strip())
         if result.stderr.strip():
             log_step(result.stderr.strip())
-        jobs[job_id]["log"] = "\n".join(log)
         return result.returncode == 0
 
-    # Step 1: parse business
-    ok = run("Parsing business profile...", [sys.executable, str(BASE_DIR / "parse_business.py"), txt_path])
-    if not ok:
-        jobs[job_id]["status"] = "error"
-        log_step("❌ Failed at parse_business.py")
-        return
+    return log_step, run
 
-    # Figure out if this business is one of the 3 DEMO_MODE presets, so the
-    # optional competitor/legibility steps below can skip their real (but
-    # pointless -- the output gets discarded anyway) fetch calls for them.
-    profile = load_json_safe(job_dir / "business_profile.json") or {}
-    business_name = profile.get("business_name", "")
-    demo_preset = resolve_preset_key(business_name) if is_demo_mode() else None
 
-    # Step 2: realtime trends — no keyword needed, this is Google's live
-    # "what's trending right now" feed
+# ── Phase 1: fetch trends (no business input required) ─────────
+# Deliberately knows nothing about any business. This is what lets the
+# UI show "what's trending right now" to someone who has typed nothing
+# at all -- fetching and business-matching are separate steps, and the
+# expensive GPT call only happens if the user actually asks for it.
+
+def run_trend_fetch(job_id, job_dir, geo):
+    jobs[job_id]["status"] = "running"
+    log_step, run = make_runner(job_id, job_dir, "log", "status")
+
+    # Google's live "what's trending right now" feed -- no keyword needed
     run("Fetching realtime trends...", [
         sys.executable, str(BASE_DIR / "google_trending_now.py"),
         "--geo", geo
     ])
 
-    # Step 3: YouTube trending videos (requires YOUTUBE_API_KEY) — no
-    # keyword needed, this is YouTube's live trending chart
+    # YouTube trending chart (requires YOUTUBE_API_KEY)
     run("Fetching YouTube trending...", [
         sys.executable, str(BASE_DIR / "youtube_trending.py"),
         "--geo", geo
     ])
 
-    # Step 4: RSS feed articles (no credentials needed) — capped to the
-    # last few days by default (see rss_trends.py --max-age-days).
-    # --geo selects which regional news feeds join the topical ones, so a
-    # London business doesn't get Karachi headlines and vice versa.
+    # RSS articles (no credentials needed), capped to the last few days.
+    # --geo selects which regional news feeds join the topical ones.
     run("Fetching RSS articles...", [
         sys.executable, str(BASE_DIR / "rss_trends.py"),
         "--geo", geo
     ])
 
-    # Step 5: TikTok Creative Center hashtags (may fall back to mock) —
-    # already scoped to a 7-day trending window
+    # TikTok Creative Center hashtags (may fall back to labeled mock,
+    # which trend_scoring.py then excludes from the ranked output)
     run("Fetching TikTok hashtags...", [
         sys.executable, str(BASE_DIR / "tiktok_creative_center.py"),
         "--geo", geo
     ])
 
-    # Step 6: score freshness across this job's freshly-fetched snapshots
+    # Score freshness across this job's freshly-fetched snapshots
     # (--root-dir pins it to job_dir; the shared cross-run snapshots/
     # history directory is still picked up automatically since that's
     # resolved relative to the script's own location, not cwd)
-    run("Scoring trend freshness...", [
+    ok = run("Scoring trend freshness...", [
         sys.executable, str(BASE_DIR / "trend_scoring.py"),
         "--root-dir", str(job_dir)
     ])
-
-    # Step 7: Stage 1 -- trend analyzer (top trends + top trends for this
-    # business; deliberately lightweight, no product/content ideas yet --
-    # those come from campaign_ideas.py / ad_copy.py in later stages, run
-    # on demand from whichever trends the user selects)
-    scores_json = find_latest("trend_scores_*.json", job_dir)
-    cmd = [sys.executable, str(BASE_DIR / "trend_analyzer.py")]
-    if scores_json: cmd += ["--scores", scores_json]
-    ok = run("Analyzing trends...", cmd)
     if not ok:
         jobs[job_id]["status"] = "error"
+        log_step("❌ Failed at trend_scoring.py")
+        return
+
+    selection = compute_trend_selection(job_dir)
+    if not selection:
+        jobs[job_id]["status"] = "error"
+        log_step("❌ No trends could be scored from any source.")
+        return
+
+    jobs[job_id]["trends_by_source"] = selection
+    jobs[job_id]["status"] = "done"
+    log_step("\n✅ Trends ready.")
+
+
+# ── Phase 2: match those trends to a business ──────────────────
+# Runs against the scores this job already fetched -- nothing is
+# re-fetched. Tracked under its own match_* keys so phase 1's results
+# stay intact and pollable while this runs.
+
+def run_business_match(job_id, job_dir, txt_path, has_website):
+    jobs[job_id]["match_status"] = "running"
+    log_step, run = make_runner(job_id, job_dir, "match_log", "match_status")
+
+    ok = run("Parsing business profile...",
+             [sys.executable, str(BASE_DIR / "parse_business.py"), txt_path])
+    if not ok:
+        jobs[job_id]["match_status"] = "error"
+        log_step("❌ Failed at parse_business.py")
+        return
+
+    # Whether this is one of the 3 DEMO_MODE presets, so the optional
+    # legibility steps below can skip their real (but pointless -- the
+    # output gets discarded anyway) fetch calls for them.
+    profile = load_json_safe(job_dir / "business_profile.json") or {}
+    business_name = profile.get("business_name", "")
+    demo_preset = resolve_preset_key(business_name) if is_demo_mode() else None
+
+    # Reuse the scores already fetched in phase 1 rather than re-fetching
+    scores_json = find_latest("trend_scores_*.json", job_dir)
+    if not scores_json:
+        jobs[job_id]["match_status"] = "error"
+        log_step("❌ No trend scores found for this job -- fetch trends first.")
+        return
+
+    ok = run("Matching trends to your business...", [
+        sys.executable, str(BASE_DIR / "trend_analyzer.py"),
+        "--scores", scores_json
+    ])
+    if not ok:
+        jobs[job_id]["match_status"] = "error"
         log_step("❌ Failed at trend_analyzer.py")
         return
 
@@ -174,7 +232,7 @@ def run_pipeline(job_id, job_dir, txt_path, geo, has_website):
         jobs[job_id]["top_for_your_business"] = analysis.get("top_for_your_business", [])
         jobs[job_id]["business_snapshot"] = analysis.get("business_snapshot", "")
 
-    # Step 9 (optional): AI legibility check (structured data + visibility)
+    # Optional: AI legibility check (structured data + answer-engine visibility)
     if has_website:
         if not demo_preset:
             run("Auditing website structured data...",
@@ -187,9 +245,8 @@ def run_pipeline(job_id, job_dir, txt_path, geo, has_website):
         if legibility_json:
             jobs[job_id]["legibility_report"] = load_json_safe(legibility_json)
 
-    jobs[job_id]["status"] = "done"
-    log_step("\n✅ Done! Report is ready.")
-    jobs[job_id]["log"] = "\n".join(log)
+    jobs[job_id]["match_status"] = "done"
+    log_step("\n✅ Matched to your business.")
 
 
 # ── Stage 2: Campaign Ideas (from trends selected in Stage 1) ──
@@ -231,6 +288,28 @@ def run_campaign_ideas(job_id, job_dir):
     jobs[job_id]["campaign_status"] = "done"
 
 
+# ── Stage 3: Ad Copy (from one campaign + chosen formats) ──────
+# Same job directory again -- business_profile.json and the campaign are
+# already there. Own adcopy_* keys so it can run without disturbing the
+# trend, match or campaign results already on screen.
+
+def run_ad_copy(job_id, job_dir):
+    jobs[job_id]["adcopy_status"] = "running"
+    log_step, run = make_runner(job_id, job_dir, "adcopy_log", "adcopy_status")
+
+    ok = run("Writing ad copy...",
+             [sys.executable, str(BASE_DIR / "ad_copy.py")])
+    if not ok:
+        jobs[job_id]["adcopy_status"] = "error"
+        log_step("❌ Failed at ad_copy.py")
+        return
+
+    out_json = find_latest("ad_copy_*.json", job_dir)
+    if out_json:
+        jobs[job_id]["ad_copy"] = load_json_safe(out_json)
+    jobs[job_id]["adcopy_status"] = "done"
+
+
 # ── Routes ────────────────────────────────────────────────────
 
 @app.route("/")
@@ -238,16 +317,57 @@ def index():
     return send_from_directory(str(STATIC_DIR), "index.html")
 
 
-@app.route("/api/submit", methods=["POST"])
-def submit():
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No data received"}), 400
+@app.route("/api/fetch-trends", methods=["POST"])
+def fetch_trends():
+    """Phase 1: fetch and score trends. Requires no business input."""
+    data = request.get_json() or {}
 
     ts     = datetime.now().strftime("%Y%m%d_%H%M%S")
     job_id = f"{ts}_{uuid.uuid4().hex[:6]}"
     job_dir = JOBS_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
+
+    jobs[job_id] = {
+        "status": "queued", "log": "Fetching trends...\n",
+        "trends_by_source": None,
+        "result_json": None, "business_snapshot": "",
+        "top_trends": [], "top_for_your_business": [],
+        "legibility_report": None,
+        "match_status": None, "match_log": "",
+        "campaign_status": None, "campaign_log": "", "campaign_ideas": None,
+        "adcopy_status": None, "adcopy_log": "", "ad_copy": None,
+    }
+
+    geo = data.get("geo", "PK")
+
+    t = threading.Thread(target=run_trend_fetch,
+                         args=(job_id, job_dir, geo), daemon=True)
+    t.start()
+    return jsonify({"job_id": job_id})
+
+
+@app.route("/api/match-business", methods=["POST"])
+def match_business():
+    """Phase 2: match already-fetched trends to a business profile.
+
+    Reuses the trend scores fetched by /api/fetch-trends for this job --
+    nothing is re-fetched.
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data received"}), 400
+
+    job_id = data.get("job_id", "")
+    job = jobs.get(job_id)
+    if not job:
+        return jsonify({"error": "Job not found — fetch trends first"}), 404
+
+    job_dir = JOBS_DIR / job_id
+    if not job_dir.exists():
+        return jsonify({"error": "Job directory no longer exists"}), 404
+
+    if not find_latest("trend_scores_*.json", job_dir):
+        return jsonify({"error": "No trends fetched for this job yet"}), 400
 
     txt_path = str(job_dir / "business.txt")
     Path(txt_path).write_text(form_to_txt(data), encoding="utf-8")
@@ -259,21 +379,14 @@ def submit():
         (job_dir / "business_website.json").write_text(
             json.dumps({"website": website}, indent=2), encoding="utf-8")
 
-    jobs[job_id] = {
-        "status": "queued", "log": "Pipeline starting...\n",
-        "result_json": None, "business_snapshot": "",
-        "top_trends": [], "top_for_your_business": [],
-        "legibility_report": None,
-        "campaign_status": None, "campaign_log": "", "campaign_ideas": None,
-    }
+    job["match_status"] = "queued"
+    job["match_log"] = "Starting...\n"
 
-    geo = data.get("geo", "PK")
-
-    t = threading.Thread(target=run_pipeline,
-                         args=(job_id, job_dir, txt_path, geo,
-                               has_website), daemon=True)
+    t = threading.Thread(target=run_business_match,
+                         args=(job_id, job_dir, txt_path, has_website),
+                         daemon=True)
     t.start()
-    return jsonify({"job_id": job_id})
+    return jsonify({"ok": True})
 
 
 @app.route("/api/campaign-ideas", methods=["POST"])
@@ -426,6 +539,49 @@ def competitor_check():
                          args=(job_id, job_dir, mode), daemon=True)
     t.start()
     return jsonify({"job_id": job_id})
+
+
+@app.route("/api/ad-copy-formats")
+def ad_copy_formats():
+    """The format catalogue, so the picker renders from one source."""
+    return jsonify({"groups": grouped_formats()})
+
+
+@app.route("/api/ad-copy", methods=["POST"])
+def ad_copy_route():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data received"}), 400
+
+    job_id = data.get("job_id", "")
+    job = jobs.get(job_id)
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+
+    job_dir = JOBS_DIR / job_id
+    if not job_dir.exists():
+        return jsonify({"error": "Job directory no longer exists"}), 404
+
+    campaign = data.get("campaign") or {}
+    if not campaign:
+        return jsonify({"error": "No campaign selected"}), 400
+
+    formats = [f for f in (data.get("formats") or []) if f in FORMATS_BY_KEY]
+    if not formats:
+        return jsonify({"error": "Pick at least one format"}), 400
+
+    (job_dir / "selected_campaign.json").write_text(
+        json.dumps({"campaign": campaign, "formats": formats}, indent=2),
+        encoding="utf-8")
+
+    job["adcopy_status"] = "queued"
+    job["adcopy_log"] = "Starting...\n"
+    job["ad_copy"] = None
+
+    t = threading.Thread(target=run_ad_copy, args=(job_id, job_dir),
+                         daemon=True)
+    t.start()
+    return jsonify({"ok": True})
 
 
 @app.route("/api/status/<job_id>")

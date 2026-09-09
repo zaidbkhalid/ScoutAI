@@ -1,0 +1,94 @@
+{
+  "campaign_name": "Ramadan Hydration Reset",
+  "formats": [
+    {
+      "format": "instagram_post",
+      "primary_text": "🌙 Ramadan dehydration? Not this year! \n\nDiscover our 2-step Hydration Reset routine designed for fasting days: Hydrating Gel Cleanser + Barrier Repair Moisturizer. Dermatologist-reviewed, climate-specific, and transparency guaranteed. \n\nElevate your skincare this Ramadan with Glowly. \n\n👉 Shop now and glow with confidence! \n\nLink in bio.",
+      "hashtags": [
+        "#RamadanBeauty",
+        "#GlowlySkincare",
+        "#HydrationReset",
+        "#SkincareRoutine",
+        "#DubaiBeauty",
+        "#GulfBeauty",
+        "#FastingSkinCare",
+        "#DermatologistApproved",
+        "#HydrationHeroes",
+        "#GlowlyGlow"
+      ],
+      "call_to_action": "Shop now and glow with confidence!",
+      "notes": "Post during Ramadan peak hours for maximum engagement.",
+      "label": "Instagram post",
+      "group": "Social posts"
+    },
+    {
+      "format": "tiktok_script",
+      "script_beats": [
+        {
+          "beat": "Hook (0-2s)",
+          "content": "On-screen text: 'Fasting & Dry Skin?' \nVideo: Close-up of dull, dry skin in mirror."
+        },
+        {
+          "beat": "Explanation (3-10s)",
+          "content": "On-screen text: 'Why fasting affects skin hydration' \nVideo: Skincare expert explaining effects of fasting on skin."
+        },
+        {
+          "beat": "Solution Reveal (11-18s)",
+          "content": "On-screen text: 'Try our Hydration Reset' \nVideo: B-roll of Hydrating Gel Cleanser and Barrier Repair Moisturizer."
+        },
+        {
+          "beat": "Call to Action (19-25s)",
+          "content": "On-screen text: 'Shop now and glow!' \nVideo: Model applying products, smiling."
+        }
+      ],
+      "notes": "Use trending sound related to self-care or beauty routines.",
+      "label": "TikTok video script",
+      "group": "Short video scripts"
+    },
+    {
+      "format": "email_campaign",
+      "variants": [
+        "Combat Fasting Dryness 🌙",
+        "Hydration Reset for Ramadan",
+        "Glow Through Ramadan 🌟"
+      ],
+      "headline": "Elevate Your Ramadan Skincare Routine",
+      "primary_text": "Dear Glowly Insider,\n\nThis Ramadan, don't let fasting take a toll on your skin's hydration. Introducing our limited-time Hydration Reset routine: the perfect duo of our Hydrating Gel Cleanser and Barrier Repair Moisturizer.\n\nFormulated for the Gulf's climate and dermatologist-reviewed, these products ensure your skin stays nourished and glowing all month long.\n\nReady to see the difference? \n\nShop now and embrace radiant skin this Ramadan!\n\nBest, \nThe Glowly Team\n\n[Link to Shop]",
+      "call_to_action": "Shop now and embrace radiant skin this Ramadan!",
+      "label": "Email campaign",
+      "group": "Direct messaging"
+    },
+    {
+      "format": "whatsapp_broadcast",
+      "primary_text": "Hey [Name]! 🌙 Ramadan's here, and we have the perfect fix for fasting-related skin dryness. Discover our Hydration Reset kit with cleanser + moisturizer! Ready to glow? Shop now: [Link]",
+      "notes": "This message should only be sent to users who have opted in.",
+      "label": "WhatsApp broadcast",
+      "group": "Direct messaging"
+    },
+    {
+      "format": "meta_ad",
+      "primary_text": "Fasting shouldn't mean dry skin! Refresh your routine with our Hydration Reset: a 2-step solution for radiant skin all Ramadan. Act now!",
+      "headline": "Ramadan Hydration Reset",
+      "description": "Glow through Ramadan with Glowly.",
+      "variants": [
+        "Keep your skin glowing all Ramadan with our 2-step Hydration Reset. Shop now and beat fasting dryness!",
+        "Discover our Hydration Reset: a fasting-friendly skincare duo. Shop today and glow all Ramadan!"
+      ],
+      "disclosure_note": "Ensure this ad appears as a sponsored post for transparency.",
+      "label": "Facebook / Instagram ad",
+      "group": "Paid ads"
+    }
+  ],
+  "_meta": {
+    "generated_at": "demo-mode",
+    "campaign_name": "Ramadan Hydration Reset",
+    "formats_requested": [
+      "instagram_post",
+      "tiktok_script",
+      "email_campaign",
+      "whatsapp_broadcast",
+      "meta_ad"
+    ],
+    "_demo_mode": true
+  }
+}
