@@ -26,6 +26,7 @@ from trend_scoring import (
     compute_velocity,
     compute_score,
     score_all_trends,
+    select_top_trends,
     NEW_ENTITY_SCORE,
 )
 from snapshot_schema import make_entity, write_snapshot, SCHEMA_VERSION
@@ -157,7 +158,9 @@ def test_end_to_end_single_source():
     """Full pipeline with synthetic google_trends snapshots."""
     tmpdir = tempfile.mkdtemp(prefix="trend_test_")
     try:
-        base_time = datetime(2026, 9, 1, 12, 0, 0, tzinfo=timezone.utc)
+        # Relative to now, not a fixed date: scores decay with age, so a
+        # hardcoded date makes this test start failing once it ages out.
+        base_time = (datetime.now(timezone.utc) - timedelta(hours=73)).replace(microsecond=0)
 
         for i in range(4):
             ts = base_time + timedelta(hours=24 * i)
@@ -231,7 +234,9 @@ def test_multi_source_scoring():
     """
     tmpdir = tempfile.mkdtemp(prefix="trend_test_multi_")
     try:
-        base_time = datetime(2026, 9, 1, 12, 0, 0, tzinfo=timezone.utc)
+        # Relative to now, not a fixed date: scores decay with age, so a
+        # hardcoded date makes this test start failing once it ages out.
+        base_time = (datetime.now(timezone.utc) - timedelta(hours=73)).replace(microsecond=0)
 
         # Snapshot 1 (t=0): google trends + youtube
         ts1 = base_time
@@ -344,6 +349,126 @@ def test_multi_source_scoring():
         shutil.rmtree(tmpdir)
 
 
+def test_flat_presence_entity_keeps_score():
+    """An RSS article seen twice (value fixed at 1.0) must not drop to 0.
+
+    Its velocity is exactly 0 -- presence-only sources never change value
+    -- and still being on the list is a signal, not the absence of one.
+    """
+    tmpdir = tempfile.mkdtemp(prefix="trend_test_")
+    try:
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        for i, ts in enumerate([now - timedelta(hours=6), now - timedelta(hours=1)]):
+            write_snapshot(
+                os.path.join(tmpdir, f"snapshot_rss_{ts.strftime('%Y%m%d_%H%M%S')}.json"),
+                "rss", {}, make_rss_snapshot([("Pistachio Kunafa Craze", "Food & Beverage")], ts))
+
+        results = score_all_trends(load_all_snapshots([], tmpdir))
+        assert len(results) == 1
+        r = results[0]
+        assert r["num_observations"] == 2 and r["velocity"] == 0
+        assert r["score"] > 0.2, f"flat presence entity scored {r['score']}"
+        print(f"  PASS flat_presence_entity_keeps_score (score={r['score']})")
+    finally:
+        shutil.rmtree(tmpdir)
+
+
+def test_score_bounds_and_direction():
+    """Rising lifts above the first-seen baseline, falling drops below it."""
+    baseline = compute_score(velocity=None, age_hours=1.0, is_new=True)
+    flat     = compute_score(velocity=0.0, age_hours=1.0, is_new=False)
+    falling  = compute_score(velocity=-0.5, age_hours=1.0, is_new=False)
+    crashing = compute_score(velocity=-50.0, age_hours=1.0, is_new=False)
+    rising   = compute_score(velocity=0.5, age_hours=1.0, is_new=False)
+    assert flat == baseline
+    assert 0 <= crashing < falling < baseline < rising <= 1
+    print("  PASS score_bounds_and_direction")
+
+
+def test_history_dirs():
+    """History feeds velocity but never adds entities or double-counts.
+
+    - an entity only in history (dropped off every list) is not returned
+    - an entity in both gets two observations and a velocity
+    - the same snapshot file in root and history is loaded once
+    """
+    root = tempfile.mkdtemp(prefix="trend_root_")
+    hist = tempfile.mkdtemp(prefix="trend_hist_")
+    try:
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        t_old, t_new = now - timedelta(hours=12), now - timedelta(hours=1)
+
+        old_name = f"snapshot_google_trends_{t_old.strftime('%Y%m%d_%H%M%S')}.json"
+        write_snapshot(os.path.join(hist, old_name), "google_trends", {},
+                       make_google_trends_snapshot("eid sale", [100], t_old)
+                       + make_google_trends_snapshot("old news", [500], t_old))
+
+        new_name = f"snapshot_google_trends_{t_new.strftime('%Y%m%d_%H%M%S')}.json"
+        new_entities = make_google_trends_snapshot("eid sale", [400], t_new)
+        write_snapshot(os.path.join(root, new_name), "google_trends", {}, new_entities)
+        # Already archived copy of the current file -- must not count twice.
+        write_snapshot(os.path.join(hist, new_name), "google_trends", {}, new_entities)
+
+        snapshots = load_all_snapshots([hist], root)
+        assert len(snapshots) == 2, f"Expected 2 unique files, got {len(snapshots)}"
+        assert sum(s["is_current"] for s in snapshots) == 1
+
+        by_name = {r["entity_name"]: r for r in score_all_trends(snapshots)}
+        assert "old news" not in by_name, "history-only entity resurfaced"
+        eid = by_name["eid sale"]
+        assert eid["num_observations"] == 2
+        assert eid["velocity"] > 0
+        assert eid["score"] > NEW_ENTITY_SCORE
+        print(f"  PASS history_dirs (eid sale score={eid['score']})")
+    finally:
+        shutil.rmtree(root)
+        shutil.rmtree(hist)
+
+
+def test_regions_not_merged():
+    """The same term in two regions is two entities, not one fake spike."""
+    root = tempfile.mkdtemp(prefix="trend_root_")
+    hist = tempfile.mkdtemp(prefix="trend_hist_")
+    try:
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        t_old, t_new = now - timedelta(hours=12), now - timedelta(hours=1)
+        write_snapshot(
+            os.path.join(hist, f"snapshot_google_trends_{t_old.strftime('%Y%m%d_%H%M%S')}.json"),
+            "google_trends", {}, make_google_trends_snapshot("argentina", [5000], t_old, geo="US"))
+        write_snapshot(
+            os.path.join(root, f"snapshot_google_trends_{t_new.strftime('%Y%m%d_%H%M%S')}.json"),
+            "google_trends", {}, make_google_trends_snapshot("argentina", [100], t_new, geo="PK"))
+
+        results = score_all_trends(load_all_snapshots([hist], root))
+        assert len(results) == 1
+        assert results[0]["region"] == "PK"
+        assert results[0]["is_new"] is True, "PK term picked up US history"
+        print("  PASS regions_not_merged")
+    finally:
+        shutil.rmtree(root)
+        shutil.rmtree(hist)
+
+
+def test_top_trends_spread_across_sources():
+    """'All' takes the best of each source before repeating one,
+    but never puts a stale item ahead of a fresh one to do it."""
+    def t(name, source, score, age):
+        return {"entity_name": name, "source": source, "score": score, "age_hours": age}
+    scores = [
+        t("vogue 1", "rss", 0.50, 2), t("vogue 2", "rss", 0.49, 2),
+        t("gn story", "google_news", 0.48, 3),   # same 'news' group as rss
+        t("vogue 3", "rss", 0.47, 2),
+        t("reddit post", "reddit", 0.30, 5),
+        t("wiki page", "wikipedia", 0.45, 40),   # outside the 24h window
+    ]
+    top = [x["entity_name"] for x in select_top_trends(scores, per_group=3)["all"]]
+    assert top == ["vogue 1", "reddit post", "vogue 2"], top
+    # Per-source tabs are unchanged: pure ranking within the group.
+    news = [x["entity_name"] for x in select_top_trends(scores, per_group=3)["news"]]
+    assert news == ["vogue 1", "vogue 2", "gn story"], news
+    print("  PASS top_trends_spread_across_sources")
+
+
 if __name__ == "__main__":
     print("\nTrend Scoring Tests (shared schema)")
     print("-" * 40)
@@ -354,6 +479,11 @@ if __name__ == "__main__":
         test_compute_score,
         test_end_to_end_single_source,
         test_multi_source_scoring,
+        test_flat_presence_entity_keeps_score,
+        test_score_bounds_and_direction,
+        test_history_dirs,
+        test_regions_not_merged,
+        test_top_trends_spread_across_sources,
     ]
 
     passed = 0

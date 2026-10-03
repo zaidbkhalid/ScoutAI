@@ -5,7 +5,15 @@ AI-powered marketing intelligence for small businesses. Scans what's genuinely t
 ## How It Works
 
 **1. Trend Analysis** (staged, so you're never handed a wall of output at once)
-- **Discover trends — no input required.** Pick a region and hit "Fetch Trends". Nothing about your business is needed at this point. Pulls live trending searches from Google (public Daily Search Trends RSS, with approximate search volume and the news story behind each spike), trending videos from YouTube, articles from a curated set of RSS feeds (regional + topical, capped to the last few days), and hashtags from TikTok Creative Center. Every source normalizes to one shared schema (`snapshot_schema.py`) and gets scored for real freshness/velocity (`trend_scoring.py`), filtered for brand safety and synthetic placeholders. You get the top 3 trends, filterable by source (All / Google / YouTube / TikTok / News), preferring anything from the last 24 hours.
+- **Discover trends — no input required.** Pick a region and hit "Fetch Trends". Nothing about your business is needed at this point. Pulls, all at once:
+  - live trending searches from Google (public Daily Search Trends RSS, with approximate search volume and the news story behind each spike)
+  - Google News top stories and topic sections for the country (Business, Technology, Entertainment, Sports, Health), with how many outlets are covering each story
+  - trending videos from YouTube
+  - articles from a curated set of RSS feeds (regional + topical, capped to the last few days)
+  - Reddit: hot posts in the country's own subreddits plus the day's top posts in business-relevant ones (food, beauty, fashion, fitness, small business, entertainment)
+  - Wikipedia's most-viewed pages (per country where Wikimedia publishes it, otherwise global English Wikipedia)
+
+  TikTok is not fetched -- see the note at the bottom. Every source normalizes to one shared schema (`snapshot_schema.py`) and gets scored for real freshness/velocity (`trend_scoring.py`), filtered for brand safety and synthetic placeholders. You get the top 5 trends, filterable by source (All / Google / YouTube / News / Reddit / Wikipedia), preferring anything from the last 24 hours.
 - **Match to your business — optional, second.** Enter your business details and GPT-4o judges which of the *already-fetched* trends have a genuine connection to you and why (`trend_analyzer.py`). Nothing is re-fetched; this is purely the cross-reference step.
 - **Campaign ideas** — pick the trends worth acting on, and GPT-4o turns each into a campaign concept: core idea, audience angle, timing, and concrete execution directions (`campaign_ideas.py`).
 - **Ad copy** — pick a campaign and the formats you want, and GPT-4o writes publishable copy for each (`ad_copy.py`). 20 formats across social posts, short-video scripts, email/WhatsApp/SMS, paid ads, and longer form — see `ad_formats.py`, which is the single source of truth for the catalogue and carries each platform's real constraints (Google's 30-character headline cap, the shape of a TikTok script, where an email subject line goes). One model call covers every requested format so they stay consistent with each other.
@@ -23,7 +31,7 @@ Set `DEMO_MODE=1` in `.env` to run the entire product — trend analysis, campai
 
 **Note:** `DEMO_MODE` is read from the environment of the *already-running* process. `app.py` does not reload `.env`, and child scripts inherit its environment before `load_dotenv()` runs (which does not override an already-set variable). Editing `.env` therefore has no effect until you **restart the server**.
 
-Free trend sources (Google, YouTube, RSS, TikTok) are untouched by demo mode and always fetch real, live data — only the GPT-4o/Perplexity steps are mocked.
+Free trend sources (Google Trends, Google News, YouTube, RSS, Reddit, Wikipedia) are untouched by demo mode and always fetch real, live data — only the GPT-4o/Perplexity steps are mocked.
 
 This is meant to be reversed once a real API key is funded: set `DEMO_MODE=0` (or remove the line) and restart the server to go back to live API calls everywhere, no other changes needed. See `demo_mode.py` for how it works.
 
@@ -91,10 +99,10 @@ python app.py
 
 Open [http://localhost:5000](http://localhost:5000) in your browser. The landing page explains what ScoutAI does and lets you either fill in your own business or click one of six demo businesses to try it instantly. From there:
 
-- **Trend Analysis** tab: pick a region and fetch trends immediately — no business details needed. You get the top 3, filterable by source. Then optionally add your business details to cross-reference those same trends against it (with a "why this fits" reasoning and a relevance score), and select the ones you want to generate campaign ideas from. Add your website on the last form step to also get the AI Visibility Check.
+- **Trend Analysis** tab: pick a region and fetch trends immediately — no business details needed. You get the top 5, filterable by source. Then optionally add your business details to cross-reference those same trends against it (with a "why this fits" reasoning and a relevance score), and select the ones you want to generate campaign ideas from. Add your website on the last form step to also get the AI Visibility Check.
 - **Competitor Check** tab: independent of the above — give it competitor names/URLs and either get a positioning read or validate a specific idea against them.
 
-Everything runs in the background with live progress updates; each submission gets its own isolated working directory (`jobs/<job_id>/`) so concurrent submissions never cross-contaminate.
+Everything runs in the background with live progress updates; each submission gets its own isolated working directory (`jobs/<job_id>/`) so concurrent submissions never cross-contaminate. Job state is saved to `jobs/<job_id>/job_state.json`, so finished results survive a server restart (a step that was mid-run when the server stopped is marked as interrupted). Job directories older than 7 days are deleted automatically.
 
 To enable Flask debug mode (development only):
 
@@ -137,14 +145,20 @@ Each step can be run standalone:
 # 1. Fetch live trending searches (Google's public Daily Search Trends RSS)
 python google_trending_now.py --geo PK
 
+# 1b. Fetch Google News top stories + topic sections
+python google_news.py --geo PK
+
 # 2. Fetch YouTube trending videos (requires YOUTUBE_API_KEY)
 python youtube_trending.py --geo PK
 
 # 3. Fetch RSS articles -- topical feeds + regional feeds for --geo
 python rss_trends.py --geo PK --max-age-days 3
 
-# 4. Fetch TikTok Creative Center hashtags (mock fallback if live extraction fails)
-python tiktok_creative_center.py --geo PK
+# 3b. Fetch Reddit (country subreddits + business-relevant subreddits)
+python reddit_trends.py --geo PK
+
+# 3c. Fetch Wikipedia's most-viewed pages
+python wikipedia_trends.py --geo US
 
 # 5. Score trend freshness across snapshots (brand-safety + mock-data filtered by default)
 python trend_scoring.py
@@ -167,10 +181,11 @@ python ad_copy.py --formats instagram_post,email_campaign,tiktok_script
 
 ## Testing
 
-Run the trend scoring tests (no API key needed):
+Run the tests (no API key or network needed):
 
 ```bash
-python test_trend_scoring.py
+python test_trend_scoring.py   # freshness/velocity scoring
+python test_fetchers.py        # fetcher parsing + brand-safety filter
 ```
 
 ## Project Structure
@@ -184,9 +199,12 @@ python test_trend_scoring.py
 │
 ├── google_trends.py               # Standalone: keyword-based Google Trends data (not in the pipeline)
 ├── google_trending_now.py         # Fetch live trending searches (public Trends RSS)
+├── google_news.py                 # Fetch Google News top stories + topic sections
 ├── youtube_trending.py            # Fetch YouTube trending videos
 ├── rss_trends.py                  # Fetch topical + regional RSS articles
-├── tiktok_creative_center.py      # Fetch TikTok trending hashtags (mock fallback)
+├── reddit_trends.py               # Fetch Reddit hot/top posts (public RSS)
+├── wikipedia_trends.py            # Fetch Wikipedia most-viewed pages
+├── tiktok_creative_center.py      # Unused: TikTok blocks automated access (see Notes)
 ├── trend_scoring.py                # Freshness/velocity scoring across snapshots
 │
 ├── parse_business.py              # GPT-4o business profile extraction
@@ -208,13 +226,15 @@ python test_trend_scoring.py
 │                                   #   (not wired into app.py/the web UI yet)
 │
 ├── test_trend_scoring.py          # Scoring module tests
+├── test_fetchers.py               # Fetcher parsing + brand-safety tests (offline)
 ├── requirements.txt                # Python dependencies
 ├── .env                            # API keys (you create this, never committed)
 │
 ├── static/
 │   └── index.html                 # Web UI frontend
 ├── mock_data/                      # DEMO_MODE canned responses for the 3 built-in presets
-└── jobs/                           # Per-submission working directories (gitignored)
+├── jobs/                           # Per-submission working directories (gitignored, pruned after 7 days)
+└── snapshots/                      # Cross-run snapshot history for velocity scoring (gitignored, pruned after 7 days)
 ```
 
 ## Environment Variables
@@ -230,9 +250,12 @@ python test_trend_scoring.py
 ## Notes
 
 - `google_trending_now.py` reads Google's public Daily Search Trends RSS feed (`https://trends.google.com/trending/rss?geo=<CC>`) — no API key, no quota. It carries an approximate search volume per term plus the news story behind the spike, both used downstream. It previously used [pytrends](https://github.com/GeneralMills/pytrends), which now fails with HTTP 404 against that endpoint; `google_trends.py` (keyword-based, standalone) still uses pytrends and may still rate-limit.
-- Regional news feeds are selected by `--geo` (PK, GB, US, IN, AE). There is no working UAE feed — Gulf News, Khaleej Times, The National, Zawya, Arabian Business and Emirates247 all 404, hard-block, or return nothing — so AE falls back to international outlets.
-- Trends about death, violence, crime and disaster are filtered out of the ranked scores by default (`brand_safety.py`), since the UI invites you to turn that list into marketing. Snapshots keep the unfiltered record; pass `--include-unsafe` to `trend_scoring.py` to see everything.
+- Regional news feeds are selected by `--geo` (PK, GB, US, IN, AE). There is no working UAE RSS feed — Gulf News, Khaleej Times, The National, Zawya, Arabian Business and Emirates247 all 404, hard-block, or return nothing — so `rss_trends.py` falls back to international outlets for AE. `google_news.py` covers the UAE instead, through region-scoped Google News searches (Google News has no English UAE edition: `gl=AE` serves the US edition verbatim).
+- `reddit_trends.py` uses Reddit's public RSS feeds, since unauthenticated requests to the JSON API now get HTTP 403. Those feeds are rate limited to roughly one request a minute per IP, so each run makes just two requests (all country subreddits in one multi-subreddit URL, all topical ones in another) and retries once after Reddit's reported reset time. The web UI runs every fetcher in parallel, so that wait doesn't add to the others.
+- `wikipedia_trends.py` data lags: per-country pageviews are published about 2 days behind and only exist for some countries (US, GB and IN do; PK and AE don't, and fall back to global English Wikipedia, about 1 day behind). Entries carry their real date, so they're never presented as breaking in the last 24 hours.
+- Trends about death, violence, crime, disaster and adult content are filtered out of the ranked scores by default (`brand_safety.py`), since the UI invites you to turn that list into marketing. Snapshots keep the unfiltered record; pass `--include-unsafe` to `trend_scoring.py` to see everything.
 - Clearly-labeled synthetic placeholder entities (what `tiktok_creative_center.py` emits when live extraction is unavailable) are likewise excluded from ranked scores by default, so they can never surface as if they were real trends. Pass `--include-mock` to keep them.
 - The relevance pool sent to GPT-4o is sampled across categories rather than taken straight off the top of the freshness ranking — daily news and search feeds publish far more often than topical ones, and a straight top-N leaves a bakery with nothing but football and headlines to match against.
 - The automatic pipeline needs no keywords: every source it fetches is inherently "what's popular right now," and RSS articles are dropped once older than `--max-age-days` (default 3). `google_trends.py`'s keyword-based endpoint is available separately if you want data for specific keywords, capped to 5 per request (Google's limit).
-- The freshness scoring (`trend_scoring.py`) becomes more accurate over time as more snapshot files accumulate. A single run has limited historical signal to compute velocity from; running the pipeline repeatedly builds it up.
+- The freshness scoring (`trend_scoring.py`) becomes more accurate over time as more snapshot files accumulate. A single run has limited historical signal to compute velocity from; running the pipeline repeatedly builds it up. The web UI archives every fetch into `snapshots/` after scoring it, so each later fetch measures velocity against the earlier ones (only trends present in the current fetch are shown; history is used for velocity alone, and the same term in different regions is tracked separately). Every trend starts from a baseline set by its signal strength and age; measured growth lifts it above that, decline pulls it below, and a trend that is simply still on the list keeps its baseline.
+- **TikTok is not fetched.** TikTok moved Creative Center to `ads.tiktok.com/creative/creativeCenter/trends`, an empty client-rendered page whose hashtag data loads through TikTok's own signed API calls; headless browsers get HTTP 403 and plain requests get no data. Getting past that would mean evading TikTok's bot detection, which this project doesn't do. `tiktok_creative_center.py` is kept for reference but is no longer called by `app.py` or `run.py`. X/Twitter (trends API is paid), Instagram (no public trends API) and Pinterest Trends (requires an approved business API account) are not fetched either.

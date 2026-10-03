@@ -68,6 +68,14 @@ def normalize_to_entities(api_response, region_code, observed_at):
         like_count = int(stats.get("likeCount", 0))
         comment_count = int(stats.get("commentCount", 0))
 
+        # Date the video by its upload time, not by when we fetched the
+        # chart -- otherwise every trending video reads as "just now",
+        # including ones uploaded days ago.
+        published_at = snippet.get("publishedAt", "")
+        channel = snippet.get("channelTitle", "")
+        thumbs = snippet.get("thumbnails", {})
+        thumbnail = (thumbs.get("medium") or thumbs.get("default") or {}).get("url", "")
+
         entities.append(make_entity(
             source="youtube_trending",
             entity_type="video",
@@ -75,7 +83,7 @@ def normalize_to_entities(api_response, region_code, observed_at):
             entity_name=title.lower().strip(),
             category=category,
             region=region_code,
-            observed_at=observed_at,
+            observed_at=published_at or observed_at,
             rank=rank_idx,
             primary_value=float(view_count),
             metrics={
@@ -86,12 +94,14 @@ def normalize_to_entities(api_response, region_code, observed_at):
             raw={
                 "video_id": video_id,
                 "title": title,
-                "channel": snippet.get("channelTitle", ""),
-                "published_at": snippet.get("publishedAt", ""),
+                "channel": channel,
+                "published_at": published_at,
                 "category_id": yt_cat_id,
                 "tags": snippet.get("tags", [])[:5],
-                "thumbnail": snippet.get("thumbnails", {})
-                    .get("medium", {}).get("url", ""),
+                "thumbnail": thumbnail,
+                "url": f"https://www.youtube.com/watch?v={video_id}",
+                "context": f"YouTube video by {channel}, {view_count:,} views"
+                           if channel else f"YouTube video, {view_count:,} views",
             },
         ))
 

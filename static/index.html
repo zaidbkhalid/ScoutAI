@@ -144,7 +144,7 @@
       Find out what's trending — <span class="text-[var(--teal)]">before it's old news.</span>
     </h1>
     <p class="text-center text-lg text-[var(--muted)] max-w-2xl mx-auto mt-5 leading-relaxed">
-      ScoutAI scans Google, YouTube, TikTok and news in real time, scores what's actually rising instead of just
+      ScoutAI scans Google, YouTube, Reddit, Wikipedia and news in real time, scores what's actually rising instead of just
       currently popular, and turns it into marketing ideas for your business.
     </p>
 
@@ -170,7 +170,7 @@
           <span class="material-symbols-outlined icon-lg">radar</span>
         </div>
         <h3 class="font-bold text-[15px] mb-1.5">Real-Time Trend Scoring</h3>
-        <p class="text-sm text-[var(--muted)] leading-relaxed">Freshness-scored trends from Google, YouTube, TikTok and news — capped to the last few days, never stale.</p>
+        <p class="text-sm text-[var(--muted)] leading-relaxed">Freshness-scored trends from Google, YouTube, Reddit, Wikipedia and news — capped to the last few days, never stale.</p>
       </div>
       <div class="card p-6 hover:shadow-md transition-shadow">
         <div class="w-11 h-11 rounded-xl bg-[var(--blue-bg)] flex items-center justify-center text-[var(--blue)] mb-4">
@@ -289,7 +289,7 @@
             <div class="chip" data-val="AE">🇦🇪 UAE</div>
             <div class="chip" data-val="">🌍 Worldwide</div>
           </div>
-          <div class="text-xs text-[var(--muted)] mt-4 leading-relaxed">Pulled live from Google, YouTube, RSS and TikTok — at most the last few days, so nothing stale.</div>
+          <div class="text-xs text-[var(--muted)] mt-4 leading-relaxed">Pulled live from Google Trends, Google News, YouTube, Reddit, Wikipedia and news feeds — at most the last few days, so nothing stale.</div>
         </div>
 
         <div id="trends-start-error" class="error-msg"></div>
@@ -1332,6 +1332,9 @@
     youtube:                { icon: "smart_display", label: "YouTube", bg: "#fee2e2", color: "#b91c1c" },
     youtube_trending:       { icon: "smart_display", label: "YouTube", bg: "#fee2e2", color: "#b91c1c" },
     rss:                    { icon: "newspaper",     label: "News",    bg: "#f0f4f3", color: "#475569" },
+    google_news:            { icon: "feed",          label: "Google News", bg: "#e0e7ff", color: "#4338ca" },
+    reddit:                 { icon: "forum",         label: "Reddit",  bg: "#ffedd5", color: "#c2410c" },
+    wikipedia:              { icon: "menu_book",     label: "Wikipedia", bg: "#ede9fe", color: "#6d28d9" },
     tiktok_creative_center: { icon: "play_circle",   label: "TikTok",  bg: "#fce7f3", color: "#a21caf" },
   };
   function sourceMeta(s) {
@@ -1377,16 +1380,18 @@
     { key: "all",     label: "All",           icon: "radar" },
     { key: "google",  label: "Google Trends", icon: "search" },
     { key: "youtube", label: "YouTube",       icon: "smart_display" },
-    { key: "tiktok",  label: "TikTok",        icon: "play_circle" },
     { key: "news",    label: "News",          icon: "newspaper" },
+    { key: "reddit",  label: "Reddit",        icon: "forum" },
+    { key: "wikipedia", label: "Wikipedia",   icon: "menu_book" },
   ];
   // Why a tab can legitimately be empty, so the UI can say so plainly
   // instead of rendering a blank box.
   const EMPTY_REASON = {
     youtube: "YouTube trending needs a YOUTUBE_API_KEY. Add one to .env and re-run to see this source.",
-    tiktok:  "TikTok's live source isn't available here, and its placeholder data is deliberately excluded so it can't be mistaken for a real trend.",
     google:  "No Google trending searches came back for this region.",
     news:    "No news articles came back for this region.",
+    reddit:  "Reddit didn't return any posts -- its public feeds are rate limited to about one request a minute, so try fetching again shortly.",
+    wikipedia: "Wikipedia's most-viewed data wasn't available for the last few days.",
     all:     "No trend data available.",
   };
 
@@ -1411,7 +1416,7 @@
     const stale = items.some(t => t.within_recency_window === false);
     const cards = items.map((t, i) => trendCard(t, i, `src:${key}`)).join("");
     return cards + (stale
-      ? `<div class="text-[11.5px] text-[var(--muted)] mt-1 px-1">Fewer than three trends broke in the last 24 hours, so older ones fill the rest.</div>`
+      ? `<div class="text-[11.5px] text-[var(--muted)] mt-1 px-1">Fewer than five trends broke in the last 24 hours, so older ones fill the rest.</div>`
       : "");
   }
 
@@ -1492,20 +1497,36 @@
   // A raw trend. Deliberately sparse: name, where it came from, how old.
   // The freshness score is the ranking input, not something a small
   // business owner needs read back at them, so it isn't shown.
+  // Only ever link to http(s) -- the URL comes from third-party feeds.
+  function safeUrl(u) {
+    return /^https?:\/\//i.test(u || "") ? u : "";
+  }
+
   function trendCard(t, i, listType = "top") {
     const sm = sourceMeta(t.source);
     const ctx = (t.context || "").trim();
     const age = ageLabel(t.age_hours);
+    const url = safeUrl(t.url);
+    const thumb = safeUrl(t.thumbnail);
+    const title = escapeHtml(t.entity_name);
+    // Thumbnail (YouTube) when the source has one, else the source icon.
+    const visual = thumb
+      ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy" class="w-28 h-16 rounded-lg object-cover shrink-0 mt-0.5" style="background:${sm.bg}">`
+      : `<span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background:${sm.bg};color:${sm.color}">
+          <span class="material-symbols-outlined icon-sm">${sm.icon}</span>
+        </span>`;
     return `
       <div class="card px-5 py-4 flex items-start gap-4">
         <div class="pt-1">${trendCheckbox(listType, i)}</div>
-        <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background:${sm.bg};color:${sm.color}">
-          <span class="material-symbols-outlined icon-sm">${sm.icon}</span>
-        </span>
+        ${visual}
         <div class="min-w-0 flex-1">
-          <div class="font-bold text-[14px] leading-snug">${escapeHtml(t.entity_name)}</div>
+          <div class="font-bold text-[14px] leading-snug">${url
+            ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="hover:underline">${title}</a>`
+            : title}</div>
           <div class="text-[11.5px] text-[var(--muted)] mt-1.5">
-            ${escapeHtml(sm.label)}${age ? " · " + escapeHtml(age) : ""}
+            ${escapeHtml(sm.label)}${age ? " · " + escapeHtml(age) : ""}${url
+              ? ` · <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="underline">View source</a>`
+              : ""}
           </div>
           ${ctx ? `<div class="text-[12px] text-[#5b6862] mt-3 leading-relaxed">${escapeHtml(ctx.length > 110 ? ctx.slice(0, 110) + "…" : ctx)}</div>` : ""}
         </div>

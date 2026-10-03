@@ -3,6 +3,18 @@ tiktok_creative_center.py
 -------------------------
 Fetches popular hashtags from TikTok Creative Center.
 
+STATUS (checked 2026-10-02): NOT PART OF THE PIPELINE.
+    app.py and run.py no longer call this script. TikTok moved Creative
+    Center: the URL below now 301-redirects to
+    https://ads.tiktok.com/creative/creativeCenter/trends, which is an
+    empty client-rendered shell whose hashtag data loads afterwards via
+    TikTok's own signed API calls. Headless Chrome is refused outright
+    (HTTP 403, "Access to ads.tiktok.com was denied"); a plain request
+    gets the shell but no data. Getting past that would mean disguising
+    an automated browser to evade TikTok's bot detection, which we don't
+    do. Kept for reference in case TikTok offers a sanctioned route
+    (e.g. an official API) later.
+
 CONFIRMED:
   - URL: https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en
     ?countryCode=<region>&period=7
@@ -121,7 +133,9 @@ def fetch_live_hashtags(geo, timeout_ms=30000):
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        return None, "playwright not installed"
+        return None, ("playwright not installed -- for live data run "
+                      "'pip install playwright' then "
+                      "'playwright install chromium'")
 
     url = f"{TIKTOK_CC_URL}?countryCode={geo}&period=7"
 
@@ -250,6 +264,7 @@ def main():
     if is_mock:
         source_meta["mock_reason"] = (
             "live extraction unavailable; using labeled synthetic data"
+            + (f" ({error})" if not args.mock else "")
         )
 
     filename = snapshot_filename("snapshot", "tiktok_creative_center")

@@ -2,7 +2,8 @@
 run.py -- Trend Intelligence Agent (Full Pipeline)
 --------------------------------------------------
 One command runs everything:
-  1. Fetch trends from all sources (Google realtime, YouTube, RSS, TikTok) --
+  1. Fetch trends from all sources (Google trending searches, Google News,
+     YouTube, RSS, Reddit, Wikipedia) --
      no keywords needed, these are all live "what's trending right now"
      feeds, and RSS is capped to the last few days (see rss_trends.py)
   2. Parse business .txt into structured profile
@@ -63,33 +64,20 @@ def main():
 
     # -- Step 1: Fetch Trends from all sources --
     if not args.skip_fetch:
-        ok = run_step("Step 1a: Fetching realtime trends (Google)...", [
-            sys.executable, str(Path(BASE) / "google_trending_now.py"),
-            "--geo", args.geo,
-        ])
-        if not ok:
-            print("  Realtime trends fetch failed. Continuing...")
-
-        ok = run_step("Step 1b: Fetching YouTube trending...", [
-            sys.executable, str(Path(BASE) / "youtube_trending.py"),
-            "--geo", args.geo,
-        ])
-        if not ok:
-            print("  YouTube fetch failed. Continuing...")
-
-        ok = run_step("Step 1c: Fetching RSS articles...", [
-            sys.executable, str(Path(BASE) / "rss_trends.py"),
-        ])
-        if not ok:
-            print("  RSS fetch failed. Continuing...")
-
-        ok = run_step("Step 1d: Fetching TikTok hashtags...", [
-            sys.executable,
-            str(Path(BASE) / "tiktok_creative_center.py"),
-            "--geo", args.geo,
-        ])
-        if not ok:
-            print("  TikTok fetch failed. Continuing...")
+        fetchers = [
+            ("Step 1a: Fetching Google trending searches...", "google_trending_now.py"),
+            ("Step 1b: Fetching Google News...", "google_news.py"),
+            ("Step 1c: Fetching YouTube trending...", "youtube_trending.py"),
+            ("Step 1d: Fetching RSS articles...", "rss_trends.py"),
+            ("Step 1e: Fetching Reddit...", "reddit_trends.py"),
+            ("Step 1f: Fetching Wikipedia most viewed...", "wikipedia_trends.py"),
+        ]
+        for label, script in fetchers:
+            ok = run_step(label, [
+                sys.executable, str(Path(BASE) / script), "--geo", args.geo,
+            ])
+            if not ok:
+                print(f"  {script} failed. Continuing...")
 
     # -- Step 2: Parse Business --
     ok = run_step("Step 2: Parsing business profile...",
@@ -103,7 +91,8 @@ def main():
     # -- Step 3: Score Trends --
     ok = run_step("Step 3: Scoring trend freshness...",
                   [sys.executable,
-                   str(Path(BASE) / "trend_scoring.py")])
+                   str(Path(BASE) / "trend_scoring.py"),
+                   "--geo", args.geo])
     if not ok:
         print("  Trend scoring failed. Continuing with raw data...")
 

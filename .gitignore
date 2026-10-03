@@ -56,3 +56,6 @@ image_*.png
 
 # Per-job working directories (web UI), each fully isolated per submission
 jobs/
+
+# Cross-run snapshot history the web UI accumulates for velocity scoring
+snapshots/

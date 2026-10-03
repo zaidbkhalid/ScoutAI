@@ -113,6 +113,24 @@ the context tells you whether it is a football match, a political story, or some
 else entirely. Never invent a reason a term is trending when context is provided, and be
 cautious about bridging a term whose meaning you cannot establish.
 
+SOURCES DIFFER IN REACH -- weigh them accordingly:
+- google_trending_now: a search spike; latest_value is the approximate number of searches.
+- google_news: a news story; latest_value is how many outlets are covering it.
+- wikipedia: a page people are looking up; latest_value is that day's page views.
+- youtube_trending: a video on the country's trending chart; latest_value is views.
+- rss: a single article from one publication.
+- region "global" means the item comes from an international feed, not the business's
+  own country -- usable, but local items matter more to a local business.
+- reddit: a single post by one person. One post is NOT a trend. Only use a Reddit post
+  when it clearly reflects a wider conversation (a local event, a shared frustration,
+  a seasonal moment many people are talking about), and then name that conversation as
+  the trend -- never present an individual's post ("cake I made for my wife") as one.
+
+Prefer moments with real reach that the business can join creatively -- a big match,
+a holiday, the weather, a viral story, a product everyone is searching for -- over
+literal keyword matches. A bakery matching a cricket final ("match-night dessert
+boxes") is far more valuable than a bakery matching someone's baking photo.
+
 Your only job here is to judge RELEVANCE, not generate marketing ideas. For each trending
 entity that has a real, defensible connection to this business -- even if creative or
 indirect -- return:
@@ -137,7 +155,7 @@ def build_user_prompt(business, pool):
     return f"""## Business Profile
 {json.dumps(business, indent=2)}
 
-## Currently Trending (top {len(pool)} by computed freshness score, across Google, YouTube, RSS, and TikTok)
+## Currently Trending ({len(pool)} entities, sampled across categories by computed freshness score, from Google Trends, Google News, YouTube, RSS, Reddit and Wikipedia)
 {json.dumps(pool, indent=2)}
 
 Judge relevance only -- see system instructions. Return this exact JSON structure:
@@ -259,6 +277,11 @@ def main():
             "source": s["source"],
             "category": s.get("category", ""),
             "context": s.get("context", ""),
+            # Reach: searches, outlets covering, views or listing position,
+            # depending on source -- the system prompt explains each.
+            "latest_value": s.get("latest_value"),
+            # "global" marks items from non-local feeds (e.g. r/food).
+            "region": s.get("region", ""),
             "score": s["score"],
             "velocity": s.get("velocity"),
             "age_hours": s.get("age_hours"),

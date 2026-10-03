@@ -12,6 +12,13 @@ Snapshots use the shared schema (see snapshot_schema.py):
 Output:
   trend_scores_<timestamp>.json -- ranked list of entities with computed scores
 
+History:
+  Velocity needs the same entity observed more than once. Snapshots in
+  --root-dir are this run's fetch; snapshots in --snapshot-dir (and the
+  snapshots/ directory next to this script, picked up automatically) are
+  history. The web UI archives every fetch into snapshots/ after scoring
+  it, so later fetches can measure velocity against earlier ones.
+
 Usage:
     python trend_scoring.py
     python trend_scoring.py --snapshot-dir snapshots
@@ -37,7 +44,7 @@ NEW_ENTITY_SCORE = 0.5      # Ceiling for entities seen only once
 # arbitrary. A term Google reports at 5000+ searches is a genuinely
 # stronger signal than one at 100+, even on first sight -- this lets that
 # show up, while capping it at NEW_ENTITY_SCORE so a single observation
-# can still never outrank a real measured velocity.
+# can never outrank the same-strength entity measured to be rising.
 NEW_SIGNAL_FLOOR = 0.6      # 0.6 -> new-entity scores span 0.3 .. 0.5
 # ------------
 
@@ -64,14 +71,24 @@ def load_all_snapshots(snapshot_dirs, root_dir):
 
     Each file must have an "entities" array in the shared schema.
     Returns a list of (timestamp, filename, entities) dicts sorted by time.
+
+    Snapshots from root_dir are marked is_current (this run's fetch);
+    those from snapshot_dirs are history, used only for velocity. A
+    filename seen in more than one place is loaded once -- root first --
+    since the same file twice would read as two observations at the same
+    instant.
     """
     snapshots = []
+    seen = set()
     pattern = "snapshot_*.json"
 
-    search_paths = [root_dir] + snapshot_dirs
-    for base in search_paths:
+    search_paths = [(root_dir, True)] + [(d, False) for d in snapshot_dirs]
+    for base, is_current in search_paths:
         for filepath in glob.glob(str(Path(base) / pattern)):
-            ts = parse_timestamp_from_filename(Path(filepath).name)
+            name = Path(filepath).name
+            if name in seen:
+                continue
+            ts = parse_timestamp_from_filename(name)
             if ts is None:
                 continue
             try:
@@ -82,10 +99,12 @@ def load_all_snapshots(snapshot_dirs, root_dir):
                     continue
                 snapshots.append({
                     "timestamp": ts,
-                    "filename": Path(filepath).name,
+                    "filename": name,
                     "source": data.get("source", "unknown"),
                     "entities": entities,
+                    "is_current": is_current,
                 })
+                seen.add(name)
             except (json.JSONDecodeError, OSError):
                 continue
 
@@ -106,41 +125,63 @@ def parse_iso(value):
 
 
 def group_observations(snapshots):
-    """Group entity observations across all snapshots by entity_id."""
+    """Group entity observations across all snapshots.
+
+    Keyed by (entity_id, region): entity ids don't carry the region, and
+    the same term trending in PK and in US has unrelated volumes -- merging
+    them would turn a region switch into a fake spike or collapse.
+    """
     groups = {}
     for snap in snapshots:
         ts = snap["timestamp"]
         source = snap["source"]
+        is_current = snap.get("is_current", True)
         for ent in snap["entities"]:
             eid = ent.get("entity_id", "")
             name = ent.get("entity_name", "").lower().strip()
             if not eid or not name:
                 continue
-            if eid not in groups:
-                groups[eid] = {
+            key = (eid, ent.get("region", ""))
+            if key not in groups:
+                groups[key] = {
+                    "entity_id": eid,
                     "entity_name": name,
                     "entity_type": ent.get("entity_type", ""),
                     "source": ent.get("source", source),
                     "category": ent.get("category", ""),
                     "region": ent.get("region", ""),
                     "context": "",
+                    "url": "",
+                    "thumbnail": "",
                     "is_mock": False,
+                    "in_current": False,
                     "observations": [],
                 }
+            if is_current:
+                groups[key]["in_current"] = True
             # Some fetchers emit clearly-labeled synthetic placeholders
             # when a live source is unreachable (see
             # tiktok_creative_center.py). Honest in a snapshot, but it
             # must not reach a UI that presents these as real trends.
             if (ent.get("metrics", {}).get("is_mock")
                     or (ent.get("raw") or {}).get("mock")):
-                groups[eid]["is_mock"] = True
+                groups[key]["is_mock"] = True
             # One-line reason this is trending (news headline, article
             # summary). Carried downstream so the relevance stage can
             # reason about WHY a bare term like "argentina" is spiking.
             ctx = (ent.get("raw") or {}).get("context", "")
-            if ctx and not groups[eid]["context"]:
-                groups[eid]["context"] = str(ctx)[:300]
-            groups[eid]["observations"].append({
+            if ctx and not groups[key]["context"]:
+                groups[key]["context"] = str(ctx)[:300]
+            # Where the trend can be seen (the video, post, article, page)
+            # and a thumbnail when the source has one, so the UI can link
+            # every trend back to its real origin.
+            raw = ent.get("raw") or {}
+            link = raw.get("url") or raw.get("link") or raw.get("news_url") or ""
+            if link and not groups[key]["url"]:
+                groups[key]["url"] = str(link)
+            if raw.get("thumbnail") and not groups[key]["thumbnail"]:
+                groups[key]["thumbnail"] = str(raw["thumbnail"])
+            groups[key]["observations"].append({
                 "timestamp": ts,
                 # When the content itself was published/spiked, which can
                 # predate the moment we fetched it.
@@ -151,8 +192,8 @@ def group_observations(snapshots):
             })
 
     # Sort each group's observations by timestamp
-    for eid in groups:
-        groups[eid]["observations"].sort(key=lambda o: o["timestamp"])
+    for key in groups:
+        groups[key]["observations"].sort(key=lambda o: o["timestamp"])
 
     return groups
 
@@ -200,57 +241,77 @@ def observation_signal(obs):
     return max(pv, 0.0)
 
 
-def normalize_signals(signals_by_source):
-    """Log-scale each source's signals into 0..1, per source.
+def normalize_signals(signals, sources):
+    """Log-scale each entity's signal into 0..1 against its own source.
 
-    Log rather than linear because volumes are heavy-tailed: one 50000+
-    term shouldn't flatten every other term to ~0.
+    `signals` and `sources` map the same keys to a raw signal and a source
+    name. Log rather than linear because volumes are heavy-tailed: one
+    50000+ term shouldn't flatten every other term to ~0. Per source
+    because view counts and search volumes aren't comparable.
     """
     maxima = {}
-    for source, values in signals_by_source.items():
-        maxima[source] = max(values) if values else 0.0
-    return maxima
+    for key, sig in signals.items():
+        src = sources[key]
+        maxima[src] = max(maxima.get(src, 0.0), sig)
+
+    normalized = {}
+    for key, sig in signals.items():
+        source_max = maxima[sources[key]]
+        norm = math.log1p(sig) / math.log1p(source_max) if source_max > 0 else 0.0
+        normalized[key] = min(max(norm, 0.0), 1.0)
+    return normalized
 
 
 def compute_score(velocity, age_hours, is_new, signal_norm=1.0):
-    """Final freshness score:
-      - tanh(velocity) bounded so outliers cannot dominate
-      - multiplied by exp(-age_hours / AGE_HALF_LIFE_HOURS) for age decay
-      - new entities (1 observation) are capped at NEW_ENTITY_SCORE and
-        ordered among themselves by normalized signal strength
+    """Final freshness score, 0..1.
+
+    Every entity starts from a baseline: NEW_ENTITY_SCORE, scaled by its
+    normalized signal strength and a gentle age decay. That is the whole
+    score for an entity seen once.
+
+    For an entity seen more than once, measured momentum
+    (tanh(velocity) * exp(-age_hours / AGE_HALF_LIFE_HOURS)) moves it off
+    that baseline: rising lifts it toward 1, falling pulls it toward 0,
+    and flat leaves it at the baseline. Flat must not mean zero --
+    presence-only sources (RSS articles, primary_value fixed at 1.0) never
+    change value, and still being on a trending list is a signal, not the
+    absence of one.
     """
-    if is_new:
-        base = NEW_ENTITY_SCORE * math.exp(
-            -age_hours / (AGE_HALF_LIFE_HOURS * 2))
-        weight = NEW_SIGNAL_FLOOR + (1.0 - NEW_SIGNAL_FLOOR) * signal_norm
-        return round(base * weight, 4)
+    base = NEW_ENTITY_SCORE * math.exp(-age_hours / (AGE_HALF_LIFE_HOURS * 2))
+    weight = NEW_SIGNAL_FLOOR + (1.0 - NEW_SIGNAL_FLOOR) * signal_norm
+    baseline = base * weight
 
-    if velocity is None:
-        return 0.0
+    if is_new or velocity is None:
+        return round(baseline, 4)
 
-    bounded_vel = math.tanh(velocity)
-    age_decay = math.exp(-age_hours / AGE_HALF_LIFE_HOURS)
-    return round(bounded_vel * age_decay, 4)
+    momentum = math.tanh(velocity) * math.exp(-age_hours / AGE_HALF_LIFE_HOURS)
+    if momentum >= 0:
+        return round(baseline + (1.0 - baseline) * momentum, 4)
+    return round(baseline * (1.0 + momentum), 4)
 
 
 def score_all_trends(snapshots):
-    """Main scoring pipeline: group -> compute -> rank."""
+    """Main scoring pipeline: group -> compute -> rank.
+
+    When history snapshots are mixed in, only entities observed in the
+    current fetch are scored and returned -- history exists to measure
+    velocity, not to resurface trends that have since dropped off every
+    list.
+    """
     now = datetime.now(timezone.utc)
 
     groups = group_observations(snapshots)
+    groups = {k: g for k, g in groups.items() if g["in_current"]}
 
-    # Pre-pass: collect each entity's latest signal, bucketed by source,
-    # so signals are only ever normalized against comparable ones.
-    signals = {}
-    signals_by_source = {}
-    for eid, group in groups.items():
-        sig = observation_signal(group["observations"][-1])
-        signals[eid] = sig
-        signals_by_source.setdefault(group["source"], []).append(sig)
-    source_maxima = normalize_signals(signals_by_source)
+    # Pre-pass: each entity's latest signal, normalized only against
+    # others from the same source.
+    signals = {k: observation_signal(g["observations"][-1])
+               for k, g in groups.items()}
+    signal_norms = normalize_signals(
+        signals, {k: g["source"] for k, g in groups.items()})
 
     results = []
-    for eid, group in groups.items():
+    for key, group in groups.items():
         obs = group["observations"]
         num_obs = len(obs)
         is_new = num_obs < 2
@@ -270,24 +331,19 @@ def score_all_trends(snapshots):
         raw_age = (now - effective_start).total_seconds() / 3600.0
         age_hours = max(raw_age, 0.0)  # defensive floor
 
-        source_max = source_maxima.get(group["source"], 0.0)
-        if source_max > 0:
-            signal_norm = math.log1p(signals[eid]) / math.log1p(source_max)
-        else:
-            signal_norm = 0.0
-        signal_norm = min(max(signal_norm, 0.0), 1.0)
-
         velocity = compute_velocity(obs) if not is_new else None
-        score = compute_score(velocity, age_hours, is_new, signal_norm)
+        score = compute_score(velocity, age_hours, is_new, signal_norms[key])
 
         results.append({
-            "entity_id": eid,
+            "entity_id": group["entity_id"],
             "entity_name": group["entity_name"],
             "entity_type": group["entity_type"],
             "source": group["source"],
             "category": group["category"],
             "region": group["region"],
             "context": group.get("context", ""),
+            "url": group.get("url", ""),
+            "thumbnail": group.get("thumbnail", ""),
             "is_mock": group.get("is_mock", False),
             "score": score,
             "velocity": velocity,
@@ -316,8 +372,9 @@ RECENCY_WINDOW_HOURS = 24
 SOURCE_GROUPS = {
     "google":  ("google_trending_now", "google_trends"),
     "youtube": ("youtube_trending", "youtube"),
-    "tiktok":  ("tiktok_creative_center",),
-    "news":    ("rss",),
+    "news":    ("rss", "google_news"),
+    "reddit":  ("reddit",),
+    "wikipedia": ("wikipedia",),
 }
 
 
@@ -343,7 +400,48 @@ def _rank_with_recency(items, limit, recency_hours):
     return (fresh + older)[:limit]
 
 
-def select_top_trends(scores, per_group=3, recency_hours=RECENCY_WINDOW_HOURS):
+def source_group(source):
+    for group, names in SOURCE_GROUPS.items():
+        if source in names:
+            return group
+    return source
+
+
+def _diverse_top(items, limit, recency_hours):
+    """Top `limit` overall, spread across source groups.
+
+    Without this the overall list is decided by whichever source has the
+    most items -- three Vogue runway shows, three Google News stories --
+    when the point of "All" is the best of every source. Recency still
+    comes first: an in-window item from a repeated source beats a stale
+    item from a new one. Passes, in order: in-window and new group,
+    in-window, out-of-window and new group, anything.
+    """
+    ranked = _rank_with_recency(items, len(items), recency_hours)
+    picked, groups = [], set()
+
+    def take(fresh_only, new_group_only):
+        for it in ranked:
+            if len(picked) >= limit:
+                return
+            if it in picked:
+                continue
+            if fresh_only and not it["within_recency_window"]:
+                continue
+            g = source_group(it.get("source"))
+            if new_group_only and g in groups:
+                continue
+            picked.append(it)
+            groups.add(g)
+
+    take(True, True)
+    take(True, False)
+    take(False, True)
+    take(False, False)
+    return picked
+
+
+def select_top_trends(scores, per_group=5, recency_hours=RECENCY_WINDOW_HOURS):
     """Top `per_group` trends overall and per source group.
 
     Returns {"all": [...], "google": [...], "youtube": [...], ...}.
@@ -351,7 +449,7 @@ def select_top_trends(scores, per_group=3, recency_hours=RECENCY_WINDOW_HOURS):
     answer (no API key configured, live source unavailable) and should
     be surfaced as such, not hidden.
     """
-    selection = {"all": _rank_with_recency(scores, per_group, recency_hours)}
+    selection = {"all": _diverse_top(scores, per_group, recency_hours)}
 
     for group, source_names in SOURCE_GROUPS.items():
         items = [s for s in scores if s.get("source") in source_names]
@@ -360,7 +458,7 @@ def select_top_trends(scores, per_group=3, recency_hours=RECENCY_WINDOW_HOURS):
     return selection
 
 
-def filter_brand_unsafe(results):
+def filter_brand_unsafe(results, region=None):
     """Drop trends that are real but not campaign material.
 
     Returns (kept, dropped). See brand_safety.py for the rationale --
@@ -369,11 +467,12 @@ def filter_brand_unsafe(results):
     """
     kept, dropped = [], []
     for r in results:
-        if is_brand_safe(r.get("entity_name", ""), r.get("context", "")):
+        if is_brand_safe(r.get("entity_name", ""), r.get("context", ""),
+                         region=region):
             kept.append(r)
         else:
             r["_filtered_on"] = first_match(
-                r.get("entity_name", ""), r.get("context", ""))
+                r.get("entity_name", ""), r.get("context", ""), region=region)
             dropped.append(r)
     return kept, dropped
 
@@ -395,6 +494,10 @@ def main():
                              "disaster, which are filtered out by default "
                              "since they are not campaign material "
                              "(see brand_safety.py)")
+    parser.add_argument("--geo", default="",
+                        help="Country code the fetch was for; adds that "
+                             "market's own brand-safety filters (e.g. pork "
+                             "and alcohol for PK and AE)")
     args = parser.parse_args()
 
     base_dir = Path(__file__).parent.resolve()
@@ -411,7 +514,9 @@ def main():
     print(f"  Snapshots  : {snapshot_dirs}")
 
     snapshots = load_all_snapshots(snapshot_dirs, root_dir)
-    print(f"  Loaded     : {len(snapshots)} snapshot files\n")
+    n_current = sum(1 for s in snapshots if s["is_current"])
+    print(f"  Loaded     : {len(snapshots)} snapshot files "
+          f"({n_current} current, {len(snapshots) - n_current} history)\n")
 
     if not snapshots:
         print("  WARNING: No snapshot files found. Nothing to score.")
@@ -426,7 +531,7 @@ def main():
 
     dropped = []
     if not args.include_unsafe:
-        results, dropped = filter_brand_unsafe(results)
+        results, dropped = filter_brand_unsafe(results, region=args.geo)
 
     # Output
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -452,7 +557,7 @@ def main():
               f"entities (live source unavailable)")
     if dropped:
         print(f"  Filtered   : {len(dropped)} not campaign-safe "
-              f"(death/violence/crime/disaster)")
+              f"(death/violence/crime/disaster/adult)")
     print(f"  Output     : {out_path.name}\n")
 
     # Print top results

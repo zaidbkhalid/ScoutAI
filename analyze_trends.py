@@ -39,6 +39,15 @@ def find_latest(pattern):
     return files[0] if files else None
 
 
+# Sources whose entities are each a self-contained headline/post/page,
+# summarized the same way: top items per category with their context.
+GENERIC_SOURCES = {
+    "google_news": "Google News",
+    "reddit": "Reddit",
+    "wikipedia": "Wikipedia most viewed",
+}
+
+
 def load_trends_from_snapshots(snapshot_paths):
     """Load all snapshot files and build a unified trend list.
 
@@ -171,6 +180,26 @@ def load_trends_from_snapshots(snapshot_paths):
                     "hashtags": hashtags[:15],
                 })
 
+        elif source in GENERIC_SOURCES:
+            by_cat = {}
+            for item in entities:
+                by_cat.setdefault(item.get("category", "General"), []).append(item)
+            for cat, items in by_cat.items():
+                top_items = sorted(items,
+                                   key=lambda x: x.get("primary_value", 0),
+                                   reverse=True)[:10]
+                trends.append({
+                    "trend": f"{GENERIC_SOURCES[source]}: {cat}",
+                    "source": source,
+                    "items": [
+                        {
+                            "title": i.get("raw", {}).get("title", i["entity_name"]),
+                            "context": i.get("raw", {}).get("context", ""),
+                        }
+                        for i in top_items
+                    ],
+                })
+
     return trends
 
 
@@ -194,7 +223,8 @@ This is called TREND HIJACKING -- legitimate, creative, and extremely effective 
 small businesses with fast production cycles.
 
 FRESHNESS DATA: Each trend may include computed freshness metrics (not guesses):
-- freshness_score: higher = more actively accelerating right now (range roughly -1 to +1)
+- freshness_score: 0 to 1, higher = fresher and more actively rising right now
+  (first-seen trends top out at 0.5; above that means measured growth)
 - velocity: rate of change in search interest (positive = growing, negative = declining)
 - age_hours: how long since this trend was first detected
 - is_new: true if this is the first time we've seen it (insufficient history for velocity)

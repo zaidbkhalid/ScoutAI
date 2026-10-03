@@ -11,13 +11,8 @@ pytrends>=4.9           # google_trends.py only (standalone keyword tool);
                         # google_trending_now.py reads the public trends RSS
                         # feed directly and no longer needs this
 
-# -- Optional: TikTok Creative Center scraping --
-# playwright is used by tiktok_creative_center.py for headless
-# browser scraping. If not installed, the TikTok fetcher falls
-# back to clearly-labeled mock data automatically.
-#
-# Install + setup:
-#   pip install playwright
-#   playwright install chromium
-#
-# playwright>=1.40
+# Every trend source (Google Trends RSS, Google News, RSS feeds, Reddit,
+# Wikipedia) uses requests + feedparser above. YouTube additionally
+# needs a free YOUTUBE_API_KEY in .env. Playwright is no longer needed:
+# it was only for tiktok_creative_center.py, which is not in the
+# pipeline (see that file's docstring).

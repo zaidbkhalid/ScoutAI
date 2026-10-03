@@ -10,12 +10,12 @@ to know which platform the data came from.
 Snapshot file format (snapshot_<timestamp>.json):
 {
     "schema_version": "1.0",
-    "source": "google_trends" | "google_trending_now" | ...
+    "source": "google_trending_now" | "google_news" | "reddit" | ...
     "source_meta": { ... fetcher-specific metadata ... },
     "entities": [
         {
             "source": "...",
-            "entity_type": "keyword" | "video" | "article_topic" | "hashtag" | "trending_topic",
+            "entity_type": "keyword" | "video" | "article_topic" | "hashtag" | "trending_topic" | "post" | "page",
             "entity_id": "...",
             "entity_name": "...",
             "category": "...",
@@ -34,8 +34,11 @@ primary_value is the single numeric signal used for velocity scoring:
   - related_query:  query value (Breakout mapped to 5000)
   - trending_topic: 1.0  (presence indicator)
   - video:          view_count
-  - article_topic:  1.0  (presence indicator)
+  - article_topic:  1.0  (presence indicator); google_news uses the
+                    number of outlets covering the story
   - hashtag:        post_count or 1.0
+  - post:           Reddit listing position strength (LIMIT + 1 - rank)
+  - page:           Wikipedia page views for the day
 """
 
 from datetime import datetime, timezone
@@ -49,6 +52,9 @@ VALID_SOURCES = (
     "youtube_trending",
     "rss",
     "tiktok_creative_center",
+    "google_news",
+    "reddit",
+    "wikipedia",
 )
 
 VALID_ENTITY_TYPES = (
@@ -58,6 +64,8 @@ VALID_ENTITY_TYPES = (
     "video",
     "article_topic",
     "hashtag",
+    "post",
+    "page",
 )
 
 # Category vocabulary reused across all sources.
