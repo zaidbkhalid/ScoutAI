@@ -16,7 +16,7 @@ AI-powered marketing intelligence for small businesses. Scans what's genuinely t
   TikTok is not fetched -- see the note at the bottom. Every source normalizes to one shared schema (`snapshot_schema.py`) and gets scored for real freshness/velocity (`trend_scoring.py`), filtered for brand safety and synthetic placeholders. You get the top 5 trends, filterable by source (All / Google / YouTube / News / Reddit / Wikipedia), preferring anything from the last 24 hours.
 - **Match to your business — optional, second.** Enter your business details and GPT-4o judges which of the *already-fetched* trends have a genuine connection to you and why (`trend_analyzer.py`). Nothing is re-fetched; this is purely the cross-reference step.
 - **Campaign ideas** — pick the trends worth acting on, and GPT-4o turns each into a campaign concept: core idea, audience angle, timing, and concrete execution directions (`campaign_ideas.py`).
-- **Ad copy** — pick a campaign and the formats you want, and GPT-4o writes publishable copy for each (`ad_copy.py`). 20 formats across social posts, short-video scripts, email/WhatsApp/SMS, paid ads, and longer form — see `ad_formats.py`, which is the single source of truth for the catalogue and carries each platform's real constraints (Google's 30-character headline cap, the shape of a TikTok script, where an email subject line goes). One model call covers every requested format so they stay consistent with each other.
+- **Ad copy** — pick a campaign and the formats you want, and the model writes publishable copy for each (`ad_copy.py`): it drafts several hooks per format, then an editor pass rewrites generic lines, enforces platform limits in code, and replaces any offer the business didn't confirm with an `[OFFER]` placeholder (`copy_playbook.py` defines the standard). 20 formats across social posts, short-video scripts, email/WhatsApp/SMS, paid ads, and longer form — see `ad_formats.py`, which is the single source of truth for the catalogue and carries each platform's real constraints (Google's 30-character headline cap, the shape of a TikTok script, where an email subject line goes). One model call covers every requested format so they stay consistent with each other.
 
 **2. Competitor Check** (separate tab, doesn't require a trend analysis first)
 - **Check competitors** — give it a couple of competitor names + URLs and it reads their own homepages for positioning, patterns across them, and where you could differentiate (`competitor_research.py` → `competitor_synthesis.py`).
@@ -186,6 +186,14 @@ Run the tests (no API key or network needed):
 ```bash
 python test_trend_scoring.py   # freshness/velocity scoring
 python test_fetchers.py        # fetcher parsing + brand-safety filter
+python test_matching.py        # matching guard rails + ad-copy checks
+```
+
+To measure whether a prompt or model change makes the output better (needs API credit), see [`evals/README.md`](evals/README.md):
+
+```bash
+python evals/copy_eval.py --save my-change --compare baseline-v1-gpt4o
+python evals/match_eval.py --save my-change --judge
 ```
 
 ## Project Structure
@@ -227,6 +235,9 @@ python test_fetchers.py        # fetcher parsing + brand-safety filter
 │
 ├── test_trend_scoring.py          # Scoring module tests
 ├── test_fetchers.py               # Fetcher parsing + brand-safety tests (offline)
+├── test_matching.py               # Matching guard rails + ad-copy check tests (offline)
+├── copy_playbook.py               # What good advertising means here: principles, examples, checklist
+├── evals/                         # Before/after quality evaluation for copy and matching
 ├── requirements.txt                # Python dependencies
 ├── .env                            # API keys (you create this, never committed)
 │
@@ -246,6 +257,9 @@ python test_fetchers.py        # fetcher parsing + brand-safety filter
 | `YOUTUBE_API_KEY` | No | — | Free key from Google Cloud Console (YouTube Data API v3). If unset, that step logs an error and is skipped — the rest of the pipeline still runs. |
 | `DEMO_MODE` | No | `0` | See "Demo mode" above. Requires restarting the server after changing it. |
 | `FLASK_DEBUG` | No | `0` | Set to `1` to enable Flask debug mode |
+| `SCOUTAI_COPY_MODEL` | No | `gpt-4o` | Model for ad copy. `gpt-5.5` scored far higher in evals (~8.5–9 vs ~6.5 / 10) but takes ~1 minute for 4 formats and costs more. |
+| `SCOUTAI_CAMPAIGN_MODEL` | No | `gpt-4o` | Model for campaign ideas. |
+| `SCOUTAI_MATCH_MODEL` | No | `gpt-4o` | Model for matching trends to the business. |
 
 ## Notes
 

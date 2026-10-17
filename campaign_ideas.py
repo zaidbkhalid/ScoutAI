@@ -34,11 +34,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from demo_mode import is_demo_mode, resolve_preset_key, load_mock
+from copy_playbook import CAMPAIGN_PRINCIPLES
 
 load_dotenv()
 
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
-MODEL      = "gpt-4o"
+# Override with SCOUTAI_CAMPAIGN_MODEL in .env to try another model.
+MODEL      = os.environ.get("SCOUTAI_CAMPAIGN_MODEL", "gpt-4o")
 
 BUSINESS_PROFILE_PATH = "business_profile.json"
 SELECTED_TRENDS_PATH = "selected_trends.json"
@@ -56,6 +58,9 @@ def normalize_trend(t):
     return {
         "trend": name,
         "source": t.get("source", ""),
+        # Why it's trending (headline / post text). Without it a bare term
+        # like "ind vs wi" leaves the model guessing what the moment is.
+        "context": t.get("context", ""),
         "why_people_care": t.get("why_people_care"),
         "bridge_to_business": t.get("bridge_to_business"),
         "relevance_score": t.get("relevance_score"),
@@ -83,7 +88,9 @@ executed in (short directions, not full copy -- that comes later).
 Be specific to this business -- its tone, audience, products, and location. Never say
 "consider running a campaign around X." Say what the campaign actually is.
 
-Return ONLY valid JSON. No markdown fences."""
+Return ONLY valid JSON. No markdown fences.
+
+""" + CAMPAIGN_PRINCIPLES
 
 
 def build_user_prompt(business, trends):
@@ -142,7 +149,8 @@ def generate(business, trends):
         },
         json={
             "model"      : MODEL,
-            "temperature": 0.5,
+            **({"temperature": 0.5} if not MODEL.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")) else {}),
+            "response_format": {"type": "json_object"},
             "messages"   : [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user",   "content": build_user_prompt(business, trends)}

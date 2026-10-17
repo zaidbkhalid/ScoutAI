@@ -1,0 +1,49 @@
+{
+  "_note": "Fixed test cases for evals. Three deliberately different businesses, markets and trends. Profiles either point at mock_data/<preset>/business_profile.json or are given inline.",
+  "copy_formats": ["instagram_post", "whatsapp_broadcast", "google_search_ad", "tiktok_script"],
+  "cases": [
+    {
+      "name": "Velvet Crumbs x cricket",
+      "profile_preset": "velvet",
+      "trend": {
+        "trend": "ind vs wi", "source": "google_trending_now",
+        "context": "India vs West Indies cricket match; one of the top searches in Pakistan today (Google, 20,000+ searches)",
+        "why_people_care": "Cricket is a national passion; match nights are social events with friends and family.",
+        "bridge_to_business": "Match-night dessert boxes and cricket-themed cakes for watch parties.",
+        "timing": "act now"
+      }
+    },
+    {
+      "name": "Glowly x heatwave",
+      "profile_preset": "glowly",
+      "trend": {
+        "trend": "dubai heatwave october", "source": "google_news",
+        "context": "Temperatures in Dubai stay above 40C with high humidity well into October, covered by 5 outlets",
+        "why_people_care": "People are frustrated the summer won't end; skin feels oily, dehydrated and irritated.",
+        "bridge_to_business": "Glowly's gel cleanser, barrier moisturizer and SPF 50 are formulated for heat and humidity.",
+        "timing": "this week"
+      }
+    },
+    {
+      "name": "Khaata x petrol price",
+      "profile": {
+        "business_name": "Khaata", "industry": "Software", "sub_industry": "Bookkeeping app for small shops",
+        "products_or_services": ["Udhaar (customer credit) ledger", "WhatsApp payment reminders", "Daily sales and expense recording", "Inventory alerts", "Free tier plus PKR 1,500/month plan"],
+        "target_audience": {"demographics": "Small retail and wholesale shop owners across Pakistan, 25-50, run the business from a phone",
+                            "psychographics": "Practical, busy, distrust complicated software",
+                            "pain_points": ["chasing customers for udhaar", "paper ledgers get lost"]},
+        "brand_tone": ["professional", "warm", "casual"], "location": "Lahore, Pakistan",
+        "marketing_channels": ["Facebook", "WhatsApp", "Word of mouth"],
+        "unique_value_proposition": "Built around udhaar, in Urdu, on a phone"
+      },
+      "trend": {
+        "trend": "petrol price in pakistan", "source": "google_trending_now",
+        "context": "Government announces a petrol price increase from tomorrow; top search in Pakistan (50,000+ searches)",
+        "why_people_care": "Every price rise squeezes small shops; customers ask for more credit and pay later.",
+        "bridge_to_business": "When money is tight, udhaar grows -- Khaata keeps track and sends reminders automatically.",
+        "timing": "act now"
+      }
+    }
+  ],
+  "match_businesses": ["velvet", "firepit", "glowly"]
+}

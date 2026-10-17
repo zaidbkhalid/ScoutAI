@@ -21,7 +21,8 @@ from datetime import datetime, timedelta, timezone
 from flask import Flask, request, jsonify, send_from_directory
 
 from demo_mode import is_demo_mode, resolve_preset_key
-from trend_scoring import select_top_trends, parse_timestamp_from_filename
+from trend_scoring import (select_top_trends, source_group,
+                           parse_timestamp_from_filename)
 from ad_formats import FORMATS_BY_KEY, grouped as grouped_formats
 
 # Always resolve paths relative to this file's location
@@ -100,6 +101,25 @@ def compute_trend_selection(job_dir):
     if not scores:
         return None
     return select_top_trends(scores)
+
+
+def compute_trend_stats(job_dir, geo):
+    """What the UI says about a fetch: how many trends, from where, when."""
+    scores_json = find_latest("trend_scores_*.json", job_dir)
+    data = (load_json_safe(scores_json) if scores_json else None) or {}
+    scores = data.get("scores", [])
+    by_group = {}
+    for s in scores:
+        g = source_group(s.get("source"))
+        by_group[g] = by_group.get(g, 0) + 1
+    meta = data.get("_meta", {})
+    return {
+        "geo": geo,
+        "total": len(scores),
+        "by_group": by_group,
+        "filtered_unsafe": meta.get("brand_safety_filtered", 0),
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def archive_snapshots(job_dir):
@@ -349,6 +369,7 @@ def run_trend_fetch(job_id, job_dir, geo):
         return
 
     jobs[job_id]["trends_by_source"] = selection
+    jobs[job_id]["trend_stats"] = compute_trend_stats(job_dir, geo)
     jobs[job_id]["status"] = "done"
     log_step("\n✅ Trends ready.")
 
@@ -483,7 +504,7 @@ def fetch_trends():
 
     jobs[job_id] = {
         "status": "queued", "log": "Fetching trends...\n",
-        "trends_by_source": None,
+        "trends_by_source": None, "trend_stats": None,
         "result_json": None, "business_snapshot": "",
         "top_trends": [], "top_for_your_business": [],
         "legibility_report": None,

@@ -43,7 +43,8 @@ from demo_mode import is_demo_mode, resolve_preset_key, load_mock
 load_dotenv()
 
 OPENAI_API = "https://api.openai.com/v1/chat/completions"
-MODEL      = "gpt-4o"
+# Override with SCOUTAI_MATCH_MODEL in .env to try another model.
+MODEL      = os.environ.get("SCOUTAI_MATCH_MODEL", "gpt-4o")
 
 TOP_TRENDS_COUNT = 15   # shown as-is, no interpretation
 # How many top-scored entities GPT considers for relevance.
@@ -53,6 +54,15 @@ TOP_TRENDS_COUNT = 15   # shown as-is, no interpretation
 # or fashion item reaches it -- which is exactly the material most small
 # businesses match against. A wider pool costs a fraction of a cent.
 RELEVANCE_POOL_SIZE = 45
+
+# Reddit items are single posts by single people. They're useful when they
+# reveal a local conversation, but left unchecked the matcher latches onto
+# literal matches ("I baked a cake!" for a bakery) that have no reach.
+# Posts from global topical subreddits (r/Baking, r/food) never enter the
+# pool -- they're shown in the Reddit tab, not matched -- and local posts
+# are capped in the pool and in the final matches.
+MAX_REDDIT_IN_POOL = 5
+MAX_REDDIT_MATCHES = 1
 
 
 def load_json(path):
@@ -81,7 +91,12 @@ def build_relevance_pool(all_scores, pool_size):
     strongest entities within each category first.
     """
     by_category = {}
+    reddit_kept = 0
     for s in all_scores:  # already sorted by score, descending
+        if s.get("source") == "reddit":
+            if s.get("region") == "global" or reddit_kept >= MAX_REDDIT_IN_POOL:
+                continue
+            reddit_kept += 1
         by_category.setdefault(s.get("category") or "General", []).append(s)
 
     pool = []
@@ -175,6 +190,28 @@ Judge relevance only -- see system instructions. Return this exact JSON structur
 }}"""
 
 
+def enforce_match_rules(matches, pool):
+    """Deterministic guard rails on the model's matches.
+
+    - Drop any match whose trend isn't in the pool it was given (the model
+      must not invent trends).
+    - Keep at most MAX_REDDIT_MATCHES Reddit posts, the highest scored.
+    """
+    in_pool = {str(p.get("entity_name", "")).lower().strip(): p for p in pool}
+    kept, reddit = [], 0
+    for m in sorted(matches, key=lambda m: -(m.get("relevance_score") or 0)):
+        name = str(m.get("trend", "")).lower().strip()
+        src = in_pool.get(name)
+        if not src:
+            continue
+        if src.get("source") == "reddit":
+            if reddit >= MAX_REDDIT_MATCHES:
+                continue
+            reddit += 1
+        kept.append(m)
+    return kept
+
+
 def analyze(business, pool):
     # -- DEMO_MODE: skip the real API call for the 3 built-in synthetic
     # businesses, using a hand-written canned relevance pass instead. See
@@ -200,13 +237,14 @@ def analyze(business, pool):
         },
         json={
             "model"      : MODEL,
-            "temperature": 0.3,
+            **({"temperature": 0.3} if not MODEL.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")) else {}),
+            "response_format": {"type": "json_object"},
             "messages"   : [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user",   "content": build_user_prompt(business, pool)}
             ]
         },
-        timeout=60
+        timeout=180
     )
     resp.raise_for_status()
     raw = resp.json()["choices"][0]["message"]["content"].strip()
@@ -309,6 +347,27 @@ def main():
     except (requests.exceptions.RequestException, ValueError) as e:
         print(f"  ERROR: {e}")
         sys.exit(1)
+
+    # Attach what the model doesn't return but the UI needs to show a
+    # match as a real, traceable trend: original title, source link, age.
+    by_name = {s["entity_name"]: s for s in all_scores}
+    for m in result.get("top_for_your_business", []):
+        s = by_name.get(str(m.get("trend", "")).lower().strip())
+        if s:
+            m.setdefault("source", s.get("source"))
+            m["display_title"] = s.get("title") or s["entity_name"]
+            m["url"] = s.get("url", "")
+            m["thumbnail"] = s.get("thumbnail", "")
+            m["age_hours"] = s.get("age_hours")
+            m["context"] = s.get("context", "")
+
+    before = len(result.get("top_for_your_business", []))
+    result["top_for_your_business"] = enforce_match_rules(
+        result.get("top_for_your_business", []), pool)
+    dropped = before - len(result["top_for_your_business"])
+    if dropped:
+        print(f"  Guard rails removed {dropped} match(es) "
+              f"(extra Reddit posts, or trends not in the pool)")
 
     result["top_trends"] = top_trends
     result["_meta"] = {

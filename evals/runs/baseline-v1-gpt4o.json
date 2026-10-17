@@ -1,0 +1,276 @@
+{
+  "name": "baseline-v1-gpt4o",
+  "created": "2026-10-17",
+  "model": "gpt-4o",
+  "note": "Original prompts before the copy playbook and editor pass.",
+  "cases": [
+    {
+      "case": "Velvet Crumbs x cricket",
+      "campaign": {
+        "trend": "ind vs wi",
+        "campaign_name": "Cricket Cravings",
+        "core_idea": "Celebrate the cricket season with themed dessert boxes and custom cakes that bring the excitement of the match to your living room.",
+        "target_audience_angle": "Cricket fans and social butterflies in Karachi who are hosting or attending match-night gatherings and want to enhance the experience with themed treats.",
+        "timing": "act now",
+        "execution_directions": [
+          {
+            "direction": "Create special cricket-themed dessert boxes, including mini cupcakes and bento cakes decorated with team colors and cricket motifs.",
+            "why_it_works": "This taps into the excitement of cricket season and offers a unique, Instagrammable product that aligns with Velvet Crumbs' aesthetic and custom design strengths."
+          },
+          {
+            "direction": "Partner with local sports bars or cafes hosting match screenings to offer exclusive Velvet Crumbs dessert packages for attendees.",
+            "why_it_works": "This expands reach to a wider audience and positions Velvet Crumbs as the go-to bakery for cricket celebrations, leveraging the social aspect of match nights."
+          },
+          {
+            "direction": "Run an Instagram contest where customers share photos of their cricket-themed desserts during match nights for a chance to win a custom cake.",
+            "why_it_works": "Encourages user-generated content and increases social media engagement, while showcasing the brand's creativity and quality."
+          }
+        ]
+      },
+      "copy": {
+        "campaign_name": "Cricket Cravings",
+        "formats": [
+          {
+            "format": "instagram_post",
+            "primary_text": "🏏 Ready for some cricket magic? 🎂 Our Cricket Cravings dessert boxes are here to make your match nights extra special! Dive into mini cupcakes and bento cakes decorated in your team's colors. Perfect for hosting or attending match gatherings. Place your order now and be the star of the night! 📞 #CricketCravingsVibes",
+            "hashtags": [
+              "#CricketCravings",
+              "#KarachiEats",
+              "#VelvetCrumbs",
+              "#MatchNightTreats",
+              "#CricketSeason",
+              "#CustomCakes",
+              "#CricketLovers",
+              "#BentoCakes",
+              "#CelebrateWithStyle"
+            ],
+            "call_to_action": "Order your cricket-themed dessert box today!",
+            "notes": "Post with eye-catching photos of the cricket-themed desserts for best engagement."
+          },
+          {
+            "format": "tiktok_script",
+            "script_beats": [
+              {
+                "beat": "Hook (0-2s)",
+                "content": "Close-up of a cricket-themed bento cake with team colors. On-screen text: 'Cricket Cravings Alert! 🏏🎂'"
+              },
+              {
+                "beat": "Main content (3-35s)",
+                "content": "Show time-lapse of decorating mini cupcakes with cricket motifs. Narration: 'Bring the excitement of the match to your living room with Velvet Crumbs!'"
+              },
+              {
+                "beat": "Call to Action (36-45s)",
+                "content": "Show a table set for a match night with desserts. On-screen text: 'Order now and be the match night hero! Visit velvetcrumbs.pk'"
+              }
+            ],
+            "notes": "Use a trending cricket chant sound to boost engagement."
+          },
+          {
+            "format": "whatsapp_broadcast",
+            "primary_text": "Hi cricket fan! 🏏 Our special Cricket Cravings dessert boxes are ready to sweeten your match nights. Order now and make your gatherings unforgettable! 🎂📞",
+            "call_to_action": "Reply to order your box today!",
+            "notes": "This should only be sent to customers who have opted in to receive messages."
+          },
+          {
+            "format": "google_search_ad",
+            "variants": [
+              "Cricket-Themed Desserts",
+              "Match Night Treats",
+              "Order Cricket Cake Now",
+              "Karachi Cricket Cakes",
+              "Celebrate with Velvet Crumbs"
+            ],
+            "primary_text": "Cricket Cravings: Themed dessert boxes for your match night. Order from Velvet Crumbs now!",
+            "description": [
+              "Score big with cricket-themed cakes. Perfect for match gatherings!",
+              "Order cricket dessert boxes. Make your match night memorable!"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "Glowly x heatwave",
+      "campaign": {
+        "trend": "dubai heatwave october",
+        "campaign_name": "Heatwave Skincare Survival",
+        "core_idea": "Leverage the ongoing heatwave to position Glowly's climate-specific skincare products as essential for maintaining healthy, hydrated skin in extreme conditions.",
+        "target_audience_angle": "Women aged 20-35 in the UAE who are struggling with skincare issues due to the prolonged heatwave, looking for effective solutions tailored to their climate.",
+        "timing": "this week",
+        "execution_directions": [
+          {
+            "direction": "Create an Instagram and TikTok series showing a day-in-the-life of someone using Glowly products to combat the heatwave.",
+            "why_it_works": "Visual content showcasing real-life applications will resonate with the audience's current struggles and highlight product effectiveness."
+          },
+          {
+            "direction": "Offer a limited-time 'Heatwave Essentials Kit' bundle featuring the gel cleanser, barrier moisturizer, and SPF 50 at a special price.",
+            "why_it_works": "A curated kit directly addresses the immediate needs of the audience, providing a convenient solution during the heatwave."
+          },
+          {
+            "direction": "Host a live Q&A session on Instagram with a dermatologist discussing skincare tips for extreme heat and how Glowly products can help.",
+            "why_it_works": "Expert advice will build trust and educate the audience, aligning with Glowly's professional and transparent brand tone."
+          }
+        ]
+      },
+      "copy": {
+        "campaign_name": "Heatwave Skincare Survival",
+        "formats": [
+          {
+            "format": "instagram_post",
+            "primary_text": "Struggling in this Dubai heatwave? 🌞 Combat the heat with Glowly's Heatwave Essentials Kit: Hydrating Gel Cleanser, Barrier Repair Moisturizer, & SPF 50 Daily Sunscreen. Formulated for the Gulf's toughest conditions. Ready to glow? Tap to shop now!",
+            "hashtags": [
+              "#GlowlySkincare",
+              "#HeatwaveEssentials",
+              "#DubaiSummer",
+              "#SkincareRoutine",
+              "#SPFIsBae",
+              "#SkincareTips",
+              "#HydrationStation",
+              "#BeautyInTheHeat",
+              "#UAEBeauty"
+            ],
+            "call_to_action": "Tap to shop now!",
+            "notes": "Post this during peak engagement times for maximum visibility."
+          },
+          {
+            "format": "tiktok_script",
+            "script_beats": [
+              {
+                "beat": "Hook (0-2s)",
+                "content": "On-screen: 'Surviving the Dubai heatwave? Here's how!' [Shot of bright sun over Dubai skyline]"
+              },
+              {
+                "beat": "Middle (3-10s)",
+                "content": "On-screen: 'Step 1: Cleanse away the day's heat.' [User washing face with Hydrating Gel Cleanser, smiling]"
+              },
+              {
+                "beat": "Middle (11-20s)",
+                "content": "On-screen: 'Step 2: Lock in moisture.' [User applying Barrier Repair Moisturizer, relaxed expression]"
+              },
+              {
+                "beat": "Middle (21-30s)",
+                "content": "On-screen: 'Step 3: Don't forget SPF!' [User applying SPF 50 Daily Sunscreen, shielding eyes with hand]"
+              },
+              {
+                "beat": "Close (31-45s)",
+                "content": "On-screen: 'Stay glowing through the heat!' [Product lineup shot] 'Get your Heatwave Essentials Kit now!'"
+              }
+            ],
+            "call_to_action": "Order your kit today!",
+            "notes": "Use a popular summer song to keep it lively and engaging."
+          },
+          {
+            "format": "whatsapp_broadcast",
+            "primary_text": "Hey there! 🌞 Feeling the heat? Try our Heatwave Essentials Kit! It's perfect for this weather. Ready to glow? Tap here: [LINK]",
+            "notes": "This should only go to people who opted in."
+          },
+          {
+            "format": "google_search_ad",
+            "variants": [
+              "Beat the Heatwave",
+              "Heatwave Skincare Kit",
+              "Stay Glowing in Heat",
+              "Skincare for Dubai Heat",
+              "Glowly Essentials Kit"
+            ],
+            "description": [
+              "Combat the heat with Glowly's Essentials Kit. Shop now!",
+              "Stay hydrated & protected. Get your Heatwave Kit today!"
+            ],
+            "call_to_action": "Shop now for fast shipping!",
+            "notes": "Target searches related to skincare for hot climates."
+          }
+        ]
+      }
+    },
+    {
+      "case": "Khaata x petrol price",
+      "campaign": {
+        "trend": "petrol price in pakistan",
+        "campaign_name": "Fuel Your Business with Khaata",
+        "core_idea": "As petrol prices rise, cash flow tightens. Khaata helps small shop owners manage udhaar seamlessly, ensuring they stay afloat during tough times.",
+        "target_audience_angle": "Small retail and wholesale shop owners who are feeling the pinch of rising petrol prices and need efficient credit management solutions.",
+        "timing": "act now",
+        "execution_directions": [
+          {
+            "direction": "Launch a Facebook campaign featuring testimonials from shop owners who successfully manage udhaar with Khaata, even during price hikes.",
+            "why_it_works": "Testimonials build trust and show real-world success, resonating with shop owners facing similar challenges."
+          },
+          {
+            "direction": "Create a WhatsApp broadcast message offering a free month trial of the PKR 1,500/month plan to help shop owners manage their finances more effectively.",
+            "why_it_works": "A free trial lowers the barrier to entry and encourages shop owners to try Khaata without financial risk."
+          },
+          {
+            "direction": "Host a live Q&A session on Facebook about managing business finances during economic challenges, featuring local experts.",
+            "why_it_works": "Engaging directly with the audience provides value and positions Khaata as a supportive partner in tough times."
+          }
+        ]
+      },
+      "copy": {
+        "campaign_name": "Fuel Your Business with Khaata",
+        "formats": [
+          {
+            "format": "instagram_post",
+            "primary_text": "Petrol prices got you down? 🛢️ Keep your business running with Khaata. Seamless udhaar management—no more paper hassles!\n\nTry our free trial and experience the ease. 📲\n\nAct now and stay ahead! 💪",
+            "hashtags": [
+              "#KhaataApp",
+              "#UdhaarManagement",
+              "#SmallBusinessPK",
+              "#PetrolPrice",
+              "#BusinessSolutions",
+              "#LahoreBusiness",
+              "#ShopOwnerTips",
+              "#Bookkeeping",
+              "#FinancialFreedom",
+              "#PakistanEconomy"
+            ],
+            "call_to_action": "Try our free trial now!",
+            "notes": "Schedule this post during peak social media hours for maximum engagement."
+          },
+          {
+            "format": "tiktok_script",
+            "script_beats": [
+              {
+                "beat": "Hook (0-2s)",
+                "content": "On-screen text: 'Petrol prices up? 😱' - Camera: Close-up on worried shop owner at gas station."
+              },
+              {
+                "beat": "Main (3-10s)",
+                "content": "On-screen text: 'Keep your business fueled with Khaata!' - Camera: Shop owner happily using Khaata app on phone."
+              },
+              {
+                "beat": "Solution (11-30s)",
+                "content": "On-screen text: 'Manage udhaar easily!' - Camera: Screenshots of app features like payment reminders."
+              },
+              {
+                "beat": "Call to Action (31-45s)",
+                "content": "On-screen text: 'Try Khaata free for a month! 🚀' - Camera: Shop owner smiling, holding phone with Khaata app."
+              }
+            ],
+            "notes": "Use an upbeat, trending sound to catch attention. Pair with relatable visuals of shop life."
+          },
+          {
+            "format": "whatsapp_broadcast",
+            "primary_text": "Hey [First Name], feeling the petrol price pinch? Try Khaata free for a month! Let’s manage udhaar together 🚀",
+            "call_to_action": "Try Khaata free for a month!",
+            "notes": "This message should only be sent to users who have opted in for updates."
+          },
+          {
+            "format": "google_search_ad",
+            "variants": [
+              "Struggling with Udhaar?",
+              "Manage Udhaar Easily!",
+              "Khaata: Free Month Offer",
+              "Fuel Your Business Now!",
+              "Small Shop Solution"
+            ],
+            "description": [
+              "Rising petrol costs? Manage your udhaar with Khaata. Start free today!",
+              "Try Khaata free for a month. Simplify udhaar and keep your business running!"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

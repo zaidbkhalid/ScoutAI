@@ -151,6 +151,7 @@ def group_observations(snapshots):
                     "category": ent.get("category", ""),
                     "region": ent.get("region", ""),
                     "context": "",
+                    "title": "",
                     "url": "",
                     "thumbnail": "",
                     "is_mock": False,
@@ -181,6 +182,10 @@ def group_observations(snapshots):
                 groups[key]["url"] = str(link)
             if raw.get("thumbnail") and not groups[key]["thumbnail"]:
                 groups[key]["thumbnail"] = str(raw["thumbnail"])
+            # Original casing for display; entity_name is lowercased for
+            # matching and would otherwise read "india vs pakistan".
+            if raw.get("title") and not groups[key]["title"]:
+                groups[key]["title"] = str(raw["title"])
             groups[key]["observations"].append({
                 "timestamp": ts,
                 # When the content itself was published/spiked, which can
@@ -342,6 +347,7 @@ def score_all_trends(snapshots):
             "category": group["category"],
             "region": group["region"],
             "context": group.get("context", ""),
+            "title": group.get("title") or group["entity_name"],
             "url": group.get("url", ""),
             "thumbnail": group.get("thumbnail", ""),
             "is_mock": group.get("is_mock", False),
